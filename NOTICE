@@ -1,0 +1,9 @@
+AMO
+Copyright 2026 AMO contributors
+
+This product includes software adapted from CORL
+(https://github.com/tinkoff-ai/CORL), licensed under Apache License 2.0.
+
+The offline actor-critic implementation also incorporates ideas and adapted
+code from TD3+BC (https://github.com/sfujim/TD3_BC), licensed under the MIT
+License. See THIRD_PARTY_LICENSES.
