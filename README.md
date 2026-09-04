@@ -7,8 +7,9 @@ mode with separate execution and bootstrap actors.
 
 ## Adaptive Multiscale AMO
 
-Enable the method with `--adaptive_multiscale=True`. The two positive scales
-start from the same configured value and are optimized independently:
+Enable the method with `--adaptive_multiscale=True`. By default both scales
+start from `--T_E`. Pass `--T_B` to initialize the bootstrap scale
+independently. The two scales are then optimized independently:
 
 - `T_E` controls the execution actor and minimizes `L_T_E = -B_PI_E`.
 - `T_B` controls the bootstrap actor and minimizes `L_T_B = L1_B + L2_RMS_B`.
@@ -86,7 +87,7 @@ of adaptive multiscale mode, and the two modes cannot be enabled together.
 ```bash
 python -m amo \
   --env=hopper-medium-v2 \
-  --T=1.2 \
+  --T_E=1.2 \
   --proximal_n_steps=4
 ```
 

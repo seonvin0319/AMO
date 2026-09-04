@@ -54,8 +54,10 @@ class TrainConfig:
     policy_noise: float = 0.2  # Noise added to target actor during critic update
     noise_clip: float = 0.5  # Range to clip target actor noise
     policy_freq: int = 2  # Frequency of delayed actor updates
-    # AMO proximal horizon. The trainable quantity is T directly.
-    T: float = 1.25
+    # Execution scale init (T_E). Also the single-scale T when adaptive is off.
+    T_E: float = 1.25
+    # Bootstrap scale init. None copies T_E. Used only with adaptive_multiscale.
+    T_B: Optional[float] = None
     normalize: bool = True  # Normalize states
     normalize_reward: bool = False  # Normalize reward
     T_freq: int = 10  # Frequency of outer T updates
@@ -80,8 +82,12 @@ class TrainConfig:
     def __post_init__(self):
         if self.proximal_n_steps < 1:
             raise ValueError("proximal_n_steps must be >= 1")
-        if self.T <= 0:
-            raise ValueError("T must be > 0")
+        if self.T_E <= 0:
+            raise ValueError("T_E must be > 0")
+        if self.T_B is not None and self.T_B <= 0:
+            raise ValueError("T_B must be > 0")
+        if self.T_B is not None and not self.adaptive_multiscale:
+            raise ValueError("T_B is only used with adaptive_multiscale")
         if self.T_lr <= 0:
             raise ValueError("T_lr must be > 0")
         if self.adaptive_multiscale and self.proximal_n_steps != 1:
@@ -421,6 +427,7 @@ class AMO:
         noise_clip=0.5,
         policy_freq=2,
         T=1.25,
+        T_B=None,
         T_freq=10,
         T_lr=2e-4,
         proximal_n_steps=1,
@@ -434,6 +441,10 @@ class AMO:
     ):
         if T <= 0 or proximal_n_steps < 1:
             raise ValueError("T and proximal_n_steps must be positive")
+        if T_B is not None and T_B <= 0:
+            raise ValueError("T_B must be > 0")
+        if T_B is not None and not adaptive_multiscale:
+            raise ValueError("T_B is only used with adaptive_multiscale")
         if adaptive_multiscale and proximal_n_steps != 1:
             raise ValueError(
                 "adaptive_multiscale cannot be combined with proximal_n_steps; "
@@ -482,8 +493,13 @@ class AMO:
         self._execution_last_delta_log_T = 0.0
         self._bootstrap_last = {}
         if self.adaptive_multiscale:
-            initial_T_B = initial_T
-            self.log_T_B = nn.Parameter(self.log_T.detach().clone())
+            tb = float(T if T_B is None else T_B)
+            if tb == float(T):
+                initial_T_B = initial_T
+                self.log_T_B = nn.Parameter(self.log_T.detach().clone())
+            else:
+                initial_T_B = torch.tensor(tb, device=device)
+                self.log_T_B = nn.Parameter(torch.log(torch.expm1(initial_T_B)))
             self.T_B_optimizer = torch.optim.Adam([self.log_T_B], lr=T_lr)
             self.T_B_scheduler = torch.optim.lr_scheduler.ExponentialLR(
                 self.T_B_optimizer,
@@ -1456,7 +1472,8 @@ def train(config: TrainConfig):
         "noise_clip": config.noise_clip * max_action,
         "policy_freq": config.policy_freq,
         # TD3 + BC
-        "T": config.T,
+        "T": config.T_E,
+        "T_B": config.T_B,
         "T_freq": config.T_freq,
         "smoothness_eps": config.smoothness_eps,
         "smoothness_max": config.smoothness_max,

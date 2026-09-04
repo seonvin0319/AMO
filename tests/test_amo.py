@@ -78,6 +78,8 @@ def make_adaptive_trainer(
     *,
     seed=0,
     tau=0.0,
+    T_E=1.2,
+    T_B=None,
     T_lr=2e-4,
     actor_lr=3e-4,
     bootstrap_rms_diagnostic_freq=0,
@@ -95,7 +97,8 @@ def make_adaptive_trainer(
         torch.optim.Adam(q2.parameters(), lr=3e-4),
         vnet,
         torch.optim.Adam(vnet.parameters(), lr=3e-4),
-        T=1.2,
+        T=T_E,
+        T_B=T_B,
         T_freq=1,
         T_lr=T_lr,
         policy_freq=1,
@@ -155,6 +158,9 @@ def test_fixed_chain_routing_is_unchanged():
 def test_adaptive_option_initialization_and_old_method_removed():
     fields = amo.TrainConfig.__dataclass_fields__
     assert fields["adaptive_multiscale"].default is False
+    assert fields["T_E"].default == 1.25
+    assert fields["T_B"].default is None
+    assert "T" not in fields
     assert fields["bootstrap_outer_loss_version"].init is False
     assert fields["bootstrap_outer_loss_version"].default == (
         amo.BOOTSTRAP_OUTER_LOSS_VERSION
@@ -201,6 +207,38 @@ def test_adaptive_option_initialization_and_old_method_removed():
         "bootstrap_scale_" + "factor",
     ):
         assert symbol not in source
+
+
+def test_te_tb_flags_initialize_scales_independently():
+    try:
+        amo.TrainConfig(T_B=1.0)
+    except ValueError as exc:
+        assert "adaptive_multiscale" in str(exc)
+    else:
+        raise AssertionError("T_B accepted without adaptive_multiscale")
+    try:
+        amo.TrainConfig(adaptive_multiscale=True, T_B=-1.0)
+    except ValueError as exc:
+        assert "T_B" in str(exc)
+    else:
+        raise AssertionError("negative T_B accepted")
+    try:
+        amo.TrainConfig(T_E=-1.0)
+    except ValueError as exc:
+        assert "T_E" in str(exc)
+    else:
+        raise AssertionError("negative T_E accepted")
+
+    trainer = make_adaptive_trainer(T_E=10.0, T_B=1.0)
+    t_e = torch.nn.functional.softplus(trainer.log_T).item()
+    t_b = trainer.bootstrap_scale().item()
+    assert abs(t_e - 10.0) < 1e-5
+    assert abs(t_b - 1.0) < 1e-5
+    assert not torch.equal(trainer.log_T_B, trainer.log_T)
+
+    copied = make_adaptive_trainer(T_E=5.0, T_B=5.0)
+    assert torch.equal(copied.log_T_B, copied.log_T)
+    amo.TrainConfig(adaptive_multiscale=True, T_E=10.0, T_B=1.0)
 
 
 def test_adaptive_false_trace_and_v5_checkpoint_surface_are_unchanged():
@@ -759,6 +797,7 @@ def test_amo_locomotion9_launcher_manifest_definition():
     assert config["max_timesteps"] == 1_000_000
     assert config["seed"] == 0
     assert config["initial_T_E"] == config["initial_T_B"]
+    assert config["initial_T_E"] == "TrainConfig.T_E default"
     assert config["bootstrap_outer_loss_version"] == (amo.BOOTSTRAP_OUTER_LOSS_VERSION)
     assert config["bootstrap_scale_loss"] == "L1_B+L2_RMS_B"
     assert "coefficient" not in config
@@ -767,8 +806,22 @@ def test_amo_locomotion9_launcher_manifest_definition():
     assert any("amo_adaptive_multiscale_h-m_s0" in argument for argument in command)
     assert "--project=AMO-adaptive-multiscale" in command
     assert "--group=amo-locomotion9-seed0" in command
+    assert not any(argument.startswith("--T_E=") for argument in command)
+    assert not any(argument.startswith("--T_B=") for argument in command)
     assert not any("proximal_n_steps" in argument for argument in command)
     assert not any("dual_" + "proximal" in argument for argument in command)
+    previous = dict(launcher.LAUNCH_SCALES)
+    try:
+        launcher.LAUNCH_SCALES.update({"T_E": 10.0, "T_B": 1.0, "T_lr": 3e-4})
+        flagged = launcher.resolved_config("hopper-medium-v2")
+        assert flagged["initial_T_E"] == 10.0
+        assert flagged["initial_T_B"] == 1.0
+        flagged_command = launcher.command("hopper-medium-v2")
+        assert "--T_E=10.0" in flagged_command
+        assert "--T_B=1.0" in flagged_command
+        assert "--T_lr=0.0003" in flagged_command
+    finally:
+        launcher.LAUNCH_SCALES.update(previous)
     launcher_source = open(launcher_path, encoding="utf-8").read()
     assert "T_B_to_T_E" not in launcher_source
 
