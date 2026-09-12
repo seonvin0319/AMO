@@ -1,0 +1,5 @@
+# Completed ext_csv locomotion seed 1-3 profile; same loss on all tasks.
+defaults:
+  T_E: 1.0
+  T_B: 1.0
+  T_lr: 0.001

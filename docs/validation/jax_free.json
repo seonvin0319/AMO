@@ -1,0 +1,259 @@
+{
+  "data": "synthetic; not D4RL",
+  "device": "cpu",
+  "observation_dim": 17,
+  "action_dim": 6,
+  "torch_version": "2.14.0+cu130",
+  "jax_version": "0.11.1",
+  "iql_warmup_override": 0,
+  "state_resynchronized_before_each_step": false,
+  "tolerances_set_before_run": true,
+  "runs": [
+    {
+      "algorithm": "iql_amo",
+      "backend": "jax",
+      "jax_enable_x64": true,
+      "steps": 60,
+      "meta_events": 3,
+      "config": {
+        "batch_size": 256,
+        "hidden_dim": 256,
+        "discount": 0.99,
+        "tau": 0.005,
+        "actor_lr": 0.0003,
+        "critic_lr": 0.0003,
+        "max_steps": 1000000,
+        "normalize": true,
+        "reward_transform": "none",
+        "eval_freq": 5000,
+        "eval_episodes": 10,
+        "eval_seed": null,
+        "eval_first_step": 5000,
+        "final_eval_repeats": 5,
+        "actor_depth": 2,
+        "critic_depth": 2,
+        "critic_layernorm": false,
+        "gaussian": true,
+        "value_depth": 2,
+        "value_lr": 0.0003,
+        "expectile": 0.7,
+        "beta_initial": 1.0,
+        "beta_min": 0.05,
+        "beta_max": 100.0,
+        "rho_lr": 0.002,
+        "weight_cap": 100.0,
+        "meta_warmup_steps": 0,
+        "meta_interval": 20,
+        "outer_batch_size": 256,
+        "policy_freq": 1,
+        "smoothness_eps": 1e-06,
+        "algorithm": "iql_amo"
+      },
+      "groups": {
+        "p": {
+          "max_abs_error": 1.4469027519226074e-05,
+          "key": "p/critic/q1/layer0/w",
+          "step": 60,
+          "compared_arrays": 1920,
+          "failing_arrays": 10,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_m": {
+          "max_abs_error": 3.48118192050606e-06,
+          "key": "opt/critic/m/q1/layer0/w",
+          "step": 48,
+          "compared_arrays": 2040,
+          "failing_arrays": 0,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_v": {
+          "max_abs_error": 7.450580596923828e-09,
+          "key": "opt/bootstrap/v/log_std",
+          "step": 55,
+          "compared_arrays": 2040,
+          "failing_arrays": 0,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_count": {
+          "max_abs_error": 0.0,
+          "key": "opt/actor/count",
+          "step": 1,
+          "compared_arrays": 360,
+          "failing_arrays": 0,
+          "atol": 0.0,
+          "rtol": 0.0
+        },
+        "target": {
+          "max_abs_error": 5.960464477539062e-07,
+          "key": "target/critic/q1/layer0/w",
+          "step": 60,
+          "compared_arrays": 720,
+          "failing_arrays": 0,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "rho": {
+          "max_abs_error": 7.740551369985263e-07,
+          "key": "p/scale_B/rho",
+          "step": 60,
+          "compared_arrays": 120,
+          "failing_arrays": 0,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "hypergradient": {
+          "max_abs_error": 3.766550505977532e-09,
+          "key": "hypergradient/B",
+          "step": 60,
+          "compared_arrays": 6,
+          "failing_arrays": 0,
+          "atol": 2e-07,
+          "rtol": 0.002
+        },
+        "outer_loss": {
+          "max_abs_error": 2.384185791015625e-07,
+          "key": "outer_loss/L_T_B",
+          "step": 20,
+          "compared_arrays": 12,
+          "failing_arrays": 0,
+          "atol": 2e-06,
+          "rtol": 0.002
+        }
+      },
+      "first_failure": {
+        "key": "p/critic/q1/layer0/w",
+        "step": 51,
+        "max_abs_error": 6.943941116333008e-06,
+        "atol": 5e-06,
+        "rtol": 3e-05
+      },
+      "passed": false
+    },
+    {
+      "algorithm": "td3_amo",
+      "backend": "jax",
+      "jax_enable_x64": true,
+      "steps": 60,
+      "meta_events": 3,
+      "config": {
+        "batch_size": 256,
+        "hidden_dim": 256,
+        "discount": 0.99,
+        "tau": 0.005,
+        "actor_lr": 0.0003,
+        "critic_lr": 0.0003,
+        "max_steps": 1000000,
+        "normalize": true,
+        "reward_transform": "none",
+        "eval_freq": 5000,
+        "eval_episodes": 10,
+        "eval_seed": null,
+        "eval_first_step": 5000,
+        "final_eval_repeats": 1,
+        "actor_depth": 2,
+        "critic_depth": 3,
+        "critic_layernorm": true,
+        "critic_special_init": true,
+        "policy_freq": 2,
+        "policy_noise": 0.2,
+        "noise_clip": 0.5,
+        "T_E": 1.0,
+        "T_B": 1.0,
+        "T_lr": 0.001,
+        "meta_interval": 20,
+        "smoothness_eps": 1e-06,
+        "algorithm": "td3_amo"
+      },
+      "groups": {
+        "p": {
+          "max_abs_error": 0.00043120793998241425,
+          "key": "p/critic/q2/layer2/w",
+          "step": 60,
+          "compared_arrays": 2400,
+          "failing_arrays": 449,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_m": {
+          "max_abs_error": 0.0007434934377670288,
+          "key": "opt/critic/m/q2/layer3/w",
+          "step": 56,
+          "compared_arrays": 2520,
+          "failing_arrays": 538,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_v": {
+          "max_abs_error": 4.0477607399225235e-06,
+          "key": "opt/critic/v/q2/layer3/w",
+          "step": 58,
+          "compared_arrays": 2520,
+          "failing_arrays": 0,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_count": {
+          "max_abs_error": 0.0,
+          "key": "opt/actor/count",
+          "step": 1,
+          "compared_arrays": 300,
+          "failing_arrays": 0,
+          "atol": 0.0,
+          "rtol": 0.0
+        },
+        "target": {
+          "max_abs_error": 1.4346092939376831e-05,
+          "key": "target/critic/q2/layer2/w",
+          "step": 60,
+          "compared_arrays": 2040,
+          "failing_arrays": 22,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "rho": {
+          "max_abs_error": 1.1920928955078125e-06,
+          "key": "p/scale_B/rho",
+          "step": 60,
+          "compared_arrays": 120,
+          "failing_arrays": 0,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "hypergradient": {
+          "max_abs_error": 3.349822721432293e-07,
+          "key": "hypergradient/B",
+          "step": 60,
+          "compared_arrays": 6,
+          "failing_arrays": 1,
+          "atol": 2e-07,
+          "rtol": 0.002
+        },
+        "outer_loss": {
+          "max_abs_error": 4.8279762268066406e-05,
+          "key": "outer_loss/L1_B",
+          "step": 60,
+          "compared_arrays": 12,
+          "failing_arrays": 0,
+          "atol": 2e-06,
+          "rtol": 0.002
+        }
+      },
+      "first_failure": {
+        "key": "opt/actor/m/net/layer2/w",
+        "step": 22,
+        "max_abs_error": 1.0751187801361084e-05,
+        "atol": 5e-06,
+        "rtol": 3e-05
+      },
+      "passed": false
+    }
+  ],
+  "initialization_seed": 17,
+  "original_trainer_commits": {
+    "iql_amo": "7068c765918917fc8ac5724120ffff2583baf693",
+    "td3_amo": "eee3d486fac0c9f5ecbbea411424e6691b715265"
+  }
+}

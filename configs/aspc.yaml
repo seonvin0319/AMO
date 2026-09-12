@@ -1,0 +1,4 @@
+# Original L1+L2+L3, not the alternate L3 ablations in amo_log.
+defaults:
+  alpha: 2.5
+  scale_lr: 0.002

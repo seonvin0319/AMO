@@ -1,0 +1,2012 @@
+[
+  {
+    "algorithm": "iql_amo",
+    "env": "antmaze-large-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/amld_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p9__ab74a9a4/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "antmaze-large-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/amlp_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p9__17fb609d/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "antmaze-medium-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/ammd_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p9__85dfb6e5/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "antmaze-medium-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/ammp_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p9__4e7f7cc6/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "antmaze-umaze-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/amu_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p9__7514f28f/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "antmaze-umaze-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/amud_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p9__7252b6f1/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "halfcheetah-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/hcm_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p7__3340ad4f/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "halfcheetah-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/hcmr_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p7__27b1753b/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "halfcheetah-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/hme_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p7__0a5c336e/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "hopper-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/hopm_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p7__77b37fbf/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": true,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "hopper-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/hopme_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p5__04427437/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 6.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.5,
+      "normalize": true,
+      "normalize_reward": false,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "hopper-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/hopmr_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p7__147e49b4/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": true,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "walker2d-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/wm_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p7__b21b55a5/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "walker2d-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/wme_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p7__922ccc77/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "iql_amo",
+    "env": "walker2d-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/fee1302ad5a7fadbb5e41b342e8997f0c66482a8/runs/iql/amo_bpi/wmr_s0_iql_amo_bpi_bpi_sweep_rlr0p002_b1_t0p7__daa9623b/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "beta_initial": 1.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false,
+      "rho_lr": 0.002
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/7068c765918917fc8ac5724120ffff2583baf693"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "antmaze-large-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/amld_s1_te1_tb1_Tlr0p001__363a73f8/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "antmaze-large-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/amlp_s1_te1_tb1_Tlr0p001__6e0e2162/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "antmaze-medium-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/ammd_s1_te1_tb1_Tlr0p001__d32e0ec2/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "antmaze-medium-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/ammp_s1_te1_tb1_Tlr0p001__c198b33f/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "antmaze-umaze-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/amu_s1_te1_tb1_Tlr0p001__8dca75a3/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "antmaze-umaze-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/amud_s1_te1_tb1_Tlr0p001__009e3452/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "halfcheetah-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hcm_s1_te1_tb1_Tlr0p001__9cb24bd9/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "halfcheetah-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hcmr_s1_te1_tb1_Tlr0p001__2479d7b2/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "halfcheetah-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hme_s1_te1_tb1_Tlr0p001__a7a01a9b/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "hopper-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hopm_s1_te1_tb1_Tlr0p001__85749f1c/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "hopper-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hopme_s1_te1_tb1_Tlr0p001__0b611349/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "hopper-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hopmr_s1_te1_tb1_Tlr0p001__f080c915/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "walker2d-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/wm_s1_te1_tb1_Tlr0p001__37cd42ba/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "walker2d-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/wme_s1_te1_tb1_Tlr0p001__e0307c97/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "td3_amo",
+    "env": "walker2d-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/wmr_s1_te1_tb1_Tlr0p001__f0372dc0/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "T_B": 1.0,
+      "T_E": 1.0,
+      "T_lr": 0.001,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    },
+    "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
+  },
+  {
+    "algorithm": "iql",
+    "env": "antmaze-large-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/amld_s0_pi_base__58475c36/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "antmaze-large-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/amlp_s0_pi_base__f9cdca04/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "antmaze-medium-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/ammd_s0_pi_base__f00a9ad1/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "antmaze-medium-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/ammp_s0_pi_base__2666ee95/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "antmaze-umaze-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/amu_s0_pi_base__d02593f5/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "antmaze-umaze-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/amud_s0_pi_base__f673faa4/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 10.0,
+      "iql_tau": 0.9,
+      "normalize": true,
+      "normalize_reward": true
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "halfcheetah-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/hcm_s0_pi_base__230e3cf0/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "halfcheetah-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/hcmr_s0_pi_base__3fb94e79/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "halfcheetah-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/hme_s0_pi_base__3ea28f72/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "hopper-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/hopm_s0_pi_base__2ba4840d/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "hopper-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/hopme_s0_pi_base__23cb2425/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "hopper-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/hopmr_s0_pi_base__5b989a7a/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "walker2d-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/wm_s0_pi_base__245350fc/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "walker2d-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/wme_s0_pi_base__c39ecd24/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "iql",
+    "env": "walker2d-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/iql/vanilla/wmr_s0_pi_base__5284a370/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "batch_size": 256,
+      "beta": 3.0,
+      "iql_tau": 0.7,
+      "normalize": true,
+      "normalize_reward": false
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "antmaze-large-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/amld_s0_aspc_rc_a2p5__5a7370d0/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "antmaze-large-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/amlp_s0_aspc_rc_a2p5__87ecd1d4/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "antmaze-medium-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/ammd_s0_aspc_rc_a2p5__d2d64c4c/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "antmaze-medium-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/ammp_s0_aspc_rc_a2p5__722d3144/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "antmaze-umaze-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/amu_s0_aspc_rc_a2p5__93a61a4f/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "antmaze-umaze-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/amud_s0_aspc_rc_a2p5__690f67ec/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "halfcheetah-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/hcm_s0_aspc_rc_a2p5__424eac5c/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "halfcheetah-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/hcmr_s0_aspc_rc_a2p5__68c9bb35/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "halfcheetah-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/hme_s0_aspc_rc_a2p5__c371c90a/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "hopper-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/hopm_s0_aspc_rc_a2p5__4ca5f2d3/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "hopper-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/hopme_s0_aspc_rc_a2p5__48c2a779/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "hopper-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/hopmr_s0_aspc_rc_a2p5__bb6bdc7b/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "walker2d-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/wm_s0_aspc_rc_a2p5__331fd673/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "walker2d-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/wme_s0_aspc_rc_a2p5__8051ac40/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "td3_bc",
+    "env": "walker2d-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/td3bc/aspc_rc/wmr_s0_aspc_rc_a2p5__bc79b498/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "halfcheetah-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/60ef5952d28b48a6b1e9c57a2ba3003dd612ded0/runs/wpc/benchmark/hcm_s2_wpc__69d73d4e/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "antmaze-large-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/amld_s0_aspc_table1_1m__df95d7c8/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "antmaze-large-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/amlp_s0_aspc_table1_1m__e984120d/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "antmaze-medium-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/ammd_s0_aspc_table1_1m__8673fd3e/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "antmaze-medium-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/ammp_s0_aspc_table1_1m__5c968fcd/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "antmaze-umaze-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/amud_s0_aspc_table1_1m__8174e052/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "antmaze-umaze-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/amu_s0_aspc_table1_1m__5743f237/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "halfcheetah-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/hme_s0_aspc_table1_1m__d5ce855d/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "halfcheetah-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/hcmr_s0_aspc_table1_1m__4e440d0f/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "halfcheetah-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/hcm_s0_aspc_table1_1m__8ee4afe4/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "hopper-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/hopme_s0_aspc_table1_1m__8264de3e/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "hopper-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/hopmr_s0_aspc_table1_1m__8727b413/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "hopper-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/hopm_s0_aspc_table1_1m__b83a7b1a/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "walker2d-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/wme_s0_aspc_table1_1m__fe6da71e/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "walker2d-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/wmr_s0_aspc_table1_1m__611b0d79/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "a2pr",
+    "env": "walker2d-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/157e121775e111222ac56856b8fbbf9d2e5cfb5e/runs/a2pr/aspc_table1/wm_s0_aspc_table1_1m__7f37a09e/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "mask": 1.0,
+      "normalize": true,
+      "policy_noise": 0.2,
+      "vae_weight": 1.0
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "antmaze-large-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/amld_s0_aspc__ae885c48/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "antmaze-large-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/amlp_s0_aspc__3147e729/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "antmaze-medium-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/ammd_s0_aspc__28d3c7f5/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "antmaze-medium-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/ammp_s0_aspc__04aa71b4/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "antmaze-umaze-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/amu_s0_aspc__24a576b3/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "antmaze-umaze-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/amud_s0_aspc__e91bbc14/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "halfcheetah-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/hcm_s0_aspc__71f9c4cf/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "halfcheetah-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/hcmr_s0_aspc__261b99c3/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "halfcheetah-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/hme_s0_aspc__2ffb5ef1/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "hopper-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/hopm_s0_aspc__3235f006/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "hopper-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/hopme_s0_aspc__bfb84784/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "hopper-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/hopmr_s0_aspc__9692ba9e/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "walker2d-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/wm_s0_aspc__42348645/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "walker2d-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/wme_s0_aspc_incomplete__52616add/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "aspc",
+    "env": "walker2d-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/aspc/benchmark/wmr_s0_aspc__342888ec/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "antmaze-large-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/amld_s0_wpc__3350945d/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "antmaze-large-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/amlp_s0_wpc__3564a582/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "antmaze-medium-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/ammd_s0_wpc__e2812ce4/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "antmaze-medium-play-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/ammp_s0_wpc__a8890484/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "antmaze-umaze-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/amu_s0_wpc__1ff044b3/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "antmaze-umaze-diverse-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/amud_s0_wpc__83b1fd75/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "halfcheetah-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/hcmr_s0_wpc__ed6fe545/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "halfcheetah-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/hme_s0_wpc__37c38ff8/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "hopper-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/hopm_s0_wpc__74c48359/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "hopper-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/hopme_s0_wpc__de2ba7b0/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "hopper-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/hopmr_s0_wpc__889dbfab/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "walker2d-medium-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/wm_s0_wpc__0be6dd81/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "walker2d-medium-expert-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/wme_s0_wpc__a0a8e066/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "wpc",
+    "env": "walker2d-medium-replay-v2",
+    "source": "https://github.com/seonvin0319/amo_log/blob/1a12fc22d443fa0e4a2e7c73ee60714cd8e3668c/runs/wpc/benchmark/wmr_s0_wpc__c8c7e33d/config.yaml",
+    "source_kind": "run_config",
+    "parameters": {
+      "alpha": 2.5,
+      "batch_size": 256,
+      "normalize": true,
+      "normalize_reward": false,
+      "policy_noise": 0.2
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "halfcheetah-medium-expert-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/halfcheetah/halfcheetah_medium_expert.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.01,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.1,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "halfcheetah-medium-expert-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-halfcheetah-medium-expert-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "halfcheetah-medium-replay-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/halfcheetah/halfcheetah_medium_replay.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.01,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.001,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "halfcheetah-medium-replay-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-halfcheetah-medium-replay-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "halfcheetah-medium-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/halfcheetah/halfcheetah_medium.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.001,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.01,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "halfcheetah-medium-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-halfcheetah-medium-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "hopper-medium-expert-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/hopper/hopper_medium_expert.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.1,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.01,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "hopper-medium-expert-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-hopper-medium-expert-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "hopper-medium-replay-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/hopper/hopper_medium_replay.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.05,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.5,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "hopper-medium-replay-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-hopper-medium-replay-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "hopper-medium-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/hopper/hopper_medium.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.01,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.01,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "hopper-medium-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-hopper-medium-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "walker2d-medium-expert-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/walker2d/walker2d_medium_expert.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.01,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.01,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "walker2d-medium-expert-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-walker2d-medium-expert-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "walker2d-medium-replay-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/walker2d/walker2d_medium_replay.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.05,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.01,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "walker2d-medium-replay-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-walker2d-medium-replay-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "walker2d-medium-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/walker2d/walker2d_medium.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.05,
+      "actor_learning_rate": 0.001,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 1024,
+      "critic_bc_coef": 0.1,
+      "critic_learning_rate": 0.001,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "walker2d-medium-v2",
+      "eval_episodes": 10,
+      "eval_every": 5,
+      "eval_seed": 42,
+      "gamma": 0.99,
+      "group": "rebrac-walker2d-medium-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": false,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "antmaze-large-diverse-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/antmaze/antmaze_large_diverse.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.002,
+      "actor_learning_rate": 0.0003,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 256,
+      "critic_bc_coef": 0.002,
+      "critic_learning_rate": 5e-05,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "antmaze-large-diverse-v2",
+      "eval_episodes": 100,
+      "eval_every": 50,
+      "eval_seed": 42,
+      "gamma": 0.999,
+      "group": "rebrac-antmaze-large-diverse-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": true,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "antmaze-large-play-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/antmaze/antmaze_large_play.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.002,
+      "actor_learning_rate": 0.0003,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 256,
+      "critic_bc_coef": 0.001,
+      "critic_learning_rate": 5e-05,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "antmaze-large-play-v2",
+      "eval_episodes": 100,
+      "eval_every": 50,
+      "eval_seed": 42,
+      "gamma": 0.999,
+      "group": "rebrac-antmaze-large-play-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": true,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "antmaze-medium-diverse-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/antmaze/antmaze_medium_diverse.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.001,
+      "actor_learning_rate": 0.0003,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 256,
+      "critic_bc_coef": 0.0,
+      "critic_learning_rate": 5e-05,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "antmaze-medium-diverse-v2",
+      "eval_episodes": 100,
+      "eval_every": 50,
+      "eval_seed": 42,
+      "gamma": 0.999,
+      "group": "rebrac-antmaze-medium-diverse-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": true,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "antmaze-medium-play-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/antmaze/antmaze_medium_play.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.001,
+      "actor_learning_rate": 0.0003,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 256,
+      "critic_bc_coef": 0.0005,
+      "critic_learning_rate": 5e-05,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "antmaze-medium-play-v2",
+      "eval_episodes": 100,
+      "eval_every": 50,
+      "eval_seed": 42,
+      "gamma": 0.999,
+      "group": "rebrac-antmaze-medium-play-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": true,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "antmaze-umaze-diverse-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/antmaze/antmaze_umaze_diverse.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.003,
+      "actor_learning_rate": 0.0003,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 256,
+      "critic_bc_coef": 0.001,
+      "critic_learning_rate": 5e-05,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "antmaze-umaze-diverse-v2",
+      "eval_episodes": 100,
+      "eval_every": 50,
+      "eval_seed": 42,
+      "gamma": 0.999,
+      "group": "rebrac-antmaze-umaze-diverse-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": true,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  },
+  {
+    "algorithm": "rebrac",
+    "env": "antmaze-umaze-v2",
+    "source": "https://github.com/tinkoff-ai/ReBRAC/blob/694385b72fcef2ae318e3f0ff41ca36122355343/configs/rebrac/antmaze/antmaze_umaze.yaml",
+    "source_kind": "original_upstream_config",
+    "parameters": {
+      "actor_bc_coef": 0.003,
+      "actor_learning_rate": 0.0003,
+      "actor_ln": false,
+      "actor_n_hiddens": 3,
+      "batch_size": 256,
+      "critic_bc_coef": 0.002,
+      "critic_learning_rate": 5e-05,
+      "critic_ln": true,
+      "critic_n_hiddens": 3,
+      "dataset_name": "antmaze-umaze-v2",
+      "eval_episodes": 100,
+      "eval_every": 50,
+      "eval_seed": 42,
+      "gamma": 0.999,
+      "group": "rebrac-antmaze-umaze-v2",
+      "hidden_dim": 256,
+      "name": "rebrac",
+      "noise_clip": 0.5,
+      "normalize_q": true,
+      "normalize_reward": true,
+      "normalize_states": false,
+      "num_epochs": 1000,
+      "num_updates_on_epoch": 1000,
+      "policy_freq": 2,
+      "policy_noise": 0.2,
+      "project": "ReBRAC",
+      "tau": 0.005,
+      "train_seed": 0
+    }
+  }
+]

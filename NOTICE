@@ -1,0 +1,14 @@
+AMO
+Copyright 2026 AMO contributors (seonvin0319, Schoish)
+
+This product includes software adapted from CORL
+(https://github.com/tinkoff-ai/CORL), licensed under Apache License 2.0.
+
+The offline actor-critic implementation also incorporates ideas and adapted
+code from TD3+BC (https://github.com/sfujim/TD3_BC), licensed under the MIT
+License. See THIRD_PARTY_LICENSES.
+
+The release implementations and numerical reference fixtures also adapt ASPC
+(Colin-Jing/ASPC, Apache-2.0), wPC (via ASPC/CORL), ReBRAC (tinkoff-ai/ReBRAC, Apache-2.0),
+and A2PR (ltlhuuu/A2PR, Copyright (c) 2024 NUDT, MIT).
+See SOURCE_PROVENANCE.md for pinned revisions and validation limitations.

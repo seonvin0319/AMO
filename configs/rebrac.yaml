@@ -1,0 +1,82 @@
+# Original tinkoff-ai/ReBRAC public-release configs (694385b7).
+environments:
+  halfcheetah-medium-expert-v2:
+    actor_bc_coef: 0.01
+    critic_bc_coef: 0.1
+  halfcheetah-medium-replay-v2:
+    actor_bc_coef: 0.01
+  halfcheetah-medium-v2:
+    critic_bc_coef: 0.01
+  hopper-medium-expert-v2:
+    actor_bc_coef: 0.1
+    critic_bc_coef: 0.01
+  hopper-medium-replay-v2:
+    actor_bc_coef: 0.05
+    critic_bc_coef: 0.5
+  hopper-medium-v2:
+    actor_bc_coef: 0.01
+    critic_bc_coef: 0.01
+  walker2d-medium-expert-v2:
+    actor_bc_coef: 0.01
+    critic_bc_coef: 0.01
+  walker2d-medium-replay-v2:
+    actor_bc_coef: 0.05
+    critic_bc_coef: 0.01
+  walker2d-medium-v2:
+    actor_bc_coef: 0.05
+    critic_bc_coef: 0.1
+  antmaze-large-diverse-v2:
+    actor_bc_coef: 0.002
+    critic_bc_coef: 0.002
+    actor_lr: 0.0003
+    critic_lr: 5.0e-05
+    batch_size: 256
+    discount: 0.999
+    reward_transform: antmaze_scale100
+    eval_episodes: 100
+  antmaze-large-play-v2:
+    actor_bc_coef: 0.002
+    actor_lr: 0.0003
+    critic_lr: 5.0e-05
+    batch_size: 256
+    discount: 0.999
+    reward_transform: antmaze_scale100
+    eval_episodes: 100
+  antmaze-medium-diverse-v2:
+    critic_bc_coef: 0.0
+    actor_lr: 0.0003
+    critic_lr: 5.0e-05
+    batch_size: 256
+    discount: 0.999
+    reward_transform: antmaze_scale100
+    eval_episodes: 100
+  antmaze-medium-play-v2:
+    critic_bc_coef: 0.0005
+    actor_lr: 0.0003
+    critic_lr: 5.0e-05
+    batch_size: 256
+    discount: 0.999
+    reward_transform: antmaze_scale100
+    eval_episodes: 100
+  antmaze-umaze-diverse-v2:
+    actor_bc_coef: 0.003
+    actor_lr: 0.0003
+    critic_lr: 5.0e-05
+    batch_size: 256
+    discount: 0.999
+    reward_transform: antmaze_scale100
+    eval_episodes: 100
+  antmaze-umaze-v2:
+    actor_bc_coef: 0.003
+    critic_bc_coef: 0.002
+    actor_lr: 0.0003
+    critic_lr: 5.0e-05
+    batch_size: 256
+    discount: 0.999
+    reward_transform: antmaze_scale100
+    eval_episodes: 100
+defaults:
+  eval_seed: 42
+  eval_first_step: 1000
+antmaze:
+  eval_freq: 50000

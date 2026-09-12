@@ -1,0 +1,9 @@
+# amo_log/choi IQL pi_base settings. Baseline seed aggregation is external.
+defaults:
+  beta: 3.0
+  expectile: 0.7
+antmaze:
+  beta: 10.0
+  expectile: 0.9
+  reward_transform: antmaze_shift
+  eval_episodes: 100

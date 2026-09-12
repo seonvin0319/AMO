@@ -1,0 +1,4 @@
+# RC network; policy_noise=0.2 benchmark family (not the 0.1 noise sweep).
+defaults:
+  alpha: 2.5
+  policy_noise: 0.2

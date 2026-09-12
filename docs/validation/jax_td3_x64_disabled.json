@@ -1,0 +1,136 @@
+{
+  "data": "synthetic; not D4RL",
+  "device": "cpu",
+  "observation_dim": 17,
+  "action_dim": 6,
+  "torch_version": "2.14.0+cu130",
+  "jax_version": "0.11.1",
+  "iql_warmup_override": 0,
+  "state_resynchronized_before_each_step": false,
+  "tolerances_set_before_run": true,
+  "runs": [
+    {
+      "algorithm": "td3_amo",
+      "backend": "jax",
+      "steps": 60,
+      "meta_events": 3,
+      "config": {
+        "batch_size": 256,
+        "hidden_dim": 256,
+        "discount": 0.99,
+        "tau": 0.005,
+        "actor_lr": 0.0003,
+        "critic_lr": 0.0003,
+        "max_steps": 1000000,
+        "normalize": true,
+        "reward_transform": "none",
+        "eval_freq": 5000,
+        "eval_episodes": 10,
+        "eval_seed": null,
+        "eval_first_step": 5000,
+        "final_eval_repeats": 1,
+        "actor_depth": 2,
+        "critic_depth": 3,
+        "critic_layernorm": true,
+        "critic_special_init": true,
+        "policy_freq": 2,
+        "policy_noise": 0.2,
+        "noise_clip": 0.5,
+        "T_E": 1.0,
+        "T_B": 1.0,
+        "T_lr": 0.001,
+        "meta_interval": 20,
+        "smoothness_eps": 1e-06,
+        "algorithm": "td3_amo"
+      },
+      "groups": {
+        "p": {
+          "max_abs_error": 0.00043120887130498886,
+          "key": "p/critic/q2/layer2/w",
+          "step": 60,
+          "compared_arrays": 2400,
+          "failing_arrays": 418,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_m": {
+          "max_abs_error": 0.0007435120642185211,
+          "key": "opt/critic/m/q2/layer3/w",
+          "step": 56,
+          "compared_arrays": 2520,
+          "failing_arrays": 500,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_v": {
+          "max_abs_error": 4.0477607399225235e-06,
+          "key": "opt/critic/v/q2/layer3/w",
+          "step": 58,
+          "compared_arrays": 2520,
+          "failing_arrays": 0,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "adam_count": {
+          "max_abs_error": 0.0,
+          "key": "opt/actor/count",
+          "step": 1,
+          "compared_arrays": 300,
+          "failing_arrays": 0,
+          "atol": 0.0,
+          "rtol": 0.0
+        },
+        "target": {
+          "max_abs_error": 1.4346092939376831e-05,
+          "key": "target/critic/q2/layer2/w",
+          "step": 60,
+          "compared_arrays": 2040,
+          "failing_arrays": 22,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "rho": {
+          "max_abs_error": 9.5367431640625e-07,
+          "key": "p/scale_B/rho",
+          "step": 60,
+          "compared_arrays": 120,
+          "failing_arrays": 0,
+          "atol": 5e-06,
+          "rtol": 3e-05
+        },
+        "hypergradient": {
+          "max_abs_error": 3.4392225245482455e-07,
+          "key": "hypergradient/B",
+          "step": 60,
+          "compared_arrays": 6,
+          "failing_arrays": 1,
+          "atol": 2e-07,
+          "rtol": 0.002
+        },
+        "outer_loss": {
+          "max_abs_error": 4.2557716369628906e-05,
+          "key": "outer_loss/L1_B",
+          "step": 60,
+          "compared_arrays": 12,
+          "failing_arrays": 0,
+          "atol": 2e-06,
+          "rtol": 0.002
+        }
+      },
+      "first_failure": {
+        "key": "opt/actor/m/net/layer2/w",
+        "step": 22,
+        "max_abs_error": 1.074373722076416e-05,
+        "atol": 5e-06,
+        "rtol": 3e-05
+      },
+      "passed": false,
+      "jax_enable_x64": false
+    }
+  ],
+  "initialization_seed": 17,
+  "original_trainer_commits": {
+    "iql_amo": "7068c765918917fc8ac5724120ffff2583baf693",
+    "td3_amo": "eee3d486fac0c9f5ecbbea411424e6691b715265"
+  }
+}

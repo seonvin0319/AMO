@@ -1,0 +1,34 @@
+# First-priority values from the uploaded 95%-band locomotion launcher.
+defaults:
+  T_lr: 0.0003
+  eval_freq: 20000
+  eval_first_step: 20000
+  final_eval_repeats: 5
+environments:
+  halfcheetah-medium-v2:
+    T_E: 10.0
+    T_B: 10.0
+  halfcheetah-medium-replay-v2:
+    T_E: 10.0
+    T_B: 10.0
+  halfcheetah-medium-expert-v2:
+    T_E: 1.0
+    T_B: 1.0
+  hopper-medium-v2:
+    T_E: 10.0
+    T_B: 10.0
+  hopper-medium-replay-v2:
+    T_E: 5.0
+    T_B: 5.0
+  hopper-medium-expert-v2:
+    T_E: 1.0
+    T_B: 1.0
+  walker2d-medium-v2:
+    T_E: 1.0
+    T_B: 1.0
+  walker2d-medium-replay-v2:
+    T_E: 10.0
+    T_B: 10.0
+  walker2d-medium-expert-v2:
+    T_E: 5.0
+    T_B: 5.0

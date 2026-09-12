@@ -1,0 +1,2 @@
+-r release.txt
+torch>=2.6

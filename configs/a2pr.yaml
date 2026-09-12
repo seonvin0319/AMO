@@ -1,0 +1,5 @@
+# amo_log/svcho, a2pr/aspc_table1, seeds 0-3.
+defaults:
+  alpha: 2.5
+  mask: 1.0
+  vae_weight: 1.0

@@ -1,0 +1,2 @@
+-r release.txt
+jax>=0.4.35

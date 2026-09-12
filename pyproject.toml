@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 88
+target-version = ["py38"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests/release"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]

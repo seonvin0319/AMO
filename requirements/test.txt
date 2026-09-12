@@ -1,0 +1,8 @@
+-r torch.txt
+-r jax.txt
+torchopt==0.7.3
+flax
+optax
+pytest>=8
+black
+ruff
