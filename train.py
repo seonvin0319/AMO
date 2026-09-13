@@ -83,6 +83,12 @@ def main(argv=None):
     )
     p.add_argument("--log-every", type=int, default=200)
     p.add_argument(
+        "--replay-device",
+        choices=("cpu", "training"),
+        default="cpu",
+        help="Keep replay on CPU or on --device (requires room for the dataset)",
+    )
+    p.add_argument(
         "--save-every",
         type=int,
         default=20000,
@@ -118,6 +124,12 @@ def main(argv=None):
         seed=args.seed,
         device=args.device,
     )
+    if args.replay_device == "training":
+        resident = agent.ops.batch(data)
+        for replay in (buffer, outer_buffer):
+            replay.data = resident
+            replay.sampler = agent.ops.sample
+        del data
     if args.resume:
         extra = agent.load(args.resume)
         if (
@@ -156,6 +168,7 @@ def main(argv=None):
                 "dataset_sha256": data_hash,
                 "python": platform.python_version(),
                 "device": args.device,
+                "replay_device": args.replay_device,
             },
             indent=2,
         )
@@ -188,8 +201,9 @@ def main(argv=None):
                 if args.algorithm in ("td3_amo", "iql_amo") and is_meta
                 else None
             )
-            metrics = agent.update(batch, outer)
+            agent.update(batch, outer, return_metrics=False)
             if agent.steps % args.log_every == 0 or agent.steps == steps:
+                metrics = agent.get_metrics()
                 row = {"step": agent.steps, **metrics}
                 with (output / "metrics.jsonl").open("a") as f:
                     f.write(json.dumps(row, allow_nan=False) + "\n")
@@ -200,6 +214,7 @@ def main(argv=None):
             )
             final = agent.steps == c["max_steps"]
             if do_eval and (eval_due or final):
+                agent.get_metrics()
                 row = {
                     "step": agent.steps,
                     **evaluate(

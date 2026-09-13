@@ -7,6 +7,11 @@ import jax.numpy as jnp
 import numpy as np
 
 
+@jax.jit
+def _sample_replay(data, indices):
+    return jax.tree_util.tree_map(lambda x: x[indices], data)
+
+
 @jax.custom_jvp
 def _iql_virtual_sqrt(x):
     return jnp.sqrt(x)
@@ -30,7 +35,32 @@ class Backend:
         self.device = jax.devices(platform)[index]
 
     def array(self, value):
-        return jax.device_put(jnp.asarray(value), self.device)
+        if isinstance(value, (list, tuple)):
+            value = np.asarray(value)
+        return jax.device_put(value, self.device)
+
+    def batch(self, tree):
+        # Keep resident batches on device; place host leaves as one pytree.
+        tree = jax.tree_util.tree_map(
+            lambda v: (
+                (v if v.dtype == jnp.float32 else v.astype(jnp.float32))
+                if isinstance(v, jax.Array)
+                else np.asarray(v, np.float32)
+            ),
+            tree,
+        )
+        return jax.device_put(tree, self.device)
+
+    def sample(self, data, indices):
+        return _sample_replay(data, self.array(indices))
+
+    @staticmethod
+    def numpy_tree(tree):
+        return jax.device_get(tree)
+
+    @staticmethod
+    def metrics_finite(metrics):
+        return jnp.stack([jnp.isfinite(v).all() for v in metrics.values()]).all()
 
     @staticmethod
     def numpy(value):
@@ -86,3 +116,7 @@ class Backend:
     @staticmethod
     def compile(fn):
         return jax.jit(fn, static_argnames=("actor_step", "meta_step"))
+
+    @staticmethod
+    def compile_actor(fn):
+        return jax.jit(fn)

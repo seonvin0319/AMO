@@ -161,10 +161,13 @@ def preprocess(data, config):
 
 
 class ReplayBuffer:
-    def __init__(self, data, seed):
+    def __init__(self, data, seed, sampler=None):
         self.data = data
         self.rng = np.random.default_rng(seed)
+        self.sampler = sampler
 
     def sample(self, size):
         idx = self.rng.integers(len(self.data["actions"]), size=size)
+        if self.sampler is not None:
+            return self.sampler(self.data, idx)
         return {k: v[idx] for k, v in self.data.items()}

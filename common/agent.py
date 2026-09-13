@@ -20,7 +20,10 @@ class BaseAgent:
         self.rng = np.random.default_rng(seed)
         self.steps = 0
         self.state = self.ops.finish(map_tree(self.ops.array, self.initialize()))
-        self._compiled_step = self.ops.compile(self.step)
+        self._compiled_step = self.ops.compile(self._step_with_checks)
+        self._compiled_actor = self.ops.compile_actor(self.actor)
+        self._first_nonfinite_step = self.ops.array(np.asarray(0, np.float32))
+        self._pending_metrics = {}
 
     def net(
         self,
@@ -211,7 +214,26 @@ class BaseAgent:
         warmup = self.c.get("meta_warmup_steps", 0)
         return step > warmup and (step - warmup) % self.c.get("meta_interval", 20) == 0
 
-    def update(self, batch, outer=None):
+    def _step_with_checks(
+        self, state, batch, outer, noise, first_bad, *, actor_step, meta_step
+    ):
+        state, metrics = self.step(
+            state, batch, outer, noise, actor_step=actor_step, meta_step=meta_step
+        )
+        # Track failures in the same compiled update, including unlogged steps.
+        first_bad = self.ops.where(
+            (first_bad == 0) & ~self.ops.metrics_finite(metrics),
+            noise["step"],
+            first_bad,
+        )
+        return state, metrics, first_bad
+
+    def update(self, batch, outer=None, *, return_metrics=True):
+        """Update once; defer host synchronization with return_metrics=False.
+
+        Call get_metrics() at a logging boundary. It also reports the first
+        non-finite metric since the last load, even on an unlogged step.
+        """
         step = self.steps + 1
         # Original ReBRAC's epoch loop uses zero-based indices: first update
         # includes actor/targets, followed by every second critic update.
@@ -226,12 +248,8 @@ class BaseAgent:
             raise ValueError(
                 "AMO requires an independently sampled outer batch on scale updates."
             )
-        batch = {k: np.asarray(v, np.float32) for k, v in batch.items()}
-        outer = (
-            batch
-            if outer is None
-            else {k: np.asarray(v, np.float32) for k, v in outer.items()}
-        )
+        batch = self.ops.batch(batch)
+        outer = batch if outer is None else self.ops.batch(outer)
         n = len(batch["actions"])
         noise = {
             "target": self.rng.standard_normal((n, self.action_dim)).astype(np.float32),
@@ -246,33 +264,45 @@ class BaseAgent:
                     (n, 2 * self.action_dim)
                 ).astype(np.float32),
             )
-        new_state, metrics = self._compiled_step(
+        new_state, metrics, first_bad = self._compiled_step(
             self.state,
-            map_tree(self.ops.array, batch),
-            map_tree(self.ops.array, outer),
-            map_tree(self.ops.array, noise),
+            batch,
+            outer,
+            self.ops.batch(noise),
+            self._first_nonfinite_step,
             actor_step=actor_step,
             meta_step=meta_step,
         )
         self.state = self.ops.finish(new_state)
         self.steps = step
-        result = {k: float(self.ops.numpy(v)) for k, v in metrics.items()}
-        if not all(np.isfinite(v) for v in result.values()):
+        self._first_nonfinite_step = self.ops.stop(first_bad)
+        self._pending_metrics = self.ops.finish(metrics)
+        return self.get_metrics() if return_metrics else None
+
+    def get_metrics(self):
+        """Fetch the latest metrics together and check all preceding updates."""
+        host = self.ops.numpy_tree(
+            {"first_bad": self._first_nonfinite_step, "metrics": self._pending_metrics}
+        )
+        result = {k: float(v) for k, v in host["metrics"].items()}
+        if int(host["first_bad"]):
             raise FloatingPointError(
-                f"Non-finite training metric at step {step}: {result}"
+                f"Non-finite training metric at step {int(host['first_bad'])}; "
+                f"latest metrics at step {self.steps}: {result}"
             )
         return result
 
     def act(self, observations):
         obs = np.asarray(observations, np.float32)
         singleton = obs.ndim == 1
-        action = self.actor(
+        action = self._compiled_actor(
             self.state["p"]["actor"], self.ops.array(obs[None] if singleton else obs)
         )
         result = self.ops.numpy(action)
         return result[0] if singleton else result
 
     def save(self, path, extra=None):
+        self.get_metrics()
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         metadata = {
@@ -285,7 +315,7 @@ class BaseAgent:
             "rng": self.rng.bit_generator.state,
             "extra": extra or {},
         }
-        arrays = {k: self.ops.numpy(v) for k, v in flatten(self.state).items()}
+        arrays = self.ops.numpy_tree(flatten(self.state))
         arrays["__metadata__"] = np.asarray(json.dumps(metadata))
         tmp = path.with_name(path.name + ".tmp")
         with tmp.open("wb") as f:
@@ -312,6 +342,8 @@ class BaseAgent:
             )
         self.steps = meta["steps"]
         self.rng.bit_generator.state = meta["rng"]
+        self._first_nonfinite_step = self.ops.array(np.asarray(0, np.float32))
+        self._pending_metrics = {}
         return meta["extra"]
 
 

@@ -129,7 +129,7 @@ throughout one million updates.
 
 ## Backend and runtime checks
 
-The current small regression suite passes **36 tests** on CPU. This count
+The current small regression suite passes **51 tests** on CPU. This count
 excludes the separate full-width comparison commands and their recorded failures.
 
 - Eight algorithms: matched initial arrays and batches, four updates on each backend, comparing losses and every parameter, target and optimizer-state tensor, including adaptive meta updates where applicable. Counters are checked exactly.
@@ -141,7 +141,34 @@ excludes the separate full-width comparison commands and their recorded failures
 - IQL+AMO: require a separate outer batch after warm-up; verify float64 log temperatures and float32 network parameters after updates. Preserve projection and the next cosine learning rate in the beta0 virtual step. Q/V remain identical when changing the actors' initial temperatures on identical batches; changing only beta0 also leaves the execution actor and beta_E unchanged.
 - Float32 Adam: compare five controlled updates directly with native torch.optim.Adam on both backends, with JAX x64 explicitly disabled, to catch early bias-correction cancellation.
 
-The CLI is exercised separately on synthetic transitions with local NPZ loading, normalization, training, checkpoint writing and resumption. Synthetic data checks software behavior only.
+CLI checks use synthetic transitions with local NPZ loading, normalization, training, checkpoint writing and resumption. Synthetic data checks software behavior only.
+
+The runtime checks additionally cover deferred metric collection on all eight JAX algorithms, the first unlogged NaN/Inf surviving later finite metrics, checkpoint rejection after that failure, actor JIT using new parameters after updates and loads, identical host/resident replay samples and RNG continuation on both backends, and CLI resume from resident replay to CPU replay.
+
+## JAX runtime optimization
+
+The baseline is AMO [`e6c1fc5`](https://github.com/seonvin0319/AMO/commit/e6c1fc52a6b341de377c45e52d6c5ee4d3693ea4), which already separates training from offline CPU evaluation. The optimized runtime adds actor JIT, bulk placement/retrieval of array trees and metric synchronization at logging boundaries. Its device-side failure indicator checks every update. Algorithm equations, gradient stops, optimizer precision, NumPy random streams and checkpoint format are retained.
+
+Measurements below use Python 3.12.14, JAX 0.11.1 and NumPy 2.3.5 on an AMD EPYC 9V74 CPU in a virtualized environment. Both checkouts use hidden width 256, batch size 256, 8,192 synthetic transitions and CPU replay. Each trial resets the complete learning state, including targets, optimizer moments/counters and adaptive scales, plus all RNG states. Update timings cover 200 steps, including meta updates, repeated five times; actor timings cover 400 single-observation calls per trial. Values are medians. [Raw trials, state comparisons and runtime source hashes](validation/jax_runtime_cpu.json) are the numerical record.
+
+| Operation | Baseline | Optimized | Time reduction |
+| --- | ---: | ---: | ---: |
+| TD3+AMO update | 9.43 ms | 7.00 ms | 25.8% |
+| IQL+AMO update | 4.56 ms | 3.92 ms | 14.2% |
+| TD3+AMO actor call | 0.546 ms | 0.108 ms | 80.2% |
+| IQL+AMO actor call | 0.518 ms | 0.098 ms | 81.1% |
+
+Replay sampling, target-noise generation, device placement, updates, periodic metric checks and final synchronization are timed. Initialization, compilation, file IO and environment rollouts are excluded. The before/after final learning states and probe actions match exactly in this 200-step comparison, including dtypes and all three RNG states. IQL starts with initial parameters and its step counter set to 100,000 to exercise the first meta event at 100,020; this is not a trained post-warm-up checkpoint. CPU results do not establish GPU speedups, device-replay speedups, long-run training equivalence or amo_log performance reproduction.
+
+Run each checkout in a fresh process with the same installed dependencies and device. From the optimized checkout:
+
+```bash
+git worktree add --detach ../amo-runtime-baseline e6c1fc52a6b341de377c45e52d6c5ee4d3693ea4
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 python scripts/benchmark_jax_runtime.py --repository ../amo-runtime-baseline --algorithm td3_amo --output results/before_td3.json
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 python scripts/benchmark_jax_runtime.py --algorithm td3_amo --output results/after_td3.json
+```
+
+Repeat with `--algorithm iql_amo` and different output filenames for IQL+AMO. Each JSON report includes individual timings, runtime settings and final RNG states; the matching `.npz` beside it contains every final state tensor and probe actions. For example, `results/after_td3.json` is paired with `results/after_td3.npz`. Use `--device cuda:0` on a CUDA-enabled installation to measure GPU execution; add `--replay-device training` to the optimized checkout's command to measure resident replay separately.
 
 ## Limits
 

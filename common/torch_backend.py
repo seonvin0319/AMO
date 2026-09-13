@@ -1,5 +1,6 @@
 """Native PyTorch tensors and autograd. No JAX imports."""
 
+import numpy as np
 import torch
 
 from common.tree import flatten, map_tree, unflatten
@@ -27,6 +28,27 @@ class Backend:
         if isinstance(value, torch.Tensor):
             return value.to(self.device)
         return torch.as_tensor(value, device=self.device)
+
+    def batch(self, tree):
+        return map_tree(
+            lambda v: (
+                v.to(device=self.device, dtype=torch.float32)
+                if isinstance(v, torch.Tensor)
+                else self.array(np.asarray(v, np.float32))
+            ),
+            tree,
+        )
+
+    def sample(self, data, indices):
+        indices = self.array(indices)
+        return map_tree(lambda x: x[indices], data)
+
+    def numpy_tree(self, tree):
+        return map_tree(self.numpy, tree)
+
+    @staticmethod
+    def metrics_finite(metrics):
+        return torch.stack([torch.isfinite(v).all() for v in metrics.values()]).all()
 
     @staticmethod
     def numpy(value):
@@ -106,4 +128,8 @@ class Backend:
 
     @staticmethod
     def compile(fn):
+        return fn
+
+    @staticmethod
+    def compile_actor(fn):
         return fn

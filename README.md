@@ -54,6 +54,10 @@ python scripts/eval_checkpoints_cpu.py --runs-root runs/ --poll
 
 Change `--backend` to `jax` or select another `--algorithm` from the table. The algorithm YAML is loaded automatically; `--config path.yaml` selects a different file. `--print-config` prints the resolved configuration and exits.
 
+JAX compiles both the complete training update and the actor used for evaluation. Training fetches metrics at `--log-every` boundaries, before in-process evaluation and before saving. Every update checks metrics for NaN/Inf on the device and retains the first failing step. A failure raises `FloatingPointError` at the next boundary and prevents checkpoint saving, even if subsequent metrics recover. Use `--log-every 1` for immediate reporting. Direct `agent.update(...)` calls still return checked Python metrics; callers can use `return_metrics=False` and subsequently call `agent.get_metrics()` to defer synchronization.
+
+Replay stays on CPU by default. If the dataset fits alongside the model on the training device, add `--replay-device training` to keep it there and gather batches on that device. Insufficient device memory raises an allocation error; select `--replay-device cpu` for host storage. Inner and outer replay share the stored arrays but retain independent NumPy index generators. Their sample sequence and saved RNG states are unchanged; no future batches are sampled ahead of the current update. The replay location is recorded in `run_meta.json` and can be changed on resume. See [runtime measurements and reproduction commands](docs/VALIDATION.md#jax-runtime-optimization) for the measured scope.
+
 For a local dataset without MuJoCo evaluation:
 
 ```bash

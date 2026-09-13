@@ -1,0 +1,226 @@
+{
+  "baseline_commit": "e6c1fc52a6b341de377c45e52d6c5ee4d3693ea4",
+  "device": "CPU, AMD EPYC 9V74 virtualized environment",
+  "python": "3.12.14",
+  "jax": "0.11.1",
+  "numpy": "2.3.5",
+  "thread_environment": {
+    "OMP_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1
+  },
+  "protocol": {
+    "hidden_dim": 256,
+    "batch_size": 256,
+    "dataset_size": 8192,
+    "steps_per_trial": 200,
+    "trials": 5,
+    "actor_calls_per_trial": 400,
+    "log_every": 200,
+    "replay_device": "cpu",
+    "model_seed": 17,
+    "data_seed": 170017,
+    "replay_seeds": [
+      1026,
+      100020
+    ]
+  },
+  "runs": {
+    "td3_amo": {
+      "before": {
+        "inference_ms": {
+          "median": 0.546277920002467,
+          "trials": [
+            0.5349589449997438,
+            0.546277920002467,
+            0.5331632599973091,
+            0.5667357849961263,
+            0.6781164074982371
+          ]
+        },
+        "update_ms": {
+          "median": 9.427574000001187,
+          "trials": [
+            8.827977950004424,
+            8.527612694997515,
+            9.790710035013035,
+            9.427574000001187,
+            9.762668809999013
+          ]
+        },
+        "jit_variants": 3,
+        "initial_step_counter": 0
+      },
+      "after": {
+        "inference_ms": {
+          "median": 0.10792012250021799,
+          "trials": [
+            0.11177497999597108,
+            0.10483953500624921,
+            0.10304340250513633,
+            0.11558899000192469,
+            0.10792012250021799
+          ]
+        },
+        "update_ms": {
+          "median": 6.999005524994573,
+          "trials": [
+            8.302096579991485,
+            6.8566010700124025,
+            6.645020549985929,
+            7.349207249990286,
+            6.999005524994573
+          ]
+        },
+        "jit_variants": 3,
+        "initial_step_counter": 0
+      },
+      "max_state_or_probe_abs_difference": 0.0,
+      "state_and_probe_tensor_count": 168,
+      "dtypes_equal": true,
+      "final_agent_rng": {
+        "bit_generator": "PCG64",
+        "state": {
+          "state": 95678358200497362290144477996154568470,
+          "inc": 78856291631749604729656725519709880197
+        },
+        "has_uint32": 0,
+        "uinteger": 0
+      },
+      "final_replay_rng": [
+        {
+          "bit_generator": "PCG64",
+          "state": {
+            "state": 270135922021289096150545198013555943261,
+            "inc": 100667812002603190410626660156229010735
+          },
+          "has_uint32": 0,
+          "uinteger": 1002469662
+        },
+        {
+          "bit_generator": "PCG64",
+          "state": {
+            "state": 15238788665395832857035002180764165959,
+            "inc": 300657220473887421690470050169037830279
+          },
+          "has_uint32": 0,
+          "uinteger": 1595731310
+        }
+      ],
+      "final_rng_states_equal": true,
+      "all_final_tensors_finite": true
+    },
+    "iql_amo": {
+      "before": {
+        "inference_ms": {
+          "median": 0.5175788049928087,
+          "trials": [
+            0.5419198699928529,
+            0.4884294125076849,
+            0.511492787500174,
+            0.5346389299938892,
+            0.5175788049928087
+          ]
+        },
+        "update_ms": {
+          "median": 4.563598660006392,
+          "trials": [
+            4.716669199988246,
+            4.563598660006392,
+            4.360033414995996,
+            4.673900974994467,
+            4.273693390005064
+          ]
+        },
+        "jit_variants": 2,
+        "initial_step_counter": 100000
+      },
+      "after": {
+        "inference_ms": {
+          "median": 0.09757173249454354,
+          "trials": [
+            0.09799533750083356,
+            0.10181456999816874,
+            0.09594274500159372,
+            0.09757173249454354,
+            0.09488324999438191
+          ]
+        },
+        "update_ms": {
+          "median": 3.91677019000781,
+          "trials": [
+            3.2003456050006207,
+            3.3856266549992142,
+            3.91677019000781,
+            4.2024953049985925,
+            4.103787485000794
+          ]
+        },
+        "jit_variants": 2,
+        "initial_step_counter": 100000
+      },
+      "max_state_or_probe_abs_difference": 0.0,
+      "state_and_probe_tensor_count": 130,
+      "dtypes_equal": true,
+      "final_agent_rng": {
+        "bit_generator": "PCG64",
+        "state": {
+          "state": 338486526916448878971407168515962731384,
+          "inc": 78856291631749604729656725519709880197
+        },
+        "has_uint32": 0,
+        "uinteger": 0
+      },
+      "final_replay_rng": [
+        {
+          "bit_generator": "PCG64",
+          "state": {
+            "state": 270135922021289096150545198013555943261,
+            "inc": 100667812002603190410626660156229010735
+          },
+          "has_uint32": 0,
+          "uinteger": 1002469662
+        },
+        {
+          "bit_generator": "PCG64",
+          "state": {
+            "state": 15238788665395832857035002180764165959,
+            "inc": 300657220473887421690470050169037830279
+          },
+          "has_uint32": 0,
+          "uinteger": 1595731310
+        }
+      ],
+      "final_rng_states_equal": true,
+      "all_final_tensors_finite": true
+    }
+  },
+  "runtime_sha256": {
+    "common/agent.py": "64fb32985808c160d9114698b24b7d520c6dd521fdafc46d69106f78254e1b44",
+    "common/data.py": "36bb90642991ac589b8532b5eb877fdc0ba8c75c61194778a8a8b51f2a513b26",
+    "common/jax_backend.py": "55a882d1bedf928c299a8e641f4759af315c14719554cd768ef3fa5287aff9cd",
+    "common/torch_backend.py": "8aeaf913e6a30fb342ce3df0c2e7f781cdaab5340a84ad48a62eed7a30e5f018",
+    "train.py": "5e2931de74694a7dadea5a87cfb7d504e7098f2eaeace6bb019ca9d66e836efb"
+  },
+  "limits": [
+    "Synthetic CPU execution, not GPU throughput or MuJoCo evaluation.",
+    "Compilation, initialization, checkpoint IO and environment rollouts excluded.",
+    "IQL step counter is advanced with initial parameters to exercise meta updates.",
+    "Resident replay timing is not included.",
+    "CPU trial variance is retained in the raw lists; results are descriptive medians."
+  ],
+  "preliminary_td3_baseline": {
+    "used_in_summary": false,
+    "reason": "Rerun after confirming the regression-test process had completed.",
+    "update_ms": {
+      "median": 9.89966432500296,
+      "trials": [
+        10.400039020005352,
+        9.89966432500296,
+        10.435032200002752,
+        8.449933084993972,
+        8.757532065001215
+      ]
+    }
+  }
+}
