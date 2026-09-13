@@ -48,6 +48,8 @@ This exercises a meta update and resumption; the fixture is not a benchmark. Rep
 python train.py --algorithm td3_amo --backend torch \
   --env hopper-medium-v2 --seed 0 --device cuda:0 \
   --output runs/td3_amo_torch_hopper_s0
+# then, in another process:
+python scripts/eval_checkpoints_cpu.py --runs-root runs/ --poll
 ```
 
 Change `--backend` to `jax` or select another `--algorithm` from the table. The algorithm YAML is loaded automatically; `--config path.yaml` selects a different file. `--print-config` prints the resolved configuration and exits.
@@ -61,7 +63,15 @@ python train.py --algorithm td3_amo --backend jax \
   --output runs/td3_amo_jax_smoke
 ```
 
-`--steps` stops at a total training step without changing the configured learning-rate schedules. Defaults train for one million updates. Outputs are `config.yaml`, `run_meta.json`, `metrics.jsonl`, `normalization.npz`, and `checkpoint.npz`; evaluation also creates `eval.jsonl`.
+`--steps` stops at a total training step without changing the configured learning-rate schedules. Defaults train for one million updates.
+
+**Default training protocol (AMO-main):** in-process MuJoCo eval is **off**. Checkpoints are written every **20 000** steps to `checkpoints/step_{N}.npz` (plus latest `checkpoint.npz` for resume). Run offline CPU evaluation with:
+
+```bash
+python scripts/eval_checkpoints_cpu.py --runs-root runs/ --poll
+```
+
+Mid-step checkpoints are deleted only after a verified-good eval row; the final (`max_steps`) checkpoint is kept. Pass `--eval` to `train.py` only if you want the old in-process MuJoCo eval loop. Outputs are `config.yaml`, `run_meta.json`, `metrics.jsonl`, `normalization.npz`, `checkpoint.npz`, and `checkpoints/`; offline eval adds `eval.jsonl`.
 
 ```bash
 python train.py --algorithm td3_amo --backend torch \

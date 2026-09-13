@@ -3,6 +3,7 @@
 import argparse
 import json
 import platform
+import shutil
 import time
 from pathlib import Path
 
@@ -68,15 +69,30 @@ def main(argv=None):
         type=int,
         help="Stop after this many total steps without changing schedules",
     )
+    # Default: train without in-process MuJoCo eval. Opt in with --eval.
+    # Step checkpoints are written every --save-every for offline CPU eval.
+    p.add_argument(
+        "--eval",
+        action="store_true",
+        help="Run MuJoCo evaluation in-process during training (off by default)",
+    )
     p.add_argument(
         "--no-eval",
         action="store_true",
-        help="Train from arrays without a MuJoCo installation",
+        help="Deprecated alias; training already skips in-process eval by default",
     )
     p.add_argument("--log-every", type=int, default=200)
-    p.add_argument("--save-every", type=int, default=5000)
+    p.add_argument(
+        "--save-every",
+        type=int,
+        default=20000,
+        help="Write checkpoints/step_{N}.npz (+ checkpoint.npz) this often",
+    )
     p.add_argument("--print-config", action="store_true")
     args = p.parse_args(argv)
+    if args.eval and args.no_eval:
+        p.error("use only one of --eval and --no-eval")
+    do_eval = bool(args.eval)
     c = load_config(args.algorithm, args.env, args.config)
     if args.print_config:
         print(yaml.safe_dump(c, sort_keys=False))
@@ -156,7 +172,11 @@ def main(argv=None):
             "buffer_rng": buffer.rng.bit_generator.state,
             "outer_rng": outer_buffer.rng.bit_generator.state,
         }
-        agent.save(output / "checkpoint.npz", extra)
+        # Step archive for offline CPU eval; latest pointer for resume.
+        step_path = output / "checkpoints" / f"step_{agent.steps}.npz"
+        step_path.parent.mkdir(parents=True, exist_ok=True)
+        agent.save(step_path, extra)
+        shutil.copy2(step_path, output / "checkpoint.npz")
 
     started = time.monotonic()
     try:
@@ -179,7 +199,7 @@ def main(argv=None):
                 and (agent.steps - c["eval_first_step"]) % c["eval_freq"] == 0
             )
             final = agent.steps == c["max_steps"]
-            if not args.no_eval and (eval_due or final):
+            if do_eval and (eval_due or final):
                 row = {
                     "step": agent.steps,
                     **evaluate(

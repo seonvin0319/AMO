@@ -16,11 +16,13 @@ SHARED = dict(
     max_steps=1_000_000,
     normalize=True,
     reward_transform="none",
-    eval_freq=5000,
+    # Aligned with default --save-every=20000 offline CPU eval cadence.
+    # In-process MuJoCo eval is off unless train.py --eval is passed.
+    eval_freq=20000,
     eval_episodes=10,
     eval_seed=None,
-    eval_first_step=5000,
-    final_eval_repeats=1,
+    eval_first_step=20000,
+    final_eval_repeats=5,
 )
 TD3 = dict(
     actor_depth=2,
