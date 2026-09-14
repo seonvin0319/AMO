@@ -92,6 +92,7 @@ Resume with the same algorithm configuration, environment, seed, and dataset. Ch
 - Actor loss is `-mean(Q1)/stop(mean(abs(Q1))) + MSE(pi,a_D)/(2*T)`.
 - The execution scale minimizes normalized `-B_pi` through a virtual Adam update.
 - The bootstrap scale minimizes `L1_B + L2_RMS_B` through a virtual SGD update. The `2*T_B` common factor and Q normalization are detached. RMS is exact with a finite zero subgradient.
+- JAX always uses `highest` matmul precision for the full L2 RMS path, including its virtual update and gradients. This is built in; no precision flag or alternate mode is needed. Other paths retain the caller's precision.
 - The outer batch is sampled independently. There is no fixed ratio or ordering constraint between the scales.
 - Original timing is retained: the execution actor uses its pre-meta-update scale; the bootstrap actor uses its updated scale.
 

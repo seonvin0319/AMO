@@ -55,6 +55,36 @@ L_{1,B}=-2\operatorname{sg}(T_B)\frac{\mathbb E\bar q(s,a_+)}{S_B}+\operatorname
 
 Both action branches are deterministic and use the same frozen target critics. The old action is the current online bootstrap actor, not its target copy. The full-batch RMS includes terminal transitions as zeros. There is no additive epsilon inside the RMS; its value and chosen subgradient are zero when every input is zero.
 
+## JAX precision for the bootstrap RMS term
+
+JAX always evaluates the complete L2_RMS branch under
+`jax.default_matmul_precision("highest")`. This includes its virtual bootstrap
+SGD update, actor evaluations, target-Q values and differentiation through those
+computations. L1 retains the caller's precision. The execution-scale objective,
+real actor and critic updates also retain the caller's precision.
+There is no CLI or configuration switch for this behavior. Selecting
+`--algorithm td3_amo --backend jax` uses it automatically, even when the
+caller's matmul precision is `default` or `high`.
+
+The loss equations, stop-gradient locations, optimizer settings and schedules
+above are unchanged. Keeping this scope local preserves the tested L2-only
+intervention: raising precision solely at the final scalar RMS would leave the
+small target-Q displacement computed at the previous precision.
+
+`tests/release/test_td3_amo_l2_precision.py` checks both term values and gradients
+and inspects the optimized JAX graphs under each caller precision setting.
+It runs on CPU without experiment checkpoints or replay tapes.
+
+The saved GPU regression matched Torch's summed bootstrap-gradient sign on all
+eight tested common states (maximum relative difference: 1.361%). On
+`walker2d-medium-replay-v2`, four paired seeds (0–3), each trained for 1M steps,
+improved from 5.795 ± 5.389 to 88.790 ± 5.084 normalized score. These are means
+and sample standard deviations across training seeds, with the final checkpoint
+evaluated for 50 episodes using the same Torch CPU evaluator. Each pair shared
+initial state, batches and target noise, and both branches used GPU autotuning
+level 0. Autotuning was an experiment control, not an activation flag for the
+L2 fix. This result is limited to the tested environment and runtime.
+
 ## Per-iteration order
 
 1. Update both critics using r+gamma(1-terminal) min_j bar_Q_j(s',clip(bar_pi_B(s')+noise)). Noise standard deviation is 0.2, clipped to [-0.5,0.5]; actions are clipped to [-1,1].

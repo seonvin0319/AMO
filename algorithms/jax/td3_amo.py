@@ -4,6 +4,8 @@ Reference: seonvin0319/AMO a8c1e48, adaptive_multiscale=True.
 The endpoint gradient proxy is empirical; it is not a certified return bound.
 """
 
+import jax
+
 from common import jax_backend as backend
 from common.agent import BaseAgent
 from common.optim import adam
@@ -58,6 +60,15 @@ class Agent(BaseAgent):
         return self.bpi(state["target"]["critic"], obs, old, new)
 
     def bootstrap_terms(self, scale, state, inner_batch, outer_batch):
+        # Keep L1 at the caller's precision. L2 measures a small target-Q
+        # displacement, so its entire virtual-update and hypergradient path
+        # needs highest precision; changing only the final RMS is insufficient.
+        l1, _ = self._bootstrap_terms(scale, state, inner_batch, outer_batch)
+        with jax.default_matmul_precision("highest"):
+            _, l2 = self._bootstrap_terms(scale, state, inner_batch, outer_batch)
+        return l1, l2
+
+    def _bootstrap_terms(self, scale, state, inner_batch, outer_batch):
         o = self.ops
         horizon = o.softplus(scale["rho"])
         plus = self.virtual(state, "bootstrap", inner_batch, horizon, sgd=True)
