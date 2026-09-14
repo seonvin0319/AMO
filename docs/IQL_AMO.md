@@ -26,6 +26,16 @@ The exact RMS has zero value and a zero subgradient when all entries are zero. T
 
 This RMS measures Q change under candidate policy actions. Because the actual IQL target depends on V, it is a surrogate regularizer and does not measure displacement of the target used to train Q.
 
+On the JAX backend, the complete `L2_RMS_B` branch (virtual bootstrap SGD, actor
+evaluations, target-Q values, and differentiation through them) runs under
+`jax.default_matmul_precision("highest")`. `L1_B`, the execution-scale objective,
+and real actor/critic updates keep the caller's precision. The loss equations and
+stop-gradient structure are unchanged. This behavior is built in: there is no
+precision switch, and `--algorithm iql_amo --backend jax` applies it automatically.
+The precision regression checks values, gradients and compiled graphs without
+experiment fixtures. The TD3-AMO Walker2d 1M recovery result does not establish
+IQL-AMO performance recovery.
+
 The beta_B actor is a parallel auxiliary branch: changing only its temperature does not change the execution actor or beta_E updates either. The source has no feedback from this branch to shared Q/V or execution learning. An invariance check covers this dependency with identical batches.
 
 ## Timing and numerics

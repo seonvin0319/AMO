@@ -106,6 +106,8 @@ See [the exact equations and detach conventions](docs/TD3_AMO.md) for normalizat
 
 IQL+AMO keeps the standard expectile V update and `r + gamma*(1-done)*V(s')` critic target. Two Gaussian AWR actors learn with separate inverse temperatures. The execution temperature minimizes normalized `-B_pi`; the second temperature minimizes `L1_B+L2_RMS_B`. That RMS measures target-Q displacement at policy actions. In the uploaded implementation the second actor affects neither Q/V nor the execution actor; it is a parallel auxiliary policy. The release preserves this dependency structure.
 
+JAX always evaluates the full IQL-AMO L2 RMS virtual-update and gradient path at `highest` matmul precision, just as in TD3-AMO. No precision flag is required. This is a numerical default; the TD3-AMO 1M performance result is not an IQL-AMO benchmark.
+
 Both temperatures use `beta=exp(rho)`, projected to `[0.05,100]`. Log temperatures and their optimizer moments use float64; networks use float32. JAX enables float64 when constructing this algorithm. The default starts both at 1, uses Adam `(0,0.999)` with `rho_lr=0.002`, and updates every 20 steps after 100,000 warm-up steps. The first meta update is step 100,020.
 
 The execution virtual update is Adam. The second actor takes its real Adam update first, then its virtual SGD step uses the next cosine learning rate. Both outer losses use the target twin-Q minimum. See [the implementation contract](docs/IQL_AMO.md).

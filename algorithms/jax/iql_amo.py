@@ -6,6 +6,8 @@ L2_RMS is a policy-action Q-displacement surrogate, not that Bellman target.
 
 import math
 
+import jax
+
 from algorithms.jax.iql import Agent as IQLAgent
 from common.optim import adam, target_update
 from common.tree import map_tree
@@ -68,6 +70,15 @@ class Agent(IQLAgent):
         return -proxy.mean() / self.q_scale(self.minq(target, obs, new))
 
     def bootstrap_terms(self, scale, state, batch, outer, adv, lr):
+        # Keep L1 at the caller's precision. L2 measures a small target-Q
+        # displacement, so its entire virtual-update and hypergradient path
+        # needs highest precision; changing only the final RMS is insufficient.
+        l1, _ = self._bootstrap_terms(scale, state, batch, outer, adv, lr)
+        with jax.default_matmul_precision("highest"):
+            _, l2 = self._bootstrap_terms(scale, state, batch, outer, adv, lr)
+        return l1, l2
+
+    def _bootstrap_terms(self, scale, state, batch, outer, adv, lr):
         o = self.ops
         beta = self.beta(scale)
         plus = self.virtual(state, "bootstrap", batch, adv, beta, lr, sgd=True)

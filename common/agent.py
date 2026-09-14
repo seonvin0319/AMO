@@ -228,11 +228,16 @@ class BaseAgent:
         )
         return state, metrics, first_bad
 
-    def update(self, batch, outer=None, *, return_metrics=True):
+    def update(self, batch, outer=None, *, return_metrics=True, noise=None):
         """Update once; defer host synchronization with return_metrics=False.
 
         Call get_metrics() at a logging boundary. It also reports the first
         non-finite metric since the last load, even on an unlogged step.
+
+        If ``noise`` is provided, its arrays are used as the step inputs and the
+        agent RNG is not consumed for noise. Required key: ``target`` with shape
+        ``(batch, action_dim)``. Optional A2PR keys: ``vae``, ``reconstruction``.
+        ``step`` is always set to the upcoming training step.
         """
         step = self.steps + 1
         # Original ReBRAC's epoch loop uses zero-based indices: first update
@@ -251,19 +256,37 @@ class BaseAgent:
         batch = self.ops.batch(batch)
         outer = batch if outer is None else self.ops.batch(outer)
         n = len(batch["actions"])
-        noise = {
-            "target": self.rng.standard_normal((n, self.action_dim)).astype(np.float32),
-            "step": np.asarray(step, np.float32),
-        }
-        if self.c["algorithm"] == "a2pr":
-            noise.update(
-                vae=self.rng.standard_normal((n, 2 * self.action_dim)).astype(
+        if noise is None:
+            noise = {
+                "target": self.rng.standard_normal((n, self.action_dim)).astype(
                     np.float32
                 ),
-                reconstruction=self.rng.standard_normal(
-                    (n, 2 * self.action_dim)
-                ).astype(np.float32),
-            )
+                "step": np.asarray(step, np.float32),
+            }
+            if self.c["algorithm"] == "a2pr":
+                noise.update(
+                    vae=self.rng.standard_normal((n, 2 * self.action_dim)).astype(
+                        np.float32
+                    ),
+                    reconstruction=self.rng.standard_normal(
+                        (n, 2 * self.action_dim)
+                    ).astype(np.float32),
+                )
+        else:
+            if "target" not in noise:
+                raise ValueError("External noise must include 'target'")
+            target = np.asarray(noise["target"], np.float32)
+            if target.shape != (n, self.action_dim):
+                raise ValueError(
+                    f"noise['target'] shape {target.shape} != {(n, self.action_dim)}"
+                )
+            packed = {"target": target, "step": np.asarray(step, np.float32)}
+            if self.c["algorithm"] == "a2pr":
+                for key in ("vae", "reconstruction"):
+                    if key not in noise:
+                        raise ValueError(f"A2PR external noise must include '{key}'")
+                    packed[key] = np.asarray(noise[key], np.float32)
+            noise = packed
         new_state, metrics, first_bad = self._compiled_step(
             self.state,
             batch,
