@@ -29,3 +29,9 @@ is used for AMO meta / L2_RMS proxy only and does **not** enter the critic targe
 ## Legacy eval
 
 Prior `eval.jsonl` often has episodes=50 with repeats=5 (10×5 style). Preserved; **not** counted as final50_singlepass_v1.
+
+## Update 2026-09-14: merge CORL seed0 into 4-seed tables
+
+Per operator request, code/backend mismatch is accepted for seed0.
+- Prefer JAX final50 seed0 when present (AntMaze ρ=3e-4).
+- Else fill from CORL Torch `adaptive_beta` `mean_normalized` @ 1M.

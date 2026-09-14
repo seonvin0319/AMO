@@ -34,10 +34,64 @@ ANT = [
     "antmaze-large-play-v2",
     "antmaze-large-diverse-v2",
 ]
+CORL_SEED0_ROOT = Path(
+    "/home/ext_csh/CORL-iql-adaptive-beta-v1/results/"
+    "iql_amo_bpi_s0_rlr_binit_loco9_antmaze6/cells"
+)
+RHO_TAG = {3e-4: "rlr3e-4_b1", 2e-3: "rlr2e-3_b1"}
 
 
 def fmt_rho(x: float) -> str:
     return f"{x:.0e}".replace("e-0", "e-").replace("e+0", "e+")
+
+
+def fmt_rlr_tag(rho: float) -> str:
+    return RHO_TAG[rho]
+
+
+def corl_seed0_score(rho: float, env: str) -> dict[str, Any] | None:
+    """CORL Torch seed0 adaptive_beta score at step>=1M (mean_normalized)."""
+    root = CORL_SEED0_ROOT / fmt_rlr_tag(rho) / env
+    ev = root / "eval.jsonl"
+    if not ev.is_file():
+        return None
+    last_adapt = None
+    last_any = None
+    for line in ev.read_text(errors="ignore").splitlines():
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if int(row.get("step") or 0) < 1_000_000:
+            continue
+        sc = row.get("mean_normalized")
+        if sc is None:
+            continue
+        rec = {
+            "path": str(root),
+            "env": env,
+            "seed": 0,
+            "rho_lr": rho,
+            "beta_initial": 1.0,
+            "algorithm": "iql_amo",
+            "backend": "torch_corl",
+            "tree": "corl_seed0",
+            "status": "evaluation_valid",
+            "training_finished": True,
+            "final50": False,
+            "final50_score": None,
+            "normalized_score": float(sc),
+            "eval_protocol": row.get("protocol"),
+            "policy_id": row.get("policy_id"),
+            "episode_count": row.get("episode_count"),
+            "score_source": "corl_eval.jsonl:mean_normalized@1M",
+        }
+        last_any = rec
+        if row.get("policy_id") == "adaptive_beta":
+            last_adapt = rec
+    return last_adapt or last_any
 
 
 def mean_std(xs: list[float]) -> tuple[float | None, float | None]:
@@ -133,6 +187,32 @@ def score_of(r: dict[str, Any]) -> float | None:
     return None
 
 
+def merge_corl_seed0(idx: dict[tuple, dict]) -> list[dict[str, Any]]:
+    """Fill missing seed0 from CORL Torch; keep JAX seed0 when already present."""
+    filled = []
+    for rho in RHO:
+        for env in LOCO + ANT:
+            key = (round(rho, 10), 0, env)
+            existing = idx.get(key)
+            if existing is not None and score_of(existing) is not None:
+                continue
+            corl = corl_seed0_score(rho, env)
+            if corl is None:
+                continue
+            idx[key] = corl
+            filled.append(
+                {
+                    "rho_lr": rho,
+                    "env": env,
+                    "score": corl["normalized_score"],
+                    "path": corl["path"],
+                    "eval_protocol": corl.get("eval_protocol"),
+                    "policy_id": corl.get("policy_id"),
+                }
+            )
+    return filled
+
+
 def cell_report(
     idx: dict[tuple, dict], rho: float, env: str
 ) -> dict[str, Any]:
@@ -160,6 +240,13 @@ def cell_report(
             "path": r.get("path"),
             "backend": r.get("backend"),
             "tree": r.get("tree"),
+            "score_source": r.get("score_source")
+            or (
+                "eval_final50_v1.jsonl"
+                if r.get("final50") or r.get("final50_score") is not None
+                else None
+            ),
+            "eval_protocol": r.get("eval_protocol"),
         }
         scores.append(sc)
     m, sd = mean_std(scores)
@@ -228,12 +315,21 @@ def main() -> int:
 
     audit = load_audit(args.audit)
     idx = index_runs(audit)
+    corl_filled = merge_corl_seed0(idx)
 
     missing_seed0 = []
     for rho in RHO:
         for env in LOCO + ANT:
-            if (round(rho, 10), 0, env) not in idx:
-                missing_seed0.append({"rho_lr": rho, "env": env, "reason": "no_jax_beta1_seed0_run"})
+            key = (round(rho, 10), 0, env)
+            r = idx.get(key)
+            if r is None or score_of(r) is None:
+                missing_seed0.append(
+                    {
+                        "rho_lr": rho,
+                        "env": env,
+                        "reason": "no_jax_or_corl_seed0_score",
+                    }
+                )
 
     tables: dict[str, Any] = {
         "at": datetime.now(KST).isoformat(),
@@ -244,20 +340,23 @@ def main() -> int:
         "beta_initial": 1.0,
         "note": (
             "Distinct from svcho default actor_lr=1e-3. "
-            "Torch/CORL seed0 is NOT merged into these JAX cells."
+            "Seed0 may be JAX final50 (preferred) or CORL Torch adaptive_beta "
+            "mean_normalized@1M when JAX seed0 is absent (code/backend mixed by request)."
         ),
+        "corl_seed0_filled": corl_filled,
         "missing_seed0": missing_seed0,
         "by_rho": {},
     }
 
     md_parts = [
-        f"# IQL+AMO β=1 final50_singlepass_v1 (ext_csh)",
+        f"# IQL+AMO β=1 · seeds 0–3 (ext_csh)",
         "",
         f"- Generated: {tables['at']}",
-        f"- Protocol: `{PROTOCOL}`",
+        f"- Seeds 1–3: `{PROTOCOL}` (JAX)",
+        "- Seed0: JAX `final50` when present; else **CORL Torch** "
+        "`adaptive_beta` / `mean_normalized` @ 1M",
         "- actor/critic/value LR: **3e-4** (not svcho 1e-3)",
-        "- Eval policy: π_E (`agent.act` → main actor)",
-        "- Seeds: 0–3 where JAX seed0 exists; else `missing_seed0`",
+        "- Eval policy: π_E (JAX `agent.act` / CORL `adaptive_beta`)",
         "",
         "## Dual-actor IQL semantics (reference)",
         "",
@@ -265,9 +364,21 @@ def main() -> int:
         "value expectile). Bootstrap actor enters AMO meta/proxy terms only — "
         "**not** the critic Bellman target (unlike TD3 critic coupling).",
         "",
-        "## missing_seed0 (JAX β=1 compatible)",
+        f"## CORL seed0 filled ({len(corl_filled)})",
         "",
     ]
+    if corl_filled:
+        md_parts.append("| rho_lr | env | score | protocol |")
+        md_parts.append("|--------|-----|-------|----------|")
+        for m in corl_filled:
+            md_parts.append(
+                f"| {m['rho_lr']} | {m['env']} | {m['score']:.2f} | {m.get('eval_protocol')} |"
+            )
+    else:
+        md_parts.append("_none_")
+    md_parts.append("")
+    md_parts.append("## Still missing seed0")
+    md_parts.append("")
     if missing_seed0:
         md_parts.append("| rho_lr | env |")
         md_parts.append("|--------|-----|")
@@ -322,6 +433,7 @@ def main() -> int:
                     str(args.out_dir / "aggregate_final50.json"),
                     str(log_dir / "aggregate_final50.md"),
                 ],
+                "corl_seed0_filled": len(corl_filled),
                 "missing_seed0": len(missing_seed0),
                 "four_seed": {
                     k: {
