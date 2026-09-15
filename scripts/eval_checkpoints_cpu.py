@@ -288,6 +288,7 @@ def sweep_output(
     force: bool,
     delete_non_final: bool,
     max_per_run: int,
+    final_only: bool = False,
 ) -> dict:
     meta = load_run_meta(output)
     with_context = None
@@ -325,8 +326,20 @@ def sweep_output(
 
     ckpts = list_step_ckpts(output)
     pending = [(s, p) for s, p in ckpts if force or s not in done_steps]
+    if final_only:
+        pending = [(s, p) for s, p in pending if s >= budget]
+    else:
+        # Prefer final (max_steps) before mid; among mids keep ascending step order.
+        pending.sort(key=lambda item: (0 if item[0] >= budget else 1, item[0]))
     finished = 0
-    for step, path in pending[:max_per_run]:
+    if final_only:
+        to_run = pending[: max(1, max_per_run)]
+    elif pending and pending[0][0] >= budget:
+        # If a final ckpt is ready, evaluate it first and don't spend this tick on mids.
+        to_run = pending[:1]
+    else:
+        to_run = pending[:max_per_run]
+    for step, path in to_run:
         rec = eval_ckpt(
             output,
             environment,
@@ -350,6 +363,7 @@ def sweep_output(
         "done": finished,
         "pending": max(0, len(pending) - finished),
         "final_done": final_done,
+        "final_pending": any(s >= budget for s, _ in pending),
         "evaluated": len(done_steps),
         "run": output.name,
     }
@@ -382,6 +396,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--poll", action="store_true")
     parser.add_argument("--poll-sec", type=int, default=120)
     parser.add_argument("--max-per-run", type=int, default=2)
+    parser.add_argument(
+        "--final-only",
+        action="store_true",
+        help="Evaluate only max_steps / final checkpoints; skip mid ckpts",
+    )
     parser.add_argument("--run", default=None, help="Only this run directory name")
     args = parser.parse_args(argv)
 
@@ -391,15 +410,36 @@ def main(argv: list[str] | None = None) -> int:
     if args.run:
         runs = [r for r in runs if r.name == args.run]
     delete_non_final = not args.keep_mid_ckpts
+    # final-only mode: never delete mid ckpts from this process
+    if args.final_only:
+        delete_non_final = False
+
+    def run_has_final_pending(output: Path) -> bool:
+        ckpts = list_step_ckpts(output)
+        if not ckpts:
+            return False
+        budget = 1_000_000
+        try:
+            with np.load(ckpts[-1][1], allow_pickle=False) as data:
+                ck_meta = json.loads(str(data["__metadata__"]))
+            budget = int((ck_meta.get("config") or {}).get("max_steps", budget))
+        except Exception:
+            pass
+        done = evaluated_steps(output)
+        return any(s >= budget and s not in done for s, _ in ckpts)
 
     def tick() -> dict:
         evaluated = pending = finals = 0
-        for output in runs:
-            # Rediscover late-arriving runs each poll.
-            pass
         live = discover_runs(runs_root)
         if args.run:
             live = [r for r in live if r.name == args.run]
+        if args.final_only:
+            live = [r for r in live if run_has_final_pending(r)]
+        else:
+            # Runs with an unevaluated final checkpoint jump the queue.
+            live = sorted(
+                live, key=lambda o: (0 if run_has_final_pending(o) else 1, o.name)
+            )
         for output in live:
             rec = sweep_output(
                 output,
@@ -409,17 +449,30 @@ def main(argv: list[str] | None = None) -> int:
                 args.force,
                 delete_non_final,
                 args.max_per_run,
+                final_only=args.final_only,
             )
             evaluated += int(rec.get("done", 0))
             pending += int(rec.get("pending", 0))
             if rec.get("final_done"):
                 finals += 1
+            if rec.get("final_pending") and rec.get("done", 0):
+                print(
+                    json.dumps(
+                        {
+                            "status": "final_priority",
+                            "run": rec.get("run"),
+                            "at": utc_now(),
+                        }
+                    ),
+                    flush=True,
+                )
         return {
             "at": utc_now(),
             "ckpts_evaluated_this_tick": evaluated,
             "ckpts_pending_known": pending,
             "runs_final_done": finals,
             "runs_seen": len(live),
+            "final_only": bool(args.final_only),
         }
 
     if not args.poll:

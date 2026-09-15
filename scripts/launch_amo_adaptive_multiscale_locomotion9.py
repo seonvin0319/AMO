@@ -20,7 +20,7 @@ ENVIRONMENTS = tuple(
     for domain in ("halfcheetah", "hopper", "walker2d")
     for dataset in ("medium", "medium-replay", "medium-expert")
 )
-LAUNCH_SCALES = {"T_E": None, "T_B": None, "T_lr": None}
+LAUNCH_SCALES = {"alpha_E": None, "alpha_B": None, "alpha_lr": None}
 
 ENV_SHORT = {
     environment: environment.replace("halfcheetah", "hc")
@@ -125,30 +125,30 @@ def live_amo_per_gpu() -> dict[str, int]:
 
 
 def resolved_config(environment: str) -> dict:
-    te = LAUNCH_SCALES["T_E"]
-    tb = LAUNCH_SCALES["T_B"]
-    tlr = LAUNCH_SCALES["T_lr"]
-    initial_t_e = "TrainConfig.T_E default" if te is None else te
+    te = LAUNCH_SCALES["alpha_E"]
+    tb = LAUNCH_SCALES["alpha_B"]
+    tlr = LAUNCH_SCALES["alpha_lr"]
+    initial_t_e = "TrainConfig.alpha_E default" if te is None else te
     if tb is not None:
         initial_t_b = tb
     elif te is not None:
         initial_t_b = te
     else:
-        initial_t_b = "TrainConfig.T_E default"
+        initial_t_b = "TrainConfig.alpha_E default"
     return {
         "algorithm": "amo_adaptive_multiscale",
         "env": environment,
         "seed": 0,
         "adaptive_multiscale": True,
-        "initial_T_E": initial_t_e,
-        "initial_T_B": initial_t_b,
-        "T_lr": "TrainConfig.T_lr default" if tlr is None else tlr,
+        "initial_alpha_E": initial_t_e,
+        "initial_alpha_B": initial_t_b,
+        "alpha_lr": "TrainConfig.alpha_lr default" if tlr is None else tlr,
         "execution_scale_loss": "-B_PI_E",
         "bootstrap_scale_loss": "L1_B+L2_RMS_B",
         "bootstrap_outer_loss_version": "tq_detached_rms_target_v1",
         "bootstrap_scale_loss_formula": (
-            "-2*stopgrad(T_B)*mean(Q_B+)/S_B + C_B+ "
-            "+ 2*stopgrad(T_B)*RMS(delta_y_B/S_B)"
+            "-stopgrad(alpha_B)*mean(Q_B+)/S_B + C_B+ "
+            "+ stopgrad(alpha_B)*RMS(delta_y_B/S_B)"
         ),
         "max_timesteps": 1_000_000,
         "eval_freq": 5_000,
@@ -178,12 +178,12 @@ def command(environment: str) -> list[str]:
         "--project=AMO-adaptive-multiscale",
         "--group=amo-locomotion9-seed0",
     ]
-    if LAUNCH_SCALES["T_E"] is not None:
-        cmd.append(f"--T_E={LAUNCH_SCALES['T_E']}")
-    if LAUNCH_SCALES["T_B"] is not None:
-        cmd.append(f"--T_B={LAUNCH_SCALES['T_B']}")
-    if LAUNCH_SCALES["T_lr"] is not None:
-        cmd.append(f"--T_lr={LAUNCH_SCALES['T_lr']}")
+    if LAUNCH_SCALES["alpha_E"] is not None:
+        cmd.append(f"--alpha_E={LAUNCH_SCALES['alpha_E']}")
+    if LAUNCH_SCALES["alpha_B"] is not None:
+        cmd.append(f"--alpha_B={LAUNCH_SCALES['alpha_B']}")
+    if LAUNCH_SCALES["alpha_lr"] is not None:
+        cmd.append(f"--alpha_lr={LAUNCH_SCALES['alpha_lr']}")
     if result_dirs(environment):
         cmd.append(f"--resume_tag={run_id(environment)}")
     return cmd
@@ -234,13 +234,13 @@ def main() -> int:
     parser.add_argument("--max-used-mib", type=int, default=1024)
     parser.add_argument("--slots-per-gpu", type=int, default=1)
     parser.add_argument("--out", default=str(OUT))
-    parser.add_argument("--T_E", type=float, default=None)
-    parser.add_argument("--T_B", type=float, default=None)
-    parser.add_argument("--T_lr", type=float, default=None)
+    parser.add_argument("--alpha_E", type=float, default=None)
+    parser.add_argument("--alpha_B", type=float, default=None)
+    parser.add_argument("--alpha_lr", type=float, default=None)
     args = parser.parse_args()
-    LAUNCH_SCALES["T_E"] = args.T_E
-    LAUNCH_SCALES["T_B"] = args.T_B
-    LAUNCH_SCALES["T_lr"] = args.T_lr
+    LAUNCH_SCALES["alpha_E"] = args.alpha_E
+    LAUNCH_SCALES["alpha_B"] = args.alpha_B
+    LAUNCH_SCALES["alpha_lr"] = args.alpha_lr
     OUT = Path(args.out)
     gpus = [gpu.strip() for gpu in args.gpus.split(",") if gpu.strip()]
     if not gpus:
@@ -265,12 +265,12 @@ def main() -> int:
         ]
         if args.retry_failed:
             child_command.append("--retry-failed")
-        if args.T_E is not None:
-            child_command.extend(["--T_E", str(args.T_E)])
-        if args.T_B is not None:
-            child_command.extend(["--T_B", str(args.T_B)])
-        if args.T_lr is not None:
-            child_command.extend(["--T_lr", str(args.T_lr)])
+        if args.alpha_E is not None:
+            child_command.extend(["--alpha_E", str(args.alpha_E)])
+        if args.alpha_B is not None:
+            child_command.extend(["--alpha_B", str(args.alpha_B)])
+        if args.alpha_lr is not None:
+            child_command.extend(["--alpha_lr", str(args.alpha_lr)])
         log_handle = (OUT / "launcher.log").open("a", encoding="utf-8")
         process = subprocess.Popen(
             child_command,
@@ -316,7 +316,7 @@ def main() -> int:
         "canonical_definition": (
             "AMO adaptive multiscale: D4RL v2 "
             "medium/medium-replay/medium-expert x "
-            "halfcheetah/hopper/walker2d; independently learned T_E and T_B"
+            "halfcheetah/hopper/walker2d; independently learned alpha_E and alpha_B"
         ),
         "environments": list(ENVIRONMENTS),
         "git": metadata,

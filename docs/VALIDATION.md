@@ -11,7 +11,7 @@ The tests transplant identical initial weights and control target-action/VAE noi
 
 | Method | External oracle | Checked |
 | --- | --- | --- |
-| TD3+AMO | AMO adaptive_multiscale trainer | 22 updates including the scale update, actor/critic/target parameters, T_E/T_B parameters |
+| TD3+AMO | AMO adaptive_multiscale trainer | 22 updates including the scale update, actor/critic/target parameters, alpha_E/alpha_B parameters |
 | ASPC | ASPC Adaptive_TD3_BC | 22 updates including alpha update, actor/critic/target parameters |
 | wPC(RC) | ASPC wPC trainer | 22 updates, value mask timing, actor/value/critic/targets |
 | TD3+BC(RC) | ASPC TD3_BC | 22 updates, actor/critic/targets |

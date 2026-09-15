@@ -89,16 +89,16 @@ Resume with the same algorithm configuration, environment, seed, and dataset. Ch
 ## Final TD3+AMO contract
 
 - Two actors share twin critics. The target bootstrap actor supplies Bellman actions; the execution actor supplies evaluation actions. Both use dataset actions as their BC anchor.
-- Actor loss is `-mean(Q1)/stop(mean(abs(Q1))) + MSE(pi,a_D)/(2*T)`.
+- Actor loss is `-mean(Q1)/stop(mean(abs(Q1))) + MSE(pi,a_D)/alpha` with `alpha:=2T` (legacy T).
 - The execution scale minimizes normalized `-B_pi` through a virtual Adam update.
-- The bootstrap scale minimizes `L1_B + L2_RMS_B` through a virtual SGD update. The `2*T_B` common factor and Q normalization are detached. RMS is exact with a finite zero subgradient.
+- The bootstrap scale minimizes `L1_B + L2_RMS_B` through a virtual SGD update. The detached common factor is `alpha_B` (=2*T_B legacy) and Q normalization is detached. RMS is exact with a finite zero subgradient.
 - JAX always uses `highest` matmul precision for the full L2 RMS path, including its virtual update and gradients. This is built in; no precision flag or alternate mode is needed. Other paths retain the caller's precision.
 - The outer batch is sampled independently. There is no fixed ratio or ordering constraint between the scales.
 - Original timing is retained: the execution actor uses its pre-meta-update scale; the bootstrap actor uses its updated scale.
 
-The default is the recorded completed multiseed profile `T_E=1`, `T_B=1`, `T_lr=0.001`. This does not claim that the profile is best for every environment. Four-evaluation, scheduled-horizon, lambda and behavior-critic experiments are outside the release modules. B_pi remains an empirical local proxy, not a certified performance lower bound.
+The default is the recorded completed multiseed profile `alpha_E=2`, `alpha_B=2`, `alpha_lr=0.001` (legacy `T_E=T_B=1`). This does not claim that the profile is best for every environment. Four-evaluation, scheduled-horizon, lambda and behavior-critic experiments are outside the release modules. B_pi remains an empirical local proxy, not a certified performance lower bound.
 
-The uploaded TD3 branch also contains a locomotion launcher with `T_lr=0.0003` and environment-specific initial scales. Its first-priority values are available through `--config configs/td3_amo_band95.yaml`; this is a separate recorded experiment profile. The default critic remains three hidden layers with LayerNorm. The branch's two-layer critic without LayerNorm is an ablation, selectable through `critic_depth` and `critic_layernorm` in a custom config.
+The uploaded TD3 branch also contains a locomotion launcher with `alpha_lr=0.0003` and environment-specific initial scales (legacy T inits ×2 → alpha). Its first-priority values are available through `--config configs/td3_amo_band95.yaml`; this is a separate recorded experiment profile. The default critic remains three hidden layers with LayerNorm. The branch's two-layer critic without LayerNorm is an ablation, selectable through `critic_depth` and `critic_layernorm` in a custom config.
 
 See [the exact equations and detach conventions](docs/TD3_AMO.md) for normalization, virtual updates and zero handling.
 

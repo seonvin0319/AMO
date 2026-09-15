@@ -87,13 +87,13 @@ class Vnet(nn.Module):
 
 class AMO:
 
-    def __init__(self, max_action: float, actor: nn.Module, actor_optimizer: torchopt.Optimizer, critic_1: nn.Module, critic_1_optimizer: torch.optim.Optimizer, critic_2, critic_2_optimizer, vnet, vnet_optimizer, *, discount=0.99, tau=0.005, policy_noise=0.2, noise_clip=0.5, policy_freq=2, T=1.25, T_B=None, T_freq=10, T_lr=0.0002, proximal_n_steps=1, adaptive_multiscale=False, bootstrap_rms_diagnostic_freq=0, smoothness_eps=1e-06, smoothness_max=None, actor_lr=0.0003, device='cpu', **_ignored):
-        if T <= 0 or proximal_n_steps < 1:
-            raise ValueError('T and proximal_n_steps must be positive')
-        if T_B is not None and T_B <= 0:
-            raise ValueError('T_B must be > 0')
-        if T_B is not None and (not adaptive_multiscale):
-            raise ValueError('T_B is only used with adaptive_multiscale')
+    def __init__(self, max_action: float, actor: nn.Module, actor_optimizer: torchopt.Optimizer, critic_1: nn.Module, critic_1_optimizer: torch.optim.Optimizer, critic_2, critic_2_optimizer, vnet, vnet_optimizer, *, discount=0.99, tau=0.005, policy_noise=0.2, noise_clip=0.5, policy_freq=2, alpha=2.5, alpha_B=None, alpha_freq=10, alpha_lr=0.0002, proximal_n_steps=1, adaptive_multiscale=False, bootstrap_rms_diagnostic_freq=0, smoothness_eps=1e-06, smoothness_max=None, actor_lr=0.0003, device='cpu', **_ignored):
+        if alpha <= 0 or proximal_n_steps < 1:
+            raise ValueError('alpha and proximal_n_steps must be positive')
+        if alpha_B is not None and alpha_B <= 0:
+            raise ValueError('alpha_B must be > 0')
+        if alpha_B is not None and (not adaptive_multiscale):
+            raise ValueError('alpha_B is only used with adaptive_multiscale')
         if adaptive_multiscale and proximal_n_steps != 1:
             raise ValueError('adaptive_multiscale cannot be combined with proximal_n_steps; leave proximal_n_steps at its default value of 1')
         self.actor, self.actor_optimizer = (actor, actor_optimizer)
@@ -104,35 +104,35 @@ class AMO:
         self.vnet, self.vnet_optimizer = (vnet, vnet_optimizer)
         self.max_action, self.discount, self.tau = (max_action, discount, tau)
         self.policy_noise, self.noise_clip, self.policy_freq = (policy_noise, noise_clip, policy_freq)
-        self.T_freq, self.proximal_n_steps = (T_freq, proximal_n_steps)
+        self.alpha_freq, self.proximal_n_steps = (alpha_freq, proximal_n_steps)
         self.adaptive_multiscale = bool(adaptive_multiscale)
         self.bootstrap_rms_diagnostic_freq = int(bootstrap_rms_diagnostic_freq)
-        self.T_lr = float(T_lr)
+        self.alpha_lr = float(alpha_lr)
         self.actor_lr = float(actor_lr)
         self.smoothness_eps, self.smoothness_max, self.device = (smoothness_eps, smoothness_max, device)
-        initial_T = torch.tensor(T, device=device)
-        self.log_T = nn.Parameter(torch.log(torch.expm1(initial_T)))
-        self.T_optimizer = torch.optim.Adam([self.log_T], lr=T_lr)
-        self.T_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.T_optimizer, gamma=0.01 ** (1 / int(1000000.0 / (policy_freq * T_freq))))
-        self.log_T_B = None
-        self.T_B_optimizer = None
-        self.T_B_scheduler = None
+        initial_alpha = torch.tensor(alpha, device=device)
+        self.log_alpha = nn.Parameter(torch.log(torch.expm1(initial_alpha)))
+        self.alpha_optimizer = torch.optim.Adam([self.log_alpha], lr=alpha_lr)
+        self.alpha_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.alpha_optimizer, gamma=0.01 ** (1 / int(1000000.0 / (policy_freq * alpha_freq))))
+        self.log_alpha_B = None
+        self.alpha_B_optimizer = None
+        self.alpha_B_scheduler = None
         self.bootstrap_outer_update_count = 0
         self.bootstrap_l1_l2_same_sign_count = 0
         self.bootstrap_l1_l2_nonzero_count = 0
-        self._execution_last_delta_log_T = 0.0
+        self._execution_last_delta_log_alpha = 0.0
         self._bootstrap_last = {}
         if self.adaptive_multiscale:
-            tb = float(T if T_B is None else T_B)
-            if tb == float(T):
-                initial_T_B = initial_T
-                self.log_T_B = nn.Parameter(self.log_T.detach().clone())
+            tb = float(alpha if alpha_B is None else alpha_B)
+            if tb == float(alpha):
+                initial_alpha_B = initial_alpha
+                self.log_alpha_B = nn.Parameter(self.log_alpha.detach().clone())
             else:
-                initial_T_B = torch.tensor(tb, device=device)
-                self.log_T_B = nn.Parameter(torch.log(torch.expm1(initial_T_B)))
-            self.T_B_optimizer = torch.optim.Adam([self.log_T_B], lr=T_lr)
-            self.T_B_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.T_B_optimizer, gamma=0.01 ** (1 / int(1000000.0 / (policy_freq * T_freq))))
-            self._bootstrap_last = {'T_B': initial_T_B.item(), 'L1_B_Q': 0.0, 'L1_B_BC': 0.0, 'L1_B': 0.0, 'L2_RMS_B': 0.0, 'L_T_B': 0.0, 'delta_y_B_mean': 0.0, 'delta_y_B_mean_abs': 0.0, 'delta_y_B_rms': 0.0, 'delta_y_B_rms_relative': 0.0, 'delta_y_B_rms_nonterminal_conditional': 0.0, 'delta_y_B_max_abs': 0.0, 'nonterminal_fraction': 0.0, 'L2_squared_relative_diag': 0.0, 'q_scale_B': 0.0, 'grad_T_B_total': 0.0, 'grad_T_B_from_L1_Q_chain': 0.0, 'grad_T_B_from_L1_BC_chain': 0.0, 'grad_T_B_from_L1': 0.0, 'grad_T_B_from_L2_RMS': 0.0, 'grad_T_B_L1_L2_same_sign': 0.0, 'abs_grad_ratio_L1_L2': 0.0, 'delta_log_T_B': 0.0, 'target_critic_grad_norm': 0.0}
+                initial_alpha_B = torch.tensor(tb, device=device)
+                self.log_alpha_B = nn.Parameter(torch.log(torch.expm1(initial_alpha_B)))
+            self.alpha_B_optimizer = torch.optim.Adam([self.log_alpha_B], lr=alpha_lr)
+            self.alpha_B_scheduler = torch.optim.lr_scheduler.ExponentialLR(self.alpha_B_optimizer, gamma=0.01 ** (1 / int(1000000.0 / (policy_freq * alpha_freq))))
+            self._bootstrap_last = {'alpha_B': initial_alpha_B.item(), 'L1_B_Q': 0.0, 'L1_B_BC': 0.0, 'L1_B': 0.0, 'L2_RMS_B': 0.0, 'L_alpha_B': 0.0, 'delta_y_B_mean': 0.0, 'delta_y_B_mean_abs': 0.0, 'delta_y_B_rms': 0.0, 'delta_y_B_rms_relative': 0.0, 'delta_y_B_rms_nonterminal_conditional': 0.0, 'delta_y_B_max_abs': 0.0, 'nonterminal_fraction': 0.0, 'L2_squared_relative_diag': 0.0, 'q_scale_B': 0.0, 'grad_alpha_B_total': 0.0, 'grad_alpha_B_from_L1_Q_chain': 0.0, 'grad_alpha_B_from_L1_BC_chain': 0.0, 'grad_alpha_B_from_L1': 0.0, 'grad_alpha_B_from_L2_RMS': 0.0, 'grad_alpha_B_L1_L2_same_sign': 0.0, 'abs_grad_ratio_L1_L2': 0.0, 'delta_log_alpha_B': 0.0, 'target_critic_grad_norm': 0.0}
         if self.adaptive_multiscale:
             self.actor_bank = [copy.deepcopy(actor), actor]
         else:
@@ -155,7 +155,7 @@ class AMO:
     def bootstrap_scale(self):
         if not self.adaptive_multiscale:
             raise RuntimeError('bootstrap_scale is only defined for adaptive_multiscale')
-        return F.softplus(self.log_T_B)
+        return F.softplus(self.log_alpha_B)
 
     def _virtual_actor_update(self, bank_index, state, reference, horizon):
         bank_actor = self.actor_bank[bank_index]
@@ -180,7 +180,7 @@ class AMO:
         updated_map = dict(zip(names, updated))
         return (parameter_map, updated_map)
 
-    def _virtual_bootstrap_actor_update(self, state, reference, T_B):
+    def _virtual_bootstrap_actor_update(self, state, reference, alpha_B):
         """Differentiable theta_B - actor_lr * grad(theta_B) update."""
         bank_actor = self.actor_bank[0]
         named = list(bank_actor.named_parameters())
@@ -190,7 +190,7 @@ class AMO:
             parameter.requires_grad_(False)
         try:
             pi = torch.func.functional_call(bank_actor, dict(named), (state,))
-            inner_loss, _ = self._inner_loss(state, pi, reference.detach(), T_B)
+            inner_loss, _ = self._inner_loss(state, pi, reference.detach(), alpha_B)
             grads = torch.autograd.grad(inner_loss, params, create_graph=True)
         finally:
             for parameter, value in zip(self.critic_1.parameters(), critic_required):
@@ -207,15 +207,15 @@ class AMO:
         return torch.linalg.vector_norm(values) / math.sqrt(values.numel())
 
     @staticmethod
-    def _tq_scaled_bootstrap_terms(T_B, normalized_q, bc, R_B):
+    def _tq_scaled_bootstrap_terms(alpha_B, normalized_q, bc, R_B):
         """Build inverse and detached-common-factor TQ objectives."""
-        detached_T_B = T_B.detach()
-        L1_B_Q = -2.0 * detached_T_B * normalized_q
+        detached_alpha_B = alpha_B.detach()
+        L1_B_Q = -detached_alpha_B * normalized_q
         L1_B_BC = bc
         L1_B = L1_B_Q + L1_B_BC
-        L2_RMS_B = 2.0 * detached_T_B * R_B
-        inverse_objective = -normalized_q + bc / (2.0 * detached_T_B) + R_B
-        return {'L1_B_Q': L1_B_Q, 'L1_B_BC': L1_B_BC, 'L1_B': L1_B, 'L2_RMS_B': L2_RMS_B, 'L_T_B': L1_B + L2_RMS_B, 'L_T_B_inverse': inverse_objective}
+        L2_RMS_B = detached_alpha_B * R_B
+        inverse_objective = -normalized_q + bc / detached_alpha_B + R_B
+        return {'L1_B_Q': L1_B_Q, 'L1_B_BC': L1_B_BC, 'L1_B': L1_B, 'L2_RMS_B': L2_RMS_B, 'L_alpha_B': L1_B + L2_RMS_B, 'L_alpha_B_inverse': inverse_objective}
 
     @classmethod
     def _bootstrap_target_rms(cls, delta_q, done, q_scale, discount):
@@ -232,11 +232,11 @@ class AMO:
         squared_relative_diag = ((nonterminal * delta_q.square()).mean() / q_scale.square()).detach()
         return {'delta_y_B': delta_y, 'relative_delta_y_B': relative_delta_y, 'R_B': rms_relative, 'delta_y_B_rms': rms, 'delta_y_B_rms_nonterminal_conditional': rms_nonterminal, 'nonterminal_fraction': nonterminal.detach().mean(), 'L2_squared_relative_diag': squared_relative_diag}
 
-    def _bootstrap_multiscale_objective(self, batch_inner, batch_outer, T_B):
+    def _bootstrap_multiscale_objective(self, batch_inner, batch_outer, alpha_B):
         """Return detached-TQ L1 plus normalized target-displacement RMS."""
         inner_state, inner_action = batch_inner[:2]
         state, action, _, next_state, done = batch_outer
-        virtual_parameters = self._virtual_bootstrap_actor_update(inner_state, inner_action, T_B)
+        virtual_parameters = self._virtual_bootstrap_actor_update(inner_state, inner_action, alpha_B)
         target_parameters = list(self.critic_1_target.parameters()) + list(self.critic_2_target.parameters())
         required = [parameter.requires_grad for parameter in target_parameters]
         for parameter in target_parameters:
@@ -255,22 +255,22 @@ class AMO:
             delta_q = q_new - q_old.detach()
             target_rms = self._bootstrap_target_rms(delta_q, done, q_scale, self.discount)
             R_B = target_rms['R_B']
-            terms = self._tq_scaled_bootstrap_terms(T_B, normalized_q, bc, R_B)
-            outer_loss = terms['L_T_B']
-            target_grad_norm = T_B.new_zeros(())
+            terms = self._tq_scaled_bootstrap_terms(alpha_B, normalized_q, bc, R_B)
+            outer_loss = terms['L_alpha_B']
+            target_grad_norm = alpha_B.new_zeros(())
             return (outer_loss, {'bootstrap_outer_loss_version': BOOTSTRAP_OUTER_LOSS_VERSION, **terms, 'R_B': R_B, 'q_scale_B': q_scale, 'delta_Q_B': delta_q, **target_rms, 'Qbar_B_new': q_new, 'Qbar_B_old': q_old, 'virtual_action': virtual_action, 'virtual_next_action': virtual_next_action, 'current_next_action': current_next_action, 'virtual_actor_parameters': virtual_parameters, 'target_critic_grad_norm': target_grad_norm})
         finally:
             for parameter, value in zip(target_parameters, required):
                 parameter.requires_grad_(value)
 
     def _report_nonfinite_multiscale(self, stage, scalars):
-        context = {'stage': stage, 'step': self.total_it, 'T_E': float(F.softplus(self.log_T).detach().cpu()), 'T_B': float(self.bootstrap_scale().detach().cpu())}
+        context = {'stage': stage, 'step': self.total_it, 'alpha_E': float(F.softplus(self.log_alpha).detach().cpu()), 'alpha_B': float(self.bootstrap_scale().detach().cpu())}
         context.update({key: float(value.detach().cpu()) if isinstance(value, torch.Tensor) else float(value) for key, value in scalars.items()})
         print(f'[adaptive_multiscale] non-finite update skipped: {json.dumps(context)}')
 
     def _bootstrap_rms_nonlocal_diagnostics(self, batch_inner, batch_outer):
-        """Read-only local/nonlocal slopes of R_B with respect to rho_B=log_T_B."""
-        rho_center = self.log_T_B.detach().clone().requires_grad_(True)
+        """Read-only local/nonlocal slopes of R_B with respect to rho_B=log_alpha_B."""
+        rho_center = self.log_alpha_B.detach().clone().requires_grad_(True)
 
         def evaluate(rho):
             _, details = self._bootstrap_multiscale_objective(batch_inner, batch_outer, F.softplus(rho))
@@ -303,11 +303,11 @@ class AMO:
         center_value = center.detach().item()
         monotone_small = small_minus <= center_value <= small_plus or small_minus >= center_value >= small_plus
         monotone_large = large_minus <= center_value <= large_plus or large_minus >= center_value >= large_plus
-        values.update({'amo/R_B_autograd_grad_rho': grad.detach().item(), 'amo/grad_T_B_from_L2_squared_relative_old_diag': old_squared_grad.detach().item(), 'amo/grad_T_B_from_L2_RMS_readonly_diag': rms_l2_grad.detach().item(), 'amo/abs_grad_ratio_RMS_over_squared_old_diag': abs(rms_l2_grad.detach().item()) / max(abs(old_squared_grad.detach().item()), torch.finfo(grad.dtype).tiny), 'amo/RMS_grad_larger_than_squared_old_diag': float(abs(rms_l2_grad.detach().item()) > abs(old_squared_grad.detach().item())), 'amo/R_B_nonlocal_center': center_value, 'amo/R_B_monotone_small': float(monotone_small), 'amo/R_B_monotone_large': float(monotone_large)})
+        values.update({'amo/R_B_autograd_grad_rho': grad.detach().item(), 'amo/grad_alpha_B_from_L2_squared_relative_old_diag': old_squared_grad.detach().item(), 'amo/grad_alpha_B_from_L2_RMS_readonly_diag': rms_l2_grad.detach().item(), 'amo/abs_grad_ratio_RMS_over_squared_old_diag': abs(rms_l2_grad.detach().item()) / max(abs(old_squared_grad.detach().item()), torch.finfo(grad.dtype).tiny), 'amo/RMS_grad_larger_than_squared_old_diag': float(abs(rms_l2_grad.detach().item()) > abs(old_squared_grad.detach().item())), 'amo/R_B_nonlocal_center': center_value, 'amo/R_B_monotone_small': float(monotone_small), 'amo/R_B_monotone_large': float(monotone_large)})
         return values
 
-    def _update_bootstrap_scale(self, batch_inner, batch_outer, T_B):
-        outer_loss, details = self._bootstrap_multiscale_objective(batch_inner, batch_outer, T_B)
+    def _update_bootstrap_scale(self, batch_inner, batch_outer, alpha_B):
+        outer_loss, details = self._bootstrap_multiscale_objective(batch_inner, batch_outer, alpha_B)
         delta_y = details['delta_y_B']
         finite_values = [outer_loss, details['L1_B_Q'], details['L1_B_BC'], details['L1_B'], details['L2_RMS_B'], details['R_B'], details['q_scale_B'], delta_y]
         values_finite = all((bool(torch.isfinite(value).all()) for value in finite_values))
@@ -317,21 +317,21 @@ class AMO:
         grad_l2 = None
         grad_total = None
         if values_finite:
-            grad_l1_q = torch.autograd.grad(details['L1_B_Q'], self.log_T_B, retain_graph=True)[0]
-            grad_l1_bc = torch.autograd.grad(details['L1_B_BC'], self.log_T_B, retain_graph=True)[0]
-            grad_l1 = torch.autograd.grad(details['L1_B'], self.log_T_B, retain_graph=True)[0]
-            grad_l2 = torch.autograd.grad(details['L2_RMS_B'], self.log_T_B)[0]
+            grad_l1_q = torch.autograd.grad(details['L1_B_Q'], self.log_alpha_B, retain_graph=True)[0]
+            grad_l1_bc = torch.autograd.grad(details['L1_B_BC'], self.log_alpha_B, retain_graph=True)[0]
+            grad_l1 = torch.autograd.grad(details['L1_B'], self.log_alpha_B, retain_graph=True)[0]
+            grad_l2 = torch.autograd.grad(details['L2_RMS_B'], self.log_alpha_B)[0]
             grad_total = grad_l1 + grad_l2
         grads_finite = grad_total is not None and bool(torch.isfinite(grad_l1_q).all()) and bool(torch.isfinite(grad_l1_bc).all()) and bool(torch.isfinite(grad_l1).all()) and bool(torch.isfinite(grad_l2).all()) and bool(torch.isfinite(grad_total).all())
-        log_T_B_before = self.log_T_B.detach().clone()
+        log_alpha_B_before = self.log_alpha_B.detach().clone()
         if grads_finite:
-            self.T_B_optimizer.zero_grad(set_to_none=True)
-            self.log_T_B.grad = grad_total.detach().clone()
-            self.T_B_optimizer.step()
-            self.T_B_scheduler.step()
+            self.alpha_B_optimizer.zero_grad(set_to_none=True)
+            self.log_alpha_B.grad = grad_total.detach().clone()
+            self.alpha_B_optimizer.step()
+            self.alpha_B_scheduler.step()
         else:
-            self._report_nonfinite_multiscale('bootstrap_scale', {'L_T_B': outer_loss, 'L1_B': details['L1_B'], 'L2_RMS_B': details['L2_RMS_B'], 'R_B': details['R_B'], 'q_scale_B': details['q_scale_B']})
-        delta_log_T_B = (self.log_T_B.detach() - log_T_B_before).item()
+            self._report_nonfinite_multiscale('bootstrap_scale', {'L_alpha_B': outer_loss, 'L1_B': details['L1_B'], 'L2_RMS_B': details['L2_RMS_B'], 'R_B': details['R_B'], 'q_scale_B': details['q_scale_B']})
+        delta_log_alpha_B = (self.log_alpha_B.detach() - log_alpha_B_before).item()
         self.bootstrap_outer_update_count += 1
         same_sign = bool(grad_l1 is not None and grad_l2 is not None and ((grad_l1 * grad_l2).detach().item() > 0.0))
         both_nonzero = bool(grad_l1 is not None and grad_l2 is not None and (grad_l1.detach().item() != 0.0) and (grad_l2.detach().item() != 0.0))
@@ -340,19 +340,19 @@ class AMO:
             self.bootstrap_l1_l2_same_sign_count += int(same_sign)
         grad_l1_value = 0.0 if grad_l1 is None else grad_l1.detach().item()
         grad_l2_value = 0.0 if grad_l2 is None else grad_l2.detach().item()
-        ratio_floor = torch.finfo(T_B.dtype).tiny
-        self._bootstrap_last = {'T_B': self.bootstrap_scale().detach().item(), 'L1_B_Q': details['L1_B_Q'].detach().item(), 'L1_B_BC': details['L1_B_BC'].detach().item(), 'L1_B': details['L1_B'].detach().item(), 'L2_RMS_B': details['L2_RMS_B'].detach().item(), 'L_T_B': outer_loss.detach().item(), 'delta_y_B_mean': delta_y.detach().mean().item(), 'delta_y_B_mean_abs': delta_y.detach().abs().mean().item(), 'delta_y_B_rms': details['delta_y_B_rms'].detach().item(), 'delta_y_B_rms_relative': details['R_B'].detach().item(), 'delta_y_B_rms_nonterminal_conditional': details['delta_y_B_rms_nonterminal_conditional'].detach().item(), 'delta_y_B_max_abs': delta_y.detach().abs().max().item(), 'nonterminal_fraction': details['nonterminal_fraction'].item(), 'L2_squared_relative_diag': details['L2_squared_relative_diag'].item(), 'q_scale_B': details['q_scale_B'].detach().item(), 'grad_T_B_total': 0.0 if grad_total is None else grad_total.detach().item(), 'grad_T_B_from_L1_Q_chain': 0.0 if grad_l1_q is None else grad_l1_q.detach().item(), 'grad_T_B_from_L1_BC_chain': 0.0 if grad_l1_bc is None else grad_l1_bc.detach().item(), 'grad_T_B_from_L1': grad_l1_value, 'grad_T_B_from_L2_RMS': grad_l2_value, 'grad_T_B_L1_L2_same_sign': float(same_sign), 'abs_grad_ratio_L1_L2': abs(grad_l1_value) / max(abs(grad_l2_value), ratio_floor), 'delta_log_T_B': delta_log_T_B, 'target_critic_grad_norm': details['target_critic_grad_norm'].detach().item()}
+        ratio_floor = torch.finfo(alpha_B.dtype).tiny
+        self._bootstrap_last = {'alpha_B': self.bootstrap_scale().detach().item(), 'L1_B_Q': details['L1_B_Q'].detach().item(), 'L1_B_BC': details['L1_B_BC'].detach().item(), 'L1_B': details['L1_B'].detach().item(), 'L2_RMS_B': details['L2_RMS_B'].detach().item(), 'L_alpha_B': outer_loss.detach().item(), 'delta_y_B_mean': delta_y.detach().mean().item(), 'delta_y_B_mean_abs': delta_y.detach().abs().mean().item(), 'delta_y_B_rms': details['delta_y_B_rms'].detach().item(), 'delta_y_B_rms_relative': details['R_B'].detach().item(), 'delta_y_B_rms_nonterminal_conditional': details['delta_y_B_rms_nonterminal_conditional'].detach().item(), 'delta_y_B_max_abs': delta_y.detach().abs().max().item(), 'nonterminal_fraction': details['nonterminal_fraction'].item(), 'L2_squared_relative_diag': details['L2_squared_relative_diag'].item(), 'q_scale_B': details['q_scale_B'].detach().item(), 'grad_alpha_B_total': 0.0 if grad_total is None else grad_total.detach().item(), 'grad_alpha_B_from_L1_Q_chain': 0.0 if grad_l1_q is None else grad_l1_q.detach().item(), 'grad_alpha_B_from_L1_BC_chain': 0.0 if grad_l1_bc is None else grad_l1_bc.detach().item(), 'grad_alpha_B_from_L1': grad_l1_value, 'grad_alpha_B_from_L2_RMS': grad_l2_value, 'grad_alpha_B_L1_L2_same_sign': float(same_sign), 'abs_grad_ratio_L1_L2': abs(grad_l1_value) / max(abs(grad_l2_value), ratio_floor), 'delta_log_alpha_B': delta_log_alpha_B, 'target_critic_grad_norm': details['target_critic_grad_norm'].detach().item()}
         return outer_loss.detach()
 
     def _bootstrap_scale_logs(self):
-        T_E = F.softplus(self.log_T).detach()
-        T_B = self.bootstrap_scale().detach()
-        return {'amo/T_E': T_E.item(), 'amo/T_B': T_B.item(), 'amo/T_B_over_T_E': (T_B / T_E).item(), 'amo/L1_B_Q': self._bootstrap_last['L1_B_Q'], 'amo/L1_B_BC': self._bootstrap_last['L1_B_BC'], 'amo/L1_B': self._bootstrap_last['L1_B'], 'amo/L2_RMS_B': self._bootstrap_last['L2_RMS_B'], 'amo/L_T_B': self._bootstrap_last['L_T_B'], 'amo/delta_y_B_mean': self._bootstrap_last['delta_y_B_mean'], 'amo/delta_y_B_mean_abs': self._bootstrap_last['delta_y_B_mean_abs'], 'amo/delta_y_B_rms': self._bootstrap_last['delta_y_B_rms'], 'amo/delta_y_B_rms_relative': self._bootstrap_last['delta_y_B_rms_relative'], 'amo/delta_y_B_rms_nonterminal_conditional': self._bootstrap_last['delta_y_B_rms_nonterminal_conditional'], 'amo/delta_y_B_max_abs': self._bootstrap_last['delta_y_B_max_abs'], 'amo/nonterminal_fraction': self._bootstrap_last['nonterminal_fraction'], 'amo/L2_squared_relative_diag': self._bootstrap_last['L2_squared_relative_diag'], 'amo/q_scale_B': self._bootstrap_last['q_scale_B'], 'amo/grad_T_B_total': self._bootstrap_last['grad_T_B_total'], 'amo/grad_T_B_from_L1_Q_chain': self._bootstrap_last['grad_T_B_from_L1_Q_chain'], 'amo/grad_T_B_from_L1_BC_chain': self._bootstrap_last['grad_T_B_from_L1_BC_chain'], 'amo/grad_T_B_from_L1': self._bootstrap_last['grad_T_B_from_L1'], 'amo/grad_T_B_from_L2_RMS': self._bootstrap_last['grad_T_B_from_L2_RMS'], 'amo/grad_T_B_L1_L2_same_sign': self._bootstrap_last['grad_T_B_L1_L2_same_sign'], 'amo/abs_grad_ratio_L1_L2': self._bootstrap_last['abs_grad_ratio_L1_L2'], 'amo/delta_log_T_B': self._bootstrap_last['delta_log_T_B'], 'amo/delta_log_T_E': self._execution_last_delta_log_T, 'amo/target_critic_grad_norm': self._bootstrap_last['target_critic_grad_norm'], 'amo/grad_T_B_explicit_TQ_coeff': 0.0, 'amo/bootstrap_L1_L2_same_sign_rate': float(self.bootstrap_l1_l2_same_sign_count) / max(1, self.bootstrap_l1_l2_nonzero_count), 'amo/bootstrap_outer_loss_version': BOOTSTRAP_OUTER_LOSS_VERSION, 'amo/adaptive_multiscale': 1.0, 'amo/critic_bootstrap_actor_role': 0.0, 'amo/evaluation_actor_role': 1.0, 'amo/bootstrap_target_polyak_source': 0.0, 'amo/execution_target_polyak_source': 1.0}
+        alpha_E = F.softplus(self.log_alpha).detach()
+        alpha_B = self.bootstrap_scale().detach()
+        return {'amo/alpha_E': alpha_E.item(), 'amo/alpha_B': alpha_B.item(), 'amo/alpha_B_over_alpha_E': (alpha_B / alpha_E).item(), 'amo/L1_B_Q': self._bootstrap_last['L1_B_Q'], 'amo/L1_B_BC': self._bootstrap_last['L1_B_BC'], 'amo/L1_B': self._bootstrap_last['L1_B'], 'amo/L2_RMS_B': self._bootstrap_last['L2_RMS_B'], 'amo/L_alpha_B': self._bootstrap_last['L_alpha_B'], 'amo/delta_y_B_mean': self._bootstrap_last['delta_y_B_mean'], 'amo/delta_y_B_mean_abs': self._bootstrap_last['delta_y_B_mean_abs'], 'amo/delta_y_B_rms': self._bootstrap_last['delta_y_B_rms'], 'amo/delta_y_B_rms_relative': self._bootstrap_last['delta_y_B_rms_relative'], 'amo/delta_y_B_rms_nonterminal_conditional': self._bootstrap_last['delta_y_B_rms_nonterminal_conditional'], 'amo/delta_y_B_max_abs': self._bootstrap_last['delta_y_B_max_abs'], 'amo/nonterminal_fraction': self._bootstrap_last['nonterminal_fraction'], 'amo/L2_squared_relative_diag': self._bootstrap_last['L2_squared_relative_diag'], 'amo/q_scale_B': self._bootstrap_last['q_scale_B'], 'amo/grad_alpha_B_total': self._bootstrap_last['grad_alpha_B_total'], 'amo/grad_alpha_B_from_L1_Q_chain': self._bootstrap_last['grad_alpha_B_from_L1_Q_chain'], 'amo/grad_alpha_B_from_L1_BC_chain': self._bootstrap_last['grad_alpha_B_from_L1_BC_chain'], 'amo/grad_alpha_B_from_L1': self._bootstrap_last['grad_alpha_B_from_L1'], 'amo/grad_alpha_B_from_L2_RMS': self._bootstrap_last['grad_alpha_B_from_L2_RMS'], 'amo/grad_alpha_B_L1_L2_same_sign': self._bootstrap_last['grad_alpha_B_L1_L2_same_sign'], 'amo/abs_grad_ratio_L1_L2': self._bootstrap_last['abs_grad_ratio_L1_L2'], 'amo/delta_log_alpha_B': self._bootstrap_last['delta_log_alpha_B'], 'amo/delta_log_alpha_E': self._execution_last_delta_log_alpha, 'amo/target_critic_grad_norm': self._bootstrap_last['target_critic_grad_norm'], 'amo/grad_alpha_B_explicit_TQ_coeff': 0.0, 'amo/bootstrap_L1_L2_same_sign_rate': float(self.bootstrap_l1_l2_same_sign_count) / max(1, self.bootstrap_l1_l2_nonzero_count), 'amo/bootstrap_outer_loss_version': BOOTSTRAP_OUTER_LOSS_VERSION, 'amo/adaptive_multiscale': 1.0, 'amo/critic_bootstrap_actor_role': 0.0, 'amo/evaluation_actor_role': 1.0, 'amo/bootstrap_target_polyak_source': 0.0, 'amo/execution_target_polyak_source': 1.0}
 
-    def _inner_loss(self, state, pi, reference, T):
+    def _inner_loss(self, state, pi, reference, alpha):
         q = self.critic_1(state, pi)
         q_abs_mean = q.abs().mean().detach().clamp_min(1e-06)
-        loss = -(q.mean() / q_abs_mean) + F.mse_loss(pi, reference) / (2.0 * T)
+        loss = -(q.mean() / q_abs_mean) + F.mse_loss(pi, reference) / alpha
         return (loss, q_abs_mean)
 
     def _outer_loss(self, state, pi, pi_new):
@@ -383,10 +383,10 @@ class AMO:
             for p, value in zip(target.parameters(), required):
                 p.requires_grad_(value)
 
-    def _update_actor_bank(self, state, action, T, T_B=None):
+    def _update_actor_bank(self, state, action, alpha, alpha_B=None):
         if self.adaptive_multiscale:
-            logs = {'amo/T': T.detach().item()}
-            horizons = [T_B, T.detach()]
+            logs = {'amo/alpha': alpha.detach().item()}
+            horizons = [alpha_B, alpha.detach()]
             for index, (bank_actor, horizon) in enumerate(zip(self.actor_bank, horizons)):
                 reference = action.detach()
                 params = list(bank_actor.parameters())
@@ -398,13 +398,13 @@ class AMO:
                 with torch.no_grad():
                     for parameter, updated in zip(params, torchopt.apply_updates(params, list(updates), inplace=False)):
                         parameter.copy_(updated)
-                tag = 'T_B' if index == 0 else 'T'
+                tag = 'alpha_B' if index == 0 else 'alpha'
                 logs[f'amo/inner_loss_{tag}'] = inner_loss.item()
                 logs[f'amo/q_abs_mean_{tag}'] = q_scale.item()
             self.actor_opt_state = self.actor_bank_states[1]
             return logs
-        tau = T.detach() / float(self.proximal_n_steps)
-        logs = {'amo/T': T.detach().item(), 'amo/N': float(self.proximal_n_steps), 'amo/tau': tau.item()}
+        tau = alpha.detach() / float(self.proximal_n_steps)
+        logs = {'amo/alpha': alpha.detach().item(), 'amo/N': float(self.proximal_n_steps), 'amo/tau': tau.item()}
         for index, bank_actor in enumerate(self.actor_bank):
             reference = action.detach() if index == 0 else self.actor_bank[index - 1](state).detach()
             params = list(bank_actor.parameters())
@@ -421,15 +421,15 @@ class AMO:
         self.actor_opt_state = self.actor_bank_states[0]
         return logs
 
-    def _virtual_actor_bank_update(self, state, action, outer_state, T):
-        """Differentiate actor update(s) w.r.t. T for the outer objective."""
+    def _virtual_actor_bank_update(self, state, action, outer_state, alpha):
+        """Differentiate actor update(s) w.r.t. alpha for the outer objective."""
         if self.adaptive_multiscale:
             bank_actor = self.actor_bank[1]
-            parameter_map, updated_map = self._virtual_actor_update(1, state, action, T)
+            parameter_map, updated_map = self._virtual_actor_update(1, state, action, alpha)
             outer_pi = torch.func.functional_call(bank_actor, parameter_map, (outer_state,))
             outer_pi_new = torch.func.functional_call(bank_actor, updated_map, (outer_state,))
             return (outer_pi, outer_pi_new)
-        tau = T / float(self.proximal_n_steps)
+        tau = alpha / float(self.proximal_n_steps)
         virtual_parameters = []
         reference = action.detach()
         for index, bank_actor in enumerate(self.actor_bank):
@@ -467,48 +467,48 @@ class AMO:
         logs = {'amo/critic_loss': critic_loss.item()}
         if self.total_it % self.policy_freq:
             return logs
-        T = F.softplus(self.log_T)
-        if self.total_it % (self.policy_freq * self.T_freq) == 0:
+        alpha = F.softplus(self.log_alpha)
+        if self.total_it % (self.policy_freq * self.alpha_freq) == 0:
             if batch_outer is None:
-                raise ValueError('AMO requires an independently sampled outer batch for every T update')
+                raise ValueError('AMO requires an independently sampled outer batch for every alpha update')
             outer_state = batch_outer[0]
-            outer_pi, outer_pi_new = self._virtual_actor_bank_update(state, action, outer_state, T)
+            outer_pi, outer_pi_new = self._virtual_actor_bank_update(state, action, outer_state, alpha)
             outer_loss, outer_logs = self._outer_loss(outer_state, outer_pi, outer_pi_new)
             n_scale = 1.0 if self.adaptive_multiscale else float(self.proximal_n_steps)
-            log_T_before = self.log_T.detach().clone()
-            self.T_optimizer.zero_grad()
+            log_alpha_before = self.log_alpha.detach().clone()
+            self.alpha_optimizer.zero_grad()
             scaled_outer_loss = outer_loss * n_scale
             if self.adaptive_multiscale:
-                grad_T_E = torch.autograd.grad(scaled_outer_loss, self.log_T)[0]
-                if bool(torch.isfinite(scaled_outer_loss).all()) and bool(torch.isfinite(grad_T_E).all()):
-                    self.log_T.grad = grad_T_E.detach().clone()
-                    self.T_optimizer.step()
-                    self.T_scheduler.step()
+                grad_alpha_E = torch.autograd.grad(scaled_outer_loss, self.log_alpha)[0]
+                if bool(torch.isfinite(scaled_outer_loss).all()) and bool(torch.isfinite(grad_alpha_E).all()):
+                    self.log_alpha.grad = grad_alpha_E.detach().clone()
+                    self.alpha_optimizer.step()
+                    self.alpha_scheduler.step()
                 else:
-                    self._report_nonfinite_multiscale('execution_scale', {'outer_loss': scaled_outer_loss, 'grad_T_E': grad_T_E})
-                self._execution_last_delta_log_T = (self.log_T.detach() - log_T_before).item()
+                    self._report_nonfinite_multiscale('execution_scale', {'outer_loss': scaled_outer_loss, 'grad_alpha_E': grad_alpha_E})
+                self._execution_last_delta_log_alpha = (self.log_alpha.detach() - log_alpha_before).item()
             else:
                 scaled_outer_loss.backward()
             logs.update(outer_logs)
             if not self.adaptive_multiscale:
                 logs['amo/outer_N_scale'] = n_scale
-            logs['amo/T_grad'] = 0.0 if self.log_T.grad is None else self.log_T.grad.item()
+            logs['amo/alpha_grad'] = 0.0 if self.log_alpha.grad is None else self.log_alpha.grad.item()
             if self.adaptive_multiscale:
-                logs['amo/grad_T_E'] = logs['amo/T_grad']
-                logs['amo/grad_T_E_BPI'] = logs['amo/T_grad']
+                logs['amo/grad_alpha_E'] = logs['amo/alpha_grad']
+                logs['amo/grad_alpha_E_BPI'] = logs['amo/alpha_grad']
                 logs['amo/B_PI_E'] = outer_logs['amo/B_PI_target']
-                logs['amo/L_T_E'] = scaled_outer_loss.detach().item()
+                logs['amo/L_alpha_E'] = scaled_outer_loss.detach().item()
             if not self.adaptive_multiscale:
-                self.T_optimizer.step()
-                self.T_scheduler.step()
+                self.alpha_optimizer.step()
+                self.alpha_scheduler.step()
             else:
-                T_B = self.bootstrap_scale()
-                bootstrap_loss = self._update_bootstrap_scale(batch, batch_outer, T_B)
+                alpha_B = self.bootstrap_scale()
+                bootstrap_loss = self._update_bootstrap_scale(batch, batch_outer, alpha_B)
                 logs['amo/bootstrap_outer_loss'] = bootstrap_loss.item()
                 if self.bootstrap_rms_diagnostic_freq > 0 and self.total_it % self.bootstrap_rms_diagnostic_freq == 0:
                     logs.update(self._bootstrap_rms_nonlocal_diagnostics(batch, batch_outer))
-        actor_T_B = self.bootstrap_scale().detach() if self.adaptive_multiscale else None
-        logs.update(self._update_actor_bank(state, action, T, T_B=actor_T_B))
+        actor_alpha_B = self.bootstrap_scale().detach() if self.adaptive_multiscale else None
+        logs.update(self._update_actor_bank(state, action, alpha, alpha_B=actor_alpha_B))
         if self.adaptive_multiscale:
             logs.update(self._bootstrap_scale_logs())
         soft_update(self.critic_1_target, self.critic_1, self.tau)
@@ -519,9 +519,9 @@ class AMO:
         return logs
 
     def state_dict(self):
-        state = {'checkpoint_version': 10 if self.adaptive_multiscale else 5, 'actor': self.actor.state_dict(), 'actor_bank': [a.state_dict() for a in self.actor_bank], 'actor_bank_states': self.actor_bank_states, 'actor_target': self.actor_target.state_dict(), 'critic_1': self.critic_1.state_dict(), 'critic_2': self.critic_2.state_dict(), 'critic_1_target': self.critic_1_target.state_dict(), 'critic_2_target': self.critic_2_target.state_dict(), 'critic_1_optimizer': self.critic_1_optimizer.state_dict(), 'critic_2_optimizer': self.critic_2_optimizer.state_dict(), 'log_T': self.log_T.detach().cpu(), 'T_optimizer': self.T_optimizer.state_dict(), 'T_scheduler': self.T_scheduler.state_dict(), 'total_it': self.total_it}
+        state = {'checkpoint_version': 10 if self.adaptive_multiscale else 5, 'actor': self.actor.state_dict(), 'actor_bank': [a.state_dict() for a in self.actor_bank], 'actor_bank_states': self.actor_bank_states, 'actor_target': self.actor_target.state_dict(), 'critic_1': self.critic_1.state_dict(), 'critic_2': self.critic_2.state_dict(), 'critic_1_target': self.critic_1_target.state_dict(), 'critic_2_target': self.critic_2_target.state_dict(), 'critic_1_optimizer': self.critic_1_optimizer.state_dict(), 'critic_2_optimizer': self.critic_2_optimizer.state_dict(), 'log_alpha': self.log_alpha.detach().cpu(), 'alpha_optimizer': self.alpha_optimizer.state_dict(), 'alpha_scheduler': self.alpha_scheduler.state_dict(), 'total_it': self.total_it}
         if self.adaptive_multiscale:
-            state.update({'adaptive_multiscale': True, 'bootstrap_outer_loss_version': BOOTSTRAP_OUTER_LOSS_VERSION, 'T_E_raw': self.log_T.detach().cpu(), 'T_E_effective': F.softplus(self.log_T).detach().cpu(), 'log_T_B': self.log_T_B.detach().cpu(), 'T_B': self.bootstrap_scale().detach().cpu(), 'T_B_optimizer': self.T_B_optimizer.state_dict(), 'T_B_scheduler': self.T_B_scheduler.state_dict(), 'bootstrap_outer_update_count': self.bootstrap_outer_update_count, 'bootstrap_l1_l2_same_sign_count': self.bootstrap_l1_l2_same_sign_count, 'bootstrap_l1_l2_nonzero_count': self.bootstrap_l1_l2_nonzero_count, 'execution_last_delta_log_T': self._execution_last_delta_log_T, 'bootstrap_last': self._bootstrap_last, 'execution_actor_target': self.execution_actor_target.state_dict()})
+            state.update({'adaptive_multiscale': True, 'bootstrap_outer_loss_version': BOOTSTRAP_OUTER_LOSS_VERSION, 'alpha_E_raw': self.log_alpha.detach().cpu(), 'alpha_E_effective': F.softplus(self.log_alpha).detach().cpu(), 'log_alpha_B': self.log_alpha_B.detach().cpu(), 'alpha_B': self.bootstrap_scale().detach().cpu(), 'alpha_B_optimizer': self.alpha_B_optimizer.state_dict(), 'alpha_B_scheduler': self.alpha_B_scheduler.state_dict(), 'bootstrap_outer_update_count': self.bootstrap_outer_update_count, 'bootstrap_l1_l2_same_sign_count': self.bootstrap_l1_l2_same_sign_count, 'bootstrap_l1_l2_nonzero_count': self.bootstrap_l1_l2_nonzero_count, 'execution_last_delta_log_alpha': self._execution_last_delta_log_alpha, 'bootstrap_last': self._bootstrap_last, 'execution_actor_target': self.execution_actor_target.state_dict()})
         return state
 
     def load_state_dict(self, state):
@@ -533,7 +533,7 @@ class AMO:
             if checkpoint_loss_version != BOOTSTRAP_OUTER_LOSS_VERSION:
                 raise ValueError(f'adaptive_multiscale bootstrap outer-loss mismatch: checkpoint={checkpoint_loss_version!r}, trainer={BOOTSTRAP_OUTER_LOSS_VERSION!r}; start a fresh run instead of silently resuming old-loss state')
             if int(state.get('checkpoint_version', 0)) < 10:
-                raise ValueError('adaptive_multiscale checkpoint v10 or newer is required for independent T_E and T_B learning')
+                raise ValueError('adaptive_multiscale checkpoint v10 or newer is required for independent alpha_E and alpha_B learning')
         for name in ('actor', 'critic_1', 'critic_2', 'critic_1_target', 'critic_2_target', 'actor_target'):
             getattr(self, name).load_state_dict(state[name])
         for module, values in zip(self.actor_bank, state.get('actor_bank', [state['actor']])):
@@ -542,19 +542,19 @@ class AMO:
         self.critic_1_optimizer.load_state_dict(state['critic_1_optimizer'])
         self.critic_2_optimizer.load_state_dict(state['critic_2_optimizer'])
         with torch.no_grad():
-            self.log_T.copy_(state['log_T'].to(self.log_T.device))
-        self.T_optimizer.load_state_dict(state['T_optimizer'])
-        self.T_scheduler.load_state_dict(state['T_scheduler'])
+            self.log_alpha.copy_(state['log_alpha'].to(self.log_alpha.device))
+        self.alpha_optimizer.load_state_dict(state['alpha_optimizer'])
+        self.alpha_scheduler.load_state_dict(state['alpha_scheduler'])
         if self.adaptive_multiscale:
             with torch.no_grad():
-                self.log_T_B.copy_(state['log_T_B'].to(self.log_T_B.device))
-            self.T_B_optimizer.load_state_dict(state['T_B_optimizer'])
-            self.T_B_scheduler.load_state_dict(state['T_B_scheduler'])
+                self.log_alpha_B.copy_(state['log_alpha_B'].to(self.log_alpha_B.device))
+            self.alpha_B_optimizer.load_state_dict(state['alpha_B_optimizer'])
+            self.alpha_B_scheduler.load_state_dict(state['alpha_B_scheduler'])
             self.execution_actor_target.load_state_dict(state['execution_actor_target'])
             self.bootstrap_outer_update_count = int(state.get('bootstrap_outer_update_count', 0))
             self.bootstrap_l1_l2_same_sign_count = int(state.get('bootstrap_l1_l2_same_sign_count', 0))
             self.bootstrap_l1_l2_nonzero_count = int(state.get('bootstrap_l1_l2_nonzero_count', 0))
-            self._execution_last_delta_log_T = float(state.get('execution_last_delta_log_T', 0.0))
+            self._execution_last_delta_log_alpha = float(state.get('execution_last_delta_log_alpha', 0.0))
             self._bootstrap_last = state.get('bootstrap_last', self._bootstrap_last)
         self.total_it = int(state['total_it'])
         legacy_dual_key = 'dual_' + 'proximal'

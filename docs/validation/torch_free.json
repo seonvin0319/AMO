@@ -158,9 +158,9 @@
         "policy_freq": 2,
         "policy_noise": 0.2,
         "noise_clip": 0.5,
-        "T_E": 1.0,
-        "T_B": 1.0,
-        "T_lr": 0.001,
+        "alpha_E": 2.0,
+        "alpha_B": 2.0,
+        "alpha_lr": 0.001,
         "meta_interval": 20,
         "smoothness_eps": 1e-06,
         "algorithm": "td3_amo"
@@ -231,7 +231,7 @@
         },
         "outer_loss": {
           "max_abs_error": 5.841255187988281e-06,
-          "key": "outer_loss/L_T_B",
+          "key": "outer_loss/L_alpha_B",
           "step": 60,
           "compared_arrays": 12,
           "failing_arrays": 0,

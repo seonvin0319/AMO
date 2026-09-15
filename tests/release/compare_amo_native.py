@@ -99,8 +99,8 @@ def reference_arrays(ref, algorithm):
             mlp(f"target/critic/q{i}", getattr(ref, f"critic_{i}_target"))
         mlp("target/actor/net", ref.actor_target)
         for role, param, opt in (
-            ("E", ref.log_T, ref.T_optimizer),
-            ("B", ref.log_T_B, ref.T_B_optimizer),
+            ("E", ref.log_alpha, ref.alpha_optimizer),
+            ("B", ref.log_alpha_B, ref.alpha_B_optimizer),
         ):
             parameter(f"p/scale_{role}/rho", param, opt)
     else:
@@ -278,7 +278,11 @@ def run(algorithm, backend, steps, resync):
                     ref_key = (
                         ("g_rho" if role == "E" else "g_rho_B")
                         if algorithm == "iql_amo"
-                        else ("amo/grad_T_E" if role == "E" else "amo/grad_T_B_total")
+                        else (
+                            "amo/grad_alpha_E"
+                            if role == "E"
+                            else "amo/grad_alpha_B_total"
+                        )
                     )
                     check.add(
                         f"hypergradient/{role}",
@@ -289,8 +293,8 @@ def run(algorithm, backend, steps, resync):
                         rtol=2e-3,
                     )
                 for key in (
-                    "L_E" if algorithm == "iql_amo" else "L_T_E",
-                    "L_T_B",
+                    "L_E" if algorithm == "iql_amo" else "L_alpha_E",
+                    "L_T_B" if algorithm == "iql_amo" else "L_alpha_B",
                     "L1_B",
                     "L2_RMS_B",
                 ):

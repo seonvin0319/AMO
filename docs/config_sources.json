@@ -245,13 +245,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/amld_s1_te1_tb1_Tlr0p001__363a73f8/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -261,13 +261,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/amlp_s1_te1_tb1_Tlr0p001__6e0e2162/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -277,13 +277,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/ammd_s1_te1_tb1_Tlr0p001__d32e0ec2/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -293,13 +293,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/ammp_s1_te1_tb1_Tlr0p001__c198b33f/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -309,13 +309,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/amu_s1_te1_tb1_Tlr0p001__8dca75a3/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -325,13 +325,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/amud_s1_te1_tb1_Tlr0p001__009e3452/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -341,13 +341,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hcm_s1_te1_tb1_Tlr0p001__9cb24bd9/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -357,13 +357,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hcmr_s1_te1_tb1_Tlr0p001__2479d7b2/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -373,13 +373,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hme_s1_te1_tb1_Tlr0p001__a7a01a9b/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -389,13 +389,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hopm_s1_te1_tb1_Tlr0p001__85749f1c/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -405,13 +405,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hopme_s1_te1_tb1_Tlr0p001__0b611349/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -421,13 +421,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/hopmr_s1_te1_tb1_Tlr0p001__f080c915/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -437,13 +437,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/wm_s1_te1_tb1_Tlr0p001__37cd42ba/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -453,13 +453,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/wme_s1_te1_tb1_Tlr0p001__e0307c97/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },
@@ -469,13 +469,13 @@
     "source": "https://github.com/seonvin0319/amo_log/blob/211e7911ad921154f3e11490d57973a92383f8b6/runs/amo/adaptive_multiscale/wmr_s1_te1_tb1_Tlr0p001__f0372dc0/config.yaml",
     "source_kind": "run_config",
     "parameters": {
-      "T_B": 1.0,
-      "T_E": 1.0,
-      "T_lr": 0.001,
       "batch_size": 256,
       "normalize": true,
       "normalize_reward": false,
-      "policy_noise": 0.2
+      "policy_noise": 0.2,
+      "alpha_E": 2.0,
+      "alpha_B": 2.0,
+      "alpha_lr": 0.001
     },
     "implementation_source": "https://github.com/seonvin0319/AMO/tree/eee3d486fac0c9f5ecbbea411424e6691b715265"
   },

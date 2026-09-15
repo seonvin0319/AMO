@@ -1,0 +1,5 @@
+# alpha_E=alpha_B=5 antmaze; alpha_lr=1e-3
+defaults:
+  alpha_E: 5
+  alpha_B: 5
+  alpha_lr: 0.001

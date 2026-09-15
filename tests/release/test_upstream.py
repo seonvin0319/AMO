@@ -144,16 +144,16 @@ def reference_td3(agent, algorithm):
         )
     if algorithm == "td3_amo":
         kw.update(
-            T=c["T_E"],
-            T_B=c["T_B"],
-            T_lr=c["T_lr"],
-            T_freq=c["meta_interval"] // 2,
+            alpha=c["alpha_E"],
+            alpha_B=c["alpha_B"],
+            alpha_lr=c["alpha_lr"],
+            alpha_freq=c["meta_interval"] // 2,
             adaptive_multiscale=True,
         )
         model = ref.AMO(**kw)
         with torch.no_grad():
-            model.log_T.copy_(tensor(p["scale_E"]["rho"]))
-            model.log_T_B.copy_(tensor(p["scale_B"]["rho"]))
+            model.log_alpha.copy_(tensor(p["scale_E"]["rho"]))
+            model.log_alpha_B.copy_(tensor(p["scale_B"]["rho"]))
     elif algorithm == "aspc":
         kw.update(alpha=c["alpha"], alpha_freq=c["meta_interval"] // 2)
         model = ref.Adaptive_TD3_BC(**kw)
@@ -212,10 +212,10 @@ def test_td3_updates_match_upstream(algorithm, backend, monkeypatch):
         if algorithm == "td3_amo":
             check_mlp(p["bootstrap"]["net"], ref.critic_bootstrap_actor())
             np.testing.assert_allclose(
-                p["scale_E"]["rho"], ref.log_T.detach(), atol=2e-6, rtol=2e-5
+                p["scale_E"]["rho"], ref.log_alpha.detach(), atol=2e-6, rtol=2e-5
             )
             np.testing.assert_allclose(
-                p["scale_B"]["rho"], ref.log_T_B.detach(), atol=2e-6, rtol=2e-5
+                p["scale_B"]["rho"], ref.log_alpha_B.detach(), atol=2e-6, rtol=2e-5
             )
         if algorithm == "aspc":
             np.testing.assert_allclose(

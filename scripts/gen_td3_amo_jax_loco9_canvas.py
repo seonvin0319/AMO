@@ -218,7 +218,7 @@ export default function TD3AMOJaxLoco9() {{
     <Stack gap={{16}}>
       <H1>TD3+AMO JAX loco9</H1>
       <Text tone="secondary" size="small">
-        Te=Tb=1 · T_lr=1e-3 · seeds 0–3 · updated {now} · sha {pinned or "—"}
+        alpha_E=alpha_B=2 · alpha_lr=1e-3 · seeds 0–3 · updated {now} · sha {pinned or "—"}
       </Text>
       <Text tone="tertiary" size="small">
         Source: /raid/ext_csv/AMO_store/td3_amo_jax_loco9_default_seeds0to3 · AMO-main train.py --backend jax

@@ -1,0 +1,5 @@
+# alpha_E=alpha_B=2 antmaze main-fill cell; alpha_lr=2e-3
+defaults:
+  alpha_E: 2
+  alpha_B: 2
+  alpha_lr: 0.002

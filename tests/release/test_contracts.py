@@ -138,7 +138,7 @@ def test_rebrac_rejects_missing_next_actions(tmp_path):
 
 def test_unknown_config_key_is_rejected():
     with pytest.raises(ValueError, match="Unknown options"):
-        load_config("td3_amo", "hopper-medium-v2", overrides={"T_lrr": 0.001})
+        load_config("td3_amo", "hopper-medium-v2", overrides={"alpha_lrr": 0.001})
 
 
 def test_iql_meta_warmup_and_independent_outer():

@@ -18,7 +18,7 @@ class Agent(BaseAgent):
         q = self.q(critic_params, batch["observations"], action)[0]
         return -q.mean() / self.q_scale(q) + (
             (action - batch["actions"]) ** 2
-        ).mean() / (2 * horizon)
+        ).mean() / horizon
 
     def virtual(self, state, name, batch, horizon, sgd=False):
         p = state["p"][name]
@@ -74,7 +74,7 @@ class Agent(BaseAgent):
             self.c["discount"] * (1 - outer_batch["terminals"]) * (new_next - old_next)
         )
         rms = o.safe_sqrt(((delta_y / q_scale) ** 2).mean())
-        factor = 2 * o.stop(horizon)
+        factor = o.stop(horizon)
         l1 = (
             -factor * q.mean() / q_scale
             + ((action - outer_batch["actions"]) ** 2).mean()
@@ -91,11 +91,11 @@ class Agent(BaseAgent):
         # B actor uses the newly updated bootstrap horizon.
         horizon_e = o.stop(o.softplus(state["p"]["scale_E"]["rho"]))
         if meta_step:
-            lr = c["T_lr"] * 0.01 ** (
+            lr = c["alpha_lr"] * 0.01 ** (
                 state["opt"]["scale_E"]["count"] * c["meta_interval"] / 1_000_000
             )
             frozen_state = state
-            state, logs["L_T_E"] = self.update_network(
+            state, logs["L_alpha_E"] = self.update_network(
                 state,
                 "scale_E",
                 lambda p: self.execution_outer(p, frozen_state, batch, outer),
@@ -103,7 +103,7 @@ class Agent(BaseAgent):
             )
             frozen_state = state
             l1, l2 = self.bootstrap_terms(state["p"]["scale_B"], state, batch, outer)
-            state, logs["L_T_B"] = self.update_network(
+            state, logs["L_alpha_B"] = self.update_network(
                 state,
                 "scale_B",
                 lambda p: sum(self.bootstrap_terms(p, frozen_state, batch, outer)),
@@ -120,5 +120,5 @@ class Agent(BaseAgent):
                 c["actor_lr"],
             )
             logs[f"{name}_loss"] = loss
-        logs.update(T_E=o.softplus(state["p"]["scale_E"]["rho"]), T_B=horizon_b)
+        logs.update(alpha_E=o.softplus(state["p"]["scale_E"]["rho"]), alpha_B=horizon_b)
         return self.update_targets(state), logs

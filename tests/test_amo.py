@@ -65,8 +65,8 @@ def make_trainer(n=2, tau=0.0):
         torch.optim.Adam(q2.parameters(), lr=3e-4),
         vnet,
         torch.optim.Adam(vnet.parameters(), lr=3e-4),
-        T=1.2,
-        T_freq=1,
+        alpha=1.2,
+        alpha_freq=1,
         policy_freq=1,
         tau=tau,
         proximal_n_steps=n,
@@ -78,9 +78,9 @@ def make_adaptive_trainer(
     *,
     seed=0,
     tau=0.0,
-    T_E=1.2,
-    T_B=None,
-    T_lr=2e-4,
+    alpha_E=1.2,
+    alpha_B=None,
+    alpha_lr=2e-4,
     actor_lr=3e-4,
     bootstrap_rms_diagnostic_freq=0,
 ):
@@ -97,10 +97,10 @@ def make_adaptive_trainer(
         torch.optim.Adam(q2.parameters(), lr=3e-4),
         vnet,
         torch.optim.Adam(vnet.parameters(), lr=3e-4),
-        T=T_E,
-        T_B=T_B,
-        T_freq=1,
-        T_lr=T_lr,
+        alpha=alpha_E,
+        alpha_B=alpha_B,
+        alpha_freq=1,
+        alpha_lr=alpha_lr,
         policy_freq=1,
         tau=tau,
         adaptive_multiscale=True,
@@ -123,25 +123,25 @@ def assert_module_values(modules, expected):
     assert all(torch.equal(value, before) for value, before in zip(actual, expected))
 
 
-def test_inner_loss_matches_T_notation():
+def test_inner_loss_matches_alpha_notation():
     trainer, data = make_trainer(), batch(0)
     state, action = data[:2]
-    T = torch.tensor(1.2)
+    alpha = torch.tensor(1.2)
     pi = trainer.actor(state)
-    loss, q_abs_mean = trainer._inner_loss(state, pi, action, T)
+    loss, q_abs_mean = trainer._inner_loss(state, pi, action, alpha)
     expected = -trainer.critic_1(
         state, pi
-    ).mean() / q_abs_mean + torch.nn.functional.mse_loss(pi, action) / (2 * T)
+    ).mean() / q_abs_mean + torch.nn.functional.mse_loss(pi, action) / alpha
     assert torch.allclose(loss, expected)
 
 
 def test_outer_updates_T_and_keeps_target_frozen():
     trainer = make_trainer()
     target_before = module_values([trainer.critic_1_target])
-    T_before = torch.nn.functional.softplus(trainer.log_T).item()
+    T_before = torch.nn.functional.softplus(trainer.log_alpha).item()
     logs = trainer.train(batch(1), batch(2))
-    assert "amo/outer_loss" in logs and "amo/T_grad" in logs
-    assert torch.nn.functional.softplus(trainer.log_T).item() != T_before
+    assert "amo/outer_loss" in logs and "amo/alpha_grad" in logs
+    assert torch.nn.functional.softplus(trainer.log_alpha).item() != T_before
     assert_module_values([trainer.critic_1_target], target_before)
 
 
@@ -149,7 +149,7 @@ def test_fixed_chain_routing_is_unchanged():
     chain = make_trainer(n=3)
     logs = chain.train(batch(3), batch(4))
     assert logs["amo/N"] == 3.0
-    assert abs(logs["amo/T"] - 3 * logs["amo/tau"]) < 1e-6
+    assert abs(logs["amo/alpha"] - 3 * logs["amo/tau"]) < 1e-6
     assert logs["amo/outer_N_scale"] == 3.0
     assert len(make_trainer(n=1).actor_bank) == 1
     assert len(make_trainer(n=3).actor_bank) == 3
@@ -158,9 +158,9 @@ def test_fixed_chain_routing_is_unchanged():
 def test_adaptive_option_initialization_and_old_method_removed():
     fields = amo.TrainConfig.__dataclass_fields__
     assert fields["adaptive_multiscale"].default is False
-    assert fields["T_E"].default == 1.25
-    assert fields["T_B"].default is None
-    assert "T" not in fields
+    assert fields["alpha_E"].default == 2.5
+    assert fields["alpha_B"].default is None
+    assert "alpha_E" in fields and "T" not in fields and "T_E" not in fields
     assert fields["bootstrap_outer_loss_version"].init is False
     assert fields["bootstrap_outer_loss_version"].default == (
         amo.BOOTSTRAP_OUTER_LOSS_VERSION
@@ -179,15 +179,15 @@ def test_adaptive_option_initialization_and_old_method_removed():
         raise AssertionError("adaptive multiscale accepted actor-chain N")
 
     trainer = make_adaptive_trainer()
-    T_E = torch.nn.functional.softplus(trainer.log_T).item()
+    alpha_E = torch.nn.functional.softplus(trainer.log_alpha).item()
     assert trainer.bootstrap_scale().item() > 0
-    assert trainer.bootstrap_scale().item() == T_E
-    assert torch.equal(trainer.log_T_B, trainer.log_T)
-    assert trainer.T_optimizer is not trainer.T_B_optimizer
-    assert trainer.log_T is not trainer.log_T_B
+    assert trainer.bootstrap_scale().item() == alpha_E
+    assert torch.equal(trainer.log_alpha_B, trainer.log_alpha)
+    assert trainer.alpha_optimizer is not trainer.alpha_B_optimizer
+    assert trainer.log_alpha is not trainer.log_alpha_B
     assert (
-        trainer.T_optimizer.param_groups[0]["lr"]
-        == trainer.T_B_optimizer.param_groups[0]["lr"]
+        trainer.alpha_optimizer.param_groups[0]["lr"]
+        == trainer.alpha_B_optimizer.param_groups[0]["lr"]
     )
     assert trainer.actor_bank_states[0] is not trainer.actor_bank_states[1]
 
@@ -203,7 +203,7 @@ def test_adaptive_option_initialization_and_old_method_removed():
         "batch_meta_" + "val",
         "bootstrap_init_" + "ratio",
         "initial_scale_" + "ratio",
-        "T_B_init_" + "divisor",
+        "alpha_B_init_" + "divisor",
         "bootstrap_scale_" + "factor",
     ):
         assert symbol not in source
@@ -211,34 +211,34 @@ def test_adaptive_option_initialization_and_old_method_removed():
 
 def test_te_tb_flags_initialize_scales_independently():
     try:
-        amo.TrainConfig(T_B=1.0)
+        amo.TrainConfig(alpha_B=1.0)
     except ValueError as exc:
         assert "adaptive_multiscale" in str(exc)
     else:
-        raise AssertionError("T_B accepted without adaptive_multiscale")
+        raise AssertionError("alpha_B accepted without adaptive_multiscale")
     try:
-        amo.TrainConfig(adaptive_multiscale=True, T_B=-1.0)
+        amo.TrainConfig(adaptive_multiscale=True, alpha_B=-1.0)
     except ValueError as exc:
-        assert "T_B" in str(exc)
+        assert "alpha_B" in str(exc)
     else:
-        raise AssertionError("negative T_B accepted")
+        raise AssertionError("negative alpha_B accepted")
     try:
-        amo.TrainConfig(T_E=-1.0)
+        amo.TrainConfig(alpha_E=-1.0)
     except ValueError as exc:
-        assert "T_E" in str(exc)
+        assert "alpha_E" in str(exc)
     else:
-        raise AssertionError("negative T_E accepted")
+        raise AssertionError("negative alpha_E accepted")
 
-    trainer = make_adaptive_trainer(T_E=10.0, T_B=1.0)
-    t_e = torch.nn.functional.softplus(trainer.log_T).item()
+    trainer = make_adaptive_trainer(alpha_E=10.0, alpha_B=1.0)
+    t_e = torch.nn.functional.softplus(trainer.log_alpha).item()
     t_b = trainer.bootstrap_scale().item()
     assert abs(t_e - 10.0) < 1e-5
     assert abs(t_b - 1.0) < 1e-5
-    assert not torch.equal(trainer.log_T_B, trainer.log_T)
+    assert not torch.equal(trainer.log_alpha_B, trainer.log_alpha)
 
-    copied = make_adaptive_trainer(T_E=5.0, T_B=5.0)
-    assert torch.equal(copied.log_T_B, copied.log_T)
-    amo.TrainConfig(adaptive_multiscale=True, T_E=10.0, T_B=1.0)
+    copied = make_adaptive_trainer(alpha_E=5.0, alpha_B=5.0)
+    assert torch.equal(copied.log_alpha_B, copied.log_alpha)
+    amo.TrainConfig(adaptive_multiscale=True, alpha_E=10.0, alpha_B=1.0)
 
 
 def test_adaptive_false_trace_and_v5_checkpoint_surface_are_unchanged():
@@ -269,9 +269,9 @@ def test_adaptive_false_trace_and_v5_checkpoint_surface_are_unchanged():
         "critic_2_target",
         "critic_1_optimizer",
         "critic_2_optimizer",
-        "log_T",
-        "T_optimizer",
-        "T_scheduler",
+        "log_alpha",
+        "alpha_optimizer",
+        "alpha_scheduler",
         "total_it",
     }
     assert first.state_dict()["checkpoint_version"] == 5
@@ -279,21 +279,21 @@ def test_adaptive_false_trace_and_v5_checkpoint_surface_are_unchanged():
 
 def test_equal_initial_scales_and_first_outer_update_is_loss_driven():
     trainer = make_adaptive_trainer(actor_lr=3e-3)
-    log_T_before = trainer.log_T.detach().item()
-    log_T_B_before = trainer.log_T_B.detach().item()
+    log_alpha_before = trainer.log_alpha.detach().item()
+    log_alpha_B_before = trainer.log_alpha_B.detach().item()
     assert (
         trainer.bootstrap_scale().item()
-        == torch.nn.functional.softplus(trainer.log_T).item()
+        == torch.nn.functional.softplus(trainer.log_alpha).item()
     )
     logs = trainer.train(batch(22), batch(23))
-    assert logs["amo/grad_T_E"] != 0
-    assert logs["amo/grad_T_E_BPI"] == logs["amo/grad_T_E"]
-    assert logs["amo/grad_T_B_total"] != 0
-    assert logs["amo/delta_log_T_E"] == trainer.log_T.detach().item() - log_T_before
+    assert logs["amo/grad_alpha_E"] != 0
+    assert logs["amo/grad_alpha_E_BPI"] == logs["amo/grad_alpha_E"]
+    assert logs["amo/grad_alpha_B_total"] != 0
+    assert logs["amo/delta_log_alpha_E"] == trainer.log_alpha.detach().item() - log_alpha_before
     assert (
         abs(
-            logs["amo/delta_log_T_B"]
-            - (trainer.log_T_B.detach().item() - log_T_B_before)
+            logs["amo/delta_log_alpha_B"]
+            - (trainer.log_alpha_B.detach().item() - log_alpha_B_before)
         )
         < 1e-6
     )
@@ -301,7 +301,7 @@ def test_equal_initial_scales_and_first_outer_update_is_loss_driven():
         amo.BOOTSTRAP_OUTER_LOSS_VERSION
     )
     assert "amo/N" not in logs and "amo/outer_N_scale" not in logs
-    assert abs(logs["amo/T_B_over_T_E"] - logs["amo/T_B"] / logs["amo/T_E"]) < 1e-7
+    assert abs(logs["amo/alpha_B_over_alpha_E"] - logs["amo/alpha_B"] / logs["amo/alpha_E"]) < 1e-7
 
 
 def test_detached_tq_l1_and_exact_rms_target_formula():
@@ -316,8 +316,7 @@ def test_detached_tq_l1_and_exact_rms_target_formula():
         trainer.critic_2_target(outer_batch[0], details["virtual_action"]),
     )
     expected_l1_q = (
-        -2
-        * trainer.bootstrap_scale().detach()
+        -trainer.bootstrap_scale().detach()
         * q_virtual.mean()
         / details["q_scale_B"]
     )
@@ -329,7 +328,7 @@ def test_detached_tq_l1_and_exact_rms_target_formula():
         torch.linalg.vector_norm(expected_delta_y / details["q_scale_B"])
         / expected_delta_y.numel() ** 0.5
     )
-    expected_l2 = 2 * trainer.bootstrap_scale().detach() * expected_rms
+    expected_l2 = trainer.bootstrap_scale().detach() * expected_rms
     assert torch.allclose(details["L1_B_Q"], expected_l1_q)
     assert torch.allclose(details["L1_B_BC"], expected_bc)
     assert torch.allclose(details["L1_B"], expected_l1_q + expected_bc)
@@ -378,15 +377,15 @@ def test_exact_rms_zero_terminal_mixed_sign_and_rescaling():
 
 def test_tq_coefficients_are_detached_and_inverse_gradient_equivalence():
     rho = torch.tensor(0.3, requires_grad=True)
-    T_B = torch.nn.functional.softplus(rho)
+    alpha_B = torch.nn.functional.softplus(rho)
     independent_path = torch.tensor(0.7, requires_grad=True)
     independent_terms = amo.AMO._tq_scaled_bootstrap_terms(
-        T_B,
+        alpha_B,
         independent_path,
         independent_path.square(),
         independent_path.abs(),
     )
-    for key in ("L1_B_Q", "L2_RMS_B", "L_T_B"):
+    for key in ("L1_B_Q", "L2_RMS_B", "L_alpha_B"):
         explicit_grad = torch.autograd.grad(
             independent_terms[key], rho, retain_graph=True, allow_unused=True
         )[0]
@@ -395,16 +394,16 @@ def test_tq_coefficients_are_detached_and_inverse_gradient_equivalence():
     normalized_q = rho.square() + 0.2
     bc = (rho - 0.4).square() + 0.1
     R_B = rho.exp() * 0.05
-    terms = amo.AMO._tq_scaled_bootstrap_terms(T_B, normalized_q, bc, R_B)
-    assert torch.allclose(terms["L_T_B"], 2.0 * T_B.detach() * terms["L_T_B_inverse"])
-    grad_scaled = torch.autograd.grad(terms["L_T_B"], rho, retain_graph=True)[0]
-    grad_inverse = torch.autograd.grad(terms["L_T_B_inverse"], rho)[0]
-    assert torch.allclose(grad_scaled, 2.0 * T_B.detach() * grad_inverse)
+    terms = amo.AMO._tq_scaled_bootstrap_terms(alpha_B, normalized_q, bc, R_B)
+    assert torch.allclose(terms["L_alpha_B"], alpha_B.detach() * terms["L_alpha_B_inverse"])
+    grad_scaled = torch.autograd.grad(terms["L_alpha_B"], rho, retain_graph=True)[0]
+    grad_inverse = torch.autograd.grad(terms["L_alpha_B_inverse"], rho)[0]
+    assert torch.allclose(grad_scaled, alpha_B.detach() * grad_inverse)
 
 
 def test_old_squared_and_new_rms_relation_and_gradient_direction():
     rho = torch.tensor(0.4, requires_grad=True)
-    T_B = torch.nn.functional.softplus(rho)
+    alpha_B = torch.nn.functional.softplus(rho)
     done = torch.tensor([[0.0], [1.0], [0.0], [0.0]])
     pattern = torch.tensor([[1.0], [-4.0], [-2.0], [3.0]])
     delta_q = rho * pattern
@@ -412,8 +411,8 @@ def test_old_squared_and_new_rms_relation_and_gradient_direction():
     gamma = 0.99
     old = ((1.0 - done) * delta_q.square()).mean() / q_scale.square()
     target = amo.AMO._bootstrap_target_rms(delta_q, done, q_scale, gamma)
-    new = 2.0 * T_B.detach() * target["R_B"]
-    assert torch.allclose(new, 2.0 * T_B.detach() * gamma * torch.sqrt(old))
+    new = alpha_B.detach() * target["R_B"]
+    assert torch.allclose(new, alpha_B.detach() * gamma * torch.sqrt(old))
     grad_old = torch.autograd.grad(old, rho, retain_graph=True)[0]
     grad_new = torch.autograd.grad(new, rho)[0]
     assert grad_old * grad_new > 0
@@ -424,7 +423,7 @@ def test_zero_virtual_displacement_has_zero_rms_loss_and_gradient():
     _, same_details = same._bootstrap_multiscale_objective(
         batch(32), batch(33), same.bootstrap_scale()
     )
-    grad = torch.autograd.grad(same_details["L2_RMS_B"], same.log_T_B)[0]
+    grad = torch.autograd.grad(same_details["L2_RMS_B"], same.log_alpha_B)[0]
     assert torch.equal(
         same_details["delta_Q_B"], torch.zeros_like(same_details["delta_Q_B"])
     )
@@ -448,11 +447,11 @@ def test_gradient_isolation_detach_and_functional_virtual_update():
         for parameter in module.parameters():
             parameter.grad = None
 
-    T_E = torch.nn.functional.softplus(trainer.log_T)
-    pi, pi_new = trainer._virtual_actor_bank_update(inner[0], inner[1], outer[0], T_E)
+    alpha_E = torch.nn.functional.softplus(trainer.log_alpha)
+    pi, pi_new = trainer._virtual_actor_bank_update(inner[0], inner[1], outer[0], alpha_E)
     execution_loss, _ = trainer._outer_loss(outer[0], pi, pi_new)
     grad_E, grad_B = torch.autograd.grad(
-        execution_loss, (trainer.log_T, trainer.log_T_B), allow_unused=True
+        execution_loss, (trainer.log_alpha, trainer.log_alpha_B), allow_unused=True
     )
     assert grad_E is not None and torch.isfinite(grad_E) and grad_E != 0
     assert grad_B is None
@@ -462,20 +461,20 @@ def test_gradient_isolation_detach_and_functional_virtual_update():
     )
     grad_B, grad_E = torch.autograd.grad(
         bootstrap_loss,
-        (trainer.log_T_B, trainer.log_T),
+        (trainer.log_alpha_B, trainer.log_alpha),
         retain_graph=True,
         allow_unused=True,
     )
-    grad_l1 = torch.autograd.grad(details["L1_B"], trainer.log_T_B, retain_graph=True)[
+    grad_l1 = torch.autograd.grad(details["L1_B"], trainer.log_alpha_B, retain_graph=True)[
         0
     ]
     grad_l1_q = torch.autograd.grad(
-        details["L1_B_Q"], trainer.log_T_B, retain_graph=True
+        details["L1_B_Q"], trainer.log_alpha_B, retain_graph=True
     )[0]
     grad_l1_bc = torch.autograd.grad(
-        details["L1_B_BC"], trainer.log_T_B, retain_graph=True
+        details["L1_B_BC"], trainer.log_alpha_B, retain_graph=True
     )[0]
-    grad_l2 = torch.autograd.grad(details["L2_RMS_B"], trainer.log_T_B)[0]
+    grad_l2 = torch.autograd.grad(details["L2_RMS_B"], trainer.log_alpha_B)[0]
     assert grad_B is not None and torch.isfinite(grad_B) and grad_B != 0
     assert grad_E is None
     assert torch.isfinite(grad_l1) and grad_l1 != 0
@@ -496,15 +495,15 @@ def test_dataset_anchors_and_polyak_role_targets():
     references = []
     original = trainer._inner_loss
 
-    def recording_inner(state, pi, reference, T):
+    def recording_inner(state, pi, reference, alpha):
         references.append(reference.detach().clone())
-        return original(state, pi, reference, T)
+        return original(state, pi, reference, alpha)
 
     trainer._inner_loss = recording_inner
     trainer._update_actor_bank(
         data[0],
         data[1],
-        torch.nn.functional.softplus(trainer.log_T),
+        torch.nn.functional.softplus(trainer.log_alpha),
         trainer.bootstrap_scale().detach(),
     )
     assert len(references) == 2
@@ -525,51 +524,51 @@ def test_dataset_anchors_and_polyak_role_targets():
 
 
 def test_independent_scale_updates_and_checkpoint_round_trip():
-    trainer = make_adaptive_trainer(T_lr=1e-2, actor_lr=3e-3)
-    T_E = torch.nn.functional.softplus(trainer.log_T).detach()
+    trainer = make_adaptive_trainer(alpha_lr=1e-2, actor_lr=3e-3)
+    alpha_E = torch.nn.functional.softplus(trainer.log_alpha).detach()
 
-    trainer.T_optimizer.zero_grad(set_to_none=True)
-    trainer.T_B_optimizer.zero_grad(set_to_none=True)
-    trainer.log_T.grad = torch.ones_like(trainer.log_T)
-    trainer.log_T_B.grad = -torch.ones_like(trainer.log_T_B)
-    trainer.T_optimizer.step()
-    trainer.T_B_optimizer.step()
-    T_E_after = torch.nn.functional.softplus(trainer.log_T).item()
-    T_B_after = trainer.bootstrap_scale().item()
-    assert T_E_after != T_B_after
-    assert T_B_after > T_E_after
-
-    with torch.no_grad():
-        trainer.log_T_B.copy_(amo.softplus_inverse(2 * T_E))
-    assert trainer.bootstrap_scale().item() > T_E.item()
+    trainer.alpha_optimizer.zero_grad(set_to_none=True)
+    trainer.alpha_B_optimizer.zero_grad(set_to_none=True)
+    trainer.log_alpha.grad = torch.ones_like(trainer.log_alpha)
+    trainer.log_alpha_B.grad = -torch.ones_like(trainer.log_alpha_B)
+    trainer.alpha_optimizer.step()
+    trainer.alpha_B_optimizer.step()
+    alpha_E_after = torch.nn.functional.softplus(trainer.log_alpha).item()
+    alpha_B_after = trainer.bootstrap_scale().item()
+    assert alpha_E_after != alpha_B_after
+    assert alpha_B_after > alpha_E_after
 
     with torch.no_grad():
-        trainer.log_T_B.copy_(amo.softplus_inverse(T_E - 0.1))
-    T_B_before = trainer.bootstrap_scale().item()
+        trainer.log_alpha_B.copy_(amo.softplus_inverse(2 * alpha_E))
+    assert trainer.bootstrap_scale().item() > alpha_E.item()
+
     with torch.no_grad():
-        trainer.log_T.copy_(amo.softplus_inverse(2 * T_E))
-    assert trainer.bootstrap_scale().item() == T_B_before
+        trainer.log_alpha_B.copy_(amo.softplus_inverse(alpha_E - 0.1))
+    alpha_B_before = trainer.bootstrap_scale().item()
+    with torch.no_grad():
+        trainer.log_alpha.copy_(amo.softplus_inverse(2 * alpha_E))
+    assert trainer.bootstrap_scale().item() == alpha_B_before
 
     trainer._update_bootstrap_scale(batch(60), batch(61), trainer.bootstrap_scale())
     saved = copy.deepcopy(trainer.state_dict())
-    restored = make_adaptive_trainer(T_lr=1e-2, actor_lr=3e-3)
+    restored = make_adaptive_trainer(alpha_lr=1e-2, actor_lr=3e-3)
     restored.load_state_dict(saved)
     assert saved["checkpoint_version"] == 10
     assert saved["bootstrap_outer_loss_version"] == (amo.BOOTSTRAP_OUTER_LOSS_VERSION)
     assert not any("initialization_n" in key for key in saved)
-    assert torch.equal(restored.log_T, trainer.log_T)
-    assert torch.equal(restored.log_T_B, trainer.log_T_B)
+    assert torch.equal(restored.log_alpha, trainer.log_alpha)
+    assert torch.equal(restored.log_alpha_B, trainer.log_alpha_B)
     assert restored.bootstrap_outer_update_count == trainer.bootstrap_outer_update_count
     assert (
-        restored.T_optimizer.state_dict()["param_groups"]
-        == saved["T_optimizer"]["param_groups"]
+        restored.alpha_optimizer.state_dict()["param_groups"]
+        == saved["alpha_optimizer"]["param_groups"]
     )
     assert (
-        restored.T_B_optimizer.state_dict()["param_groups"]
-        == saved["T_B_optimizer"]["param_groups"]
+        restored.alpha_B_optimizer.state_dict()["param_groups"]
+        == saved["alpha_B_optimizer"]["param_groups"]
     )
-    for key, value in restored.T_B_optimizer.state_dict()["state"][0].items():
-        expected = saved["T_B_optimizer"]["state"][0][key]
+    for key, value in restored.alpha_B_optimizer.state_dict()["state"][0].items():
+        expected = saved["alpha_B_optimizer"]["state"][0][key]
         if isinstance(value, torch.Tensor):
             assert torch.equal(value, expected)
         else:
@@ -583,7 +582,7 @@ def test_independent_scale_updates_and_checkpoint_round_trip():
     old_loss = copy.deepcopy(saved)
     old_loss["checkpoint_version"] = 8
     old_loss.pop("bootstrap_outer_loss_version")
-    rejected = make_adaptive_trainer(T_lr=1e-2, actor_lr=3e-3)
+    rejected = make_adaptive_trainer(alpha_lr=1e-2, actor_lr=3e-3)
     before_rejection = module_values(
         [*rejected.actor_bank, rejected.critic_1, rejected.critic_2]
     )
@@ -596,43 +595,43 @@ def test_independent_scale_updates_and_checkpoint_round_trip():
 
     old_scale_state = copy.deepcopy(saved)
     old_scale_state["checkpoint_version"] = 9
-    rejected = make_adaptive_trainer(T_lr=1e-2, actor_lr=3e-3)
+    rejected = make_adaptive_trainer(alpha_lr=1e-2, actor_lr=3e-3)
     with pytest.raises(ValueError, match="checkpoint v10"):
         rejected.load_state_dict(old_scale_state)
 
 
 def test_bootstrap_scale_can_move_above_execution_scale():
-    trainer = make_adaptive_trainer(T_lr=1e-2, actor_lr=3e-3)
-    T_E = torch.nn.functional.softplus(trainer.log_T).detach()
+    trainer = make_adaptive_trainer(alpha_lr=1e-2, actor_lr=3e-3)
+    alpha_E = torch.nn.functional.softplus(trainer.log_alpha).detach()
     with torch.no_grad():
-        trainer.log_T_B.copy_(amo.softplus_inverse(2 * T_E))
-    T_B = trainer.bootstrap_scale().item()
-    assert T_B > T_E.item()
+        trainer.log_alpha_B.copy_(amo.softplus_inverse(2 * alpha_E))
+    alpha_B = trainer.bootstrap_scale().item()
+    assert alpha_B > alpha_E.item()
     logs = trainer._bootstrap_scale_logs()
-    assert logs["amo/T_B"] == T_B
-    assert logs["amo/T_B_over_T_E"] > 1.0
+    assert logs["amo/alpha_B"] == alpha_B
+    assert logs["amo/alpha_B_over_alpha_E"] > 1.0
 
 
 def test_gradient_sum_direction_reproducibility_nonfinite_and_graph_release():
-    first = make_adaptive_trainer(seed=7, T_lr=1e-2, actor_lr=3e-3)
-    second = make_adaptive_trainer(seed=7, T_lr=1e-2, actor_lr=3e-3)
+    first = make_adaptive_trainer(seed=7, alpha_lr=1e-2, actor_lr=3e-3)
+    second = make_adaptive_trainer(seed=7, alpha_lr=1e-2, actor_lr=3e-3)
     first._update_bootstrap_scale(batch(70), batch(71), first.bootstrap_scale())
     second._update_bootstrap_scale(batch(70), batch(71), second.bootstrap_scale())
-    assert torch.equal(first.log_T_B, second.log_T_B)
+    assert torch.equal(first.log_alpha_B, second.log_alpha_B)
     assert first._bootstrap_last == second._bootstrap_last
     assert (
         abs(
-            first._bootstrap_last["grad_T_B_total"]
-            - first._bootstrap_last["grad_T_B_from_L1"]
-            - first._bootstrap_last["grad_T_B_from_L2_RMS"]
+            first._bootstrap_last["grad_alpha_B_total"]
+            - first._bootstrap_last["grad_alpha_B_from_L1"]
+            - first._bootstrap_last["grad_alpha_B_from_L2_RMS"]
         )
         < 1e-7
     )
     assert (
         abs(
-            first._bootstrap_last["grad_T_B_from_L1"]
-            - first._bootstrap_last["grad_T_B_from_L1_Q_chain"]
-            - first._bootstrap_last["grad_T_B_from_L1_BC_chain"]
+            first._bootstrap_last["grad_alpha_B_from_L1"]
+            - first._bootstrap_last["grad_alpha_B_from_L1_Q_chain"]
+            - first._bootstrap_last["grad_alpha_B_from_L1_BC_chain"]
         )
         < 1e-7
     )
@@ -648,7 +647,7 @@ def test_gradient_sum_direction_reproducibility_nonfinite_and_graph_release():
         loss, details = first._bootstrap_multiscale_objective(
             batch(80 + index), batch(90 + index), first.bootstrap_scale()
         )
-        grad = torch.autograd.grad(loss, first.log_T_B)[0]
+        grad = torch.autograd.grad(loss, first.log_alpha_B)[0]
         refs.append(weakref.ref(loss))
         del loss, details, grad
     gc.collect()
@@ -668,8 +667,8 @@ def test_gradient_sum_direction_reproducibility_nonfinite_and_graph_release():
 def test_execution_bpi_formula_and_gradient_are_unchanged():
     trainer = make_adaptive_trainer(actor_lr=3e-3)
     inner, outer = batch(110), batch(111)
-    T_E = torch.nn.functional.softplus(trainer.log_T)
-    pi, pi_new = trainer._virtual_actor_bank_update(inner[0], inner[1], outer[0], T_E)
+    alpha_E = torch.nn.functional.softplus(trainer.log_alpha)
+    pi, pi_new = trainer._virtual_actor_bank_update(inner[0], inner[1], outer[0], alpha_E)
     actual, _ = trainer._outer_loss(outer[0], pi, pi_new)
 
     target = trainer.critic_1_target
@@ -684,8 +683,8 @@ def test_execution_bpi_formula_and_gradient_are_unchanged():
     q_scale = target(outer[0], pi_new).abs().mean().detach().clamp_min(1e-6)
     expected = -b_pi.mean() / q_scale
     assert torch.allclose(actual, expected)
-    actual_grad = torch.autograd.grad(actual, trainer.log_T, retain_graph=True)[0]
-    expected_grad = torch.autograd.grad(expected, trainer.log_T)[0]
+    actual_grad = torch.autograd.grad(actual, trainer.log_alpha, retain_graph=True)[0]
+    expected_grad = torch.autograd.grad(expected, trainer.log_alpha)[0]
     assert torch.equal(actual_grad, expected_grad)
 
 
@@ -713,8 +712,8 @@ def test_nonlocal_rms_diagnostics_are_read_only_and_logged():
         "amo/R_B_autograd_secant_sign_agreement_large",
         "amo/R_B_autograd_over_secant_small",
         "amo/R_B_autograd_over_secant_large",
-        "amo/grad_T_B_from_L2_squared_relative_old_diag",
-        "amo/grad_T_B_from_L2_RMS_readonly_diag",
+        "amo/grad_alpha_B_from_L2_squared_relative_old_diag",
+        "amo/grad_alpha_B_from_L2_RMS_readonly_diag",
         "amo/abs_grad_ratio_RMS_over_squared_old_diag",
         "amo/RMS_grad_larger_than_squared_old_diag",
         "amo/R_B_monotone_small",
@@ -725,9 +724,9 @@ def test_nonlocal_rms_diagnostics_are_read_only_and_logged():
 
     logs = trainer.train(batch(122), batch(123))
     required = {
-        "amo/T_E",
-        "amo/T_B",
-        "amo/T_B_over_T_E",
+        "amo/alpha_E",
+        "amo/alpha_B",
+        "amo/alpha_B_over_alpha_E",
         "amo/L1_B_Q",
         "amo/L1_B_BC",
         "amo/L1_B",
@@ -741,20 +740,20 @@ def test_nonlocal_rms_diagnostics_are_read_only_and_logged():
         "amo/nonterminal_fraction",
         "amo/L2_squared_relative_diag",
         "amo/L2_RMS_B",
-        "amo/grad_T_B_from_L1_Q_chain",
-        "amo/grad_T_B_from_L1_BC_chain",
-        "amo/grad_T_B_from_L1",
-        "amo/grad_T_B_from_L2_RMS",
-        "amo/grad_T_B_total",
-        "amo/grad_T_E_BPI",
-        "amo/grad_T_B_L1_L2_same_sign",
+        "amo/grad_alpha_B_from_L1_Q_chain",
+        "amo/grad_alpha_B_from_L1_BC_chain",
+        "amo/grad_alpha_B_from_L1",
+        "amo/grad_alpha_B_from_L2_RMS",
+        "amo/grad_alpha_B_total",
+        "amo/grad_alpha_E_BPI",
+        "amo/grad_alpha_B_L1_L2_same_sign",
         "amo/abs_grad_ratio_L1_L2",
-        "amo/delta_log_T_B",
-        "amo/delta_log_T_E",
+        "amo/delta_log_alpha_B",
+        "amo/delta_log_alpha_E",
         "amo/target_critic_grad_norm",
         "amo/B_PI_E",
-        "amo/L_T_E",
-        "amo/L_T_B",
+        "amo/L_alpha_E",
+        "amo/L_alpha_B",
         "amo/bootstrap_outer_loss_version",
         "amo/critic_bootstrap_actor_role",
         "amo/evaluation_actor_role",
@@ -796,8 +795,8 @@ def test_amo_locomotion9_launcher_manifest_definition():
     assert config["adaptive_multiscale"] is True
     assert config["max_timesteps"] == 1_000_000
     assert config["seed"] == 0
-    assert config["initial_T_E"] == config["initial_T_B"]
-    assert config["initial_T_E"] == "TrainConfig.T_E default"
+    assert config["initial_alpha_E"] == config["initial_alpha_B"]
+    assert config["initial_alpha_E"] == "TrainConfig.alpha_E default"
     assert config["bootstrap_outer_loss_version"] == (amo.BOOTSTRAP_OUTER_LOSS_VERSION)
     assert config["bootstrap_scale_loss"] == "L1_B+L2_RMS_B"
     assert "coefficient" not in config
@@ -806,24 +805,24 @@ def test_amo_locomotion9_launcher_manifest_definition():
     assert any("amo_adaptive_multiscale_h-m_s0" in argument for argument in command)
     assert "--project=AMO-adaptive-multiscale" in command
     assert "--group=amo-locomotion9-seed0" in command
-    assert not any(argument.startswith("--T_E=") for argument in command)
-    assert not any(argument.startswith("--T_B=") for argument in command)
+    assert not any(argument.startswith("--alpha_E=") for argument in command)
+    assert not any(argument.startswith("--alpha_B=") for argument in command)
     assert not any("proximal_n_steps" in argument for argument in command)
     assert not any("dual_" + "proximal" in argument for argument in command)
     previous = dict(launcher.LAUNCH_SCALES)
     try:
-        launcher.LAUNCH_SCALES.update({"T_E": 10.0, "T_B": 1.0, "T_lr": 3e-4})
+        launcher.LAUNCH_SCALES.update({"alpha_E": 10.0, "alpha_B": 1.0, "alpha_lr": 3e-4})
         flagged = launcher.resolved_config("hopper-medium-v2")
-        assert flagged["initial_T_E"] == 10.0
-        assert flagged["initial_T_B"] == 1.0
+        assert flagged["initial_alpha_E"] == 10.0
+        assert flagged["initial_alpha_B"] == 1.0
         flagged_command = launcher.command("hopper-medium-v2")
-        assert "--T_E=10.0" in flagged_command
-        assert "--T_B=1.0" in flagged_command
-        assert "--T_lr=0.0003" in flagged_command
+        assert "--alpha_E=10.0" in flagged_command
+        assert "--alpha_B=1.0" in flagged_command
+        assert "--alpha_lr=0.0003" in flagged_command
     finally:
         launcher.LAUNCH_SCALES.update(previous)
     launcher_source = open(launcher_path, encoding="utf-8").read()
-    assert "T_B_to_T_E" not in launcher_source
+    assert "alpha_B_to_alpha_E" not in launcher_source
 
 
 if __name__ == "__main__":

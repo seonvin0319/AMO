@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Detachable loco-9 × seeds 0–3 queue for AMO main TD3+AMO JAX (train.py).
+"""JAX queue for td3_amo antmaze alpha_E=alpha_B=5 × T_lr × seed0-3.
 
-Does not modify algorithms/jax. Uses configs/td3_amo.yaml defaults
-(alpha_E=alpha_B=2, alpha_lr=1e-3). Output under /raid/ext_csv/AMO_store.
+Reads pending cells from:
+  /home/choi/AMO_store/td3_amo_jax_antmaze_tinit25_tlr_handoff/pending_cells.json
+Uses /home/choi/amo train.py --backend jax (train-only + save-every 20k;
+CPU final eval is a separate reaper).
 """
 
 from __future__ import annotations
@@ -17,26 +19,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = Path("/raid/ext_csv/AMO_store/td3_amo_jax_loco9_default_seeds0to3")
-PYTHON = Path("/home/ext_csv/miniconda3/envs/amo-jax/bin/python")
-ENVIRONMENTS = tuple(
-    f"{domain}-{dataset}-v2"
-    for domain in ("halfcheetah", "hopper", "walker2d")
-    for dataset in ("medium", "medium-replay", "medium-expert")
+PYTHON = Path("/home/choi/miniconda3/envs/amo/bin/python")
+OUT = Path("/home/choi/AMO_store/td3_amo_jax_antmaze_tinit25_tlr")
+HANDOFF = Path(
+    "/home/choi/AMO_store/td3_amo_jax_antmaze_tinit25_tlr_handoff/pending_cells.json"
 )
-SEEDS = (0, 1, 2, 3)
-GROUP = "td3-amo-jax-loco9-default-seeds0-3"
-CONFIG = ROOT / "configs" / "td3_amo.yaml"
-
+GROUP = "td3-amo-jax-antmaze-tinit25-tlr"
+TLR_CONFIG = {
+    "3e-4": ROOT / "configs" / "td3_amo_tinit25_tlr3e-4.yaml",
+    "1e-3": ROOT / "configs" / "td3_amo_tinit25_tlr1e-3.yaml",
+    "2e-3": ROOT / "configs" / "td3_amo_tinit25_tlr2e-3.yaml",
+}
 ENV_SHORT = {
-    environment: environment.replace("halfcheetah", "hc")
-    .replace("hopper", "h")
-    .replace("walker2d", "w")
-    .replace("medium-replay", "mr")
-    .replace("medium-expert", "me")
-    .replace("medium", "m")
-    .replace("-v2", "")
-    for environment in ENVIRONMENTS
+    "antmaze-umaze-v2": "amu",
+    "antmaze-umaze-diverse-v2": "amud",
+    "antmaze-medium-play-v2": "ammp",
+    "antmaze-medium-diverse-v2": "ammd",
+    "antmaze-large-play-v2": "amlp",
+    "antmaze-large-diverse-v2": "amld",
 }
 
 
@@ -60,29 +60,34 @@ def git_metadata() -> dict:
     return {"commit": commit, "dirty": bool(dirty), "dirty_status": dirty}
 
 
-def run_id(environment: str, seed: int) -> str:
-    return f"td3amo_jax_{ENV_SHORT[environment]}_s{seed}"
+def tlr_tag(value: float) -> str:
+    for tag, target in (("3e-4", 3e-4), ("1e-3", 1e-3), ("2e-3", 2e-3)):
+        if abs(float(value) - target) < 1e-12:
+            return tag
+    raise ValueError(f"unsupported alpha_lr={value}")
 
 
-def run_dir(environment: str, seed: int) -> Path:
-    return OUT / "runs" / run_id(environment, seed)
+def run_id(environment: str, seed: int, tag: str) -> str:
+    return f"td3amo_jax_te25_tb25_tlr{tag}_{ENV_SHORT[environment]}_s{seed}"
 
 
-def completed(environment: str, seed: int) -> bool:
-    d = run_dir(environment, seed)
-    ckpt = d / "checkpoint.npz"
-    if not ckpt.exists():
-        return False
+def run_dir(rid: str) -> Path:
+    return OUT / "runs" / rid
+
+
+def completed(rid: str) -> bool:
+    d = run_dir(rid)
+    if (d / "COMPLETED.json").exists():
+        return True
     meta = d / "run_meta.json"
     if meta.exists():
         try:
-            payload = json.loads(meta.read_text())
-            if int(payload.get("steps", 0)) >= 1_000_000:
+            if int(json.loads(meta.read_text()).get("steps", 0)) >= 1_000_000:
                 return True
         except (OSError, ValueError, json.JSONDecodeError):
             pass
     metrics = d / "metrics.jsonl"
-    if metrics.exists():
+    if metrics.exists() and metrics.stat().st_size:
         with metrics.open("rb") as handle:
             handle.seek(0, 2)
             size = handle.tell()
@@ -100,8 +105,7 @@ def completed(environment: str, seed: int) -> bool:
             if step is not None and int(step) >= 1_000_000:
                 return True
             break
-    # train.py writes checkpoint at end; nonempty COMPLETED marker
-    return (d / "COMPLETED.json").exists()
+    return False
 
 
 def process_alive(pid: int) -> bool:
@@ -148,7 +152,7 @@ def live_count_from_markers() -> dict[str, int]:
 def live_train_count() -> int:
     try:
         output = subprocess.check_output(
-            ["pgrep", "-af", r"train\.py --algorithm td3_amo --backend jax"],
+            ["pgrep", "-af", r"train\.py --algorithm[= ]td3_amo"],
             text=True,
         )
     except subprocess.CalledProcessError:
@@ -156,18 +160,16 @@ def live_train_count() -> int:
     return sum(
         1
         for line in output.splitlines()
-        if "train.py --algorithm td3_amo --backend jax" in line and "pgrep" not in line
+        if "train.py" in line
+        and "td3_amo" in line
+        and "--backend=jax" in line
+        and "pgrep" not in line
     )
 
 
-def dataset_path(environment: str) -> Path:
-    # hopper-medium-v2 -> hopper_medium-v2.hdf5
-    name = environment.replace("-", "_").replace("_v2", "-v2") + ".hdf5"
-    return Path("/raid/ext_csv/datasets/d4rl") / name
-
-
-def command(environment: str, seed: int) -> list[str]:
-    output = run_dir(environment, seed)
+def command(environment: str, seed: int, tag: str, rid: str) -> list[str]:
+    output = run_dir(rid)
+    config = TLR_CONFIG[tag]
     cmd = [
         str(PYTHON),
         "-u",
@@ -176,11 +178,9 @@ def command(environment: str, seed: int) -> list[str]:
         "--backend=jax",
         f"--env={environment}",
         f"--seed={seed}",
-        "--device=cuda:0",  # visible device remapped via CUDA_VISIBLE_DEVICES
-        f"--config={CONFIG}",
-        f"--dataset={dataset_path(environment)}",
+        "--device=cuda:0",
+        f"--config={config}",
         f"--output={output}",
-        # Train only on GPU; MuJoCo eval is a separate CPU posthoc job.
         "--no-eval",
         "--save-every=20000",
     ]
@@ -191,15 +191,13 @@ def command(environment: str, seed: int) -> list[str]:
 
 
 def worker_env(gpu: str) -> dict[str, str]:
-    mujoco = "/home/ext_csv/.mujoco/mujoco210"
-    conda_prefix = "/home/ext_csv/miniconda3/envs/amo-jax"
+    mujoco = os.environ.get("MUJOCO_PY_MUJOCO_PATH", "/home/choi/.mujoco/mujoco210")
+    conda_prefix = "/home/choi/miniconda3/envs/amo"
     environment = os.environ.copy()
     ld = [
         f"{mujoco}/bin",
         f"{conda_prefix}/lib",
-        "/home/ext_csv/.local/osmesa",
         "/usr/lib/x86_64-linux-gnu",
-        "/usr/lib/nvidia",
         environment.get("LD_LIBRARY_PATH", ""),
     ]
     py_path = [str(ROOT)]
@@ -213,7 +211,6 @@ def worker_env(gpu: str) -> dict[str, str]:
             "WANDB_DIR": str(OUT / "wandb"),
             "WANDB_SILENT": "true",
             "D4RL_SUPPRESS_IMPORT_ERROR": "1",
-            "D4RL_DATASET_DIR": "/raid/ext_csv/datasets/d4rl",
             "MUJOCO_GL": "egl",
             "MUJOCO_PY_MUJOCO_PATH": mujoco,
             "LD_LIBRARY_PATH": ":".join(p for p in ld if p),
@@ -222,7 +219,6 @@ def worker_env(gpu: str) -> dict[str, str]:
             "MKL_NUM_THREADS": "1",
             "EIGEN_NUM_THREADS": "1",
             "NUMEXPR_NUM_THREADS": "1",
-            "PYTHONNOUSERSITE": "1",
             "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
         }
     )
@@ -241,32 +237,50 @@ def write_status(manifest: dict) -> None:
     atomic_json(OUT / "launch_manifest.json", manifest)
 
 
-def job_cells() -> list[tuple[str, int]]:
-    cells: list[tuple[str, int]] = []
-    for environment in ENVIRONMENTS:
-        for seed in SEEDS:
-            cells.append((environment, seed))
+def load_cells(handoff: Path) -> list[dict]:
+    if not handoff.exists():
+        raise SystemExit(f"missing handoff list: {handoff}")
+    payload = json.loads(handoff.read_text())
+    cells = []
+    for row in payload.get("pending") or []:
+        environment = row["env"]
+        seed = int(row["seed"])
+        alr = row.get("alpha_lr", row.get("T_lr"))
+        tag = row.get("tlr_tag") or tlr_tag(alr)
+        rid = run_id(environment, seed, tag)
+        cells.append(
+            {
+                "environment": environment,
+                "seed": seed,
+                "alpha_lr": float(row.get("alpha_lr", row.get("T_lr"))),
+                "tlr_tag": tag,
+                "run_id": rid,
+            }
+        )
     return cells
 
 
 def main() -> int:
     global OUT
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gpus", default="0,1")
+    parser.add_argument("--gpus", default="0")
     parser.add_argument("--retry-failed", action="store_true")
     parser.add_argument("--status-only", action="store_true")
     parser.add_argument("--detach", action="store_true")
-    parser.add_argument("--max-used-mib", type=int, default=80000)
-    parser.add_argument("--max-parallel", type=int, default=6)
+    parser.add_argument("--max-used-mib", type=int, default=11000)
+    parser.add_argument("--max-parallel", type=int, default=2)
     parser.add_argument("--out", type=Path, default=OUT)
+    parser.add_argument("--handoff", type=Path, default=HANDOFF)
     args = parser.parse_args()
     OUT = args.out.resolve()
+    handoff = args.handoff.resolve()
     gpus = [g.strip() for g in args.gpus.split(",") if g.strip()]
     max_parallel = max(1, int(args.max_parallel))
     if not PYTHON.exists():
         raise SystemExit(f"missing python: {PYTHON}")
-    if not CONFIG.exists():
-        raise SystemExit(f"missing config: {CONFIG}")
+    for path in TLR_CONFIG.values():
+        if not path.exists():
+            raise SystemExit(f"missing config: {path}")
 
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "jobs").mkdir(exist_ok=True)
@@ -287,6 +301,8 @@ def main() -> int:
             str(max_parallel),
             "--out",
             str(OUT),
+            "--handoff",
+            str(handoff),
         ]
         if args.retry_failed:
             cmd.append("--retry-failed")
@@ -307,45 +323,32 @@ def main() -> int:
                 "gpus": gpus,
                 "max_parallel": max_parallel,
                 "group": GROUP,
-                "config": str(CONFIG),
                 "backend": "jax",
-                "algorithm": "td3_amo",
-                "train_no_eval": True,
-                "save_every": 20000,
-                "cpu_eval": {
-                    "script": "scripts/eval_checkpoints_cpu.py",
-                    "every_steps": 20000,
-                    "episodes": 10,
-                    "final_repeats": 5,
-                    "delete_non_final_ckpt": True,
-                },
-                "seeds": list(SEEDS),
-                "pinned_sha": (ROOT / ".pinned_sha").read_text().strip()
-                if (ROOT / ".pinned_sha").exists()
-                else None,
+                "handoff": str(handoff),
             },
         )
-        print(f"detached launcher pid={process.pid}")
+        print(f"detached launcher pid={process.pid}", flush=True)
         return 0
 
     metadata = git_metadata()
+    cells = load_cells(handoff)
     manifest = {
         "created_at": utc_now(),
         "root": str(ROOT),
         "out": str(OUT),
         "group": GROUP,
         "git": metadata,
-        "config": str(CONFIG),
+        "handoff": str(handoff),
         "jobs": [],
     }
     pending: list[dict] = []
-    for environment, seed in job_cells():
-        rid = run_id(environment, seed)
+    for cell in cells:
+        rid = cell["run_id"]
         job_dir = OUT / "jobs" / rid
         job_dir.mkdir(exist_ok=True)
         if (job_dir / "CANCELLED.json").exists():
             status = "cancelled"
-        elif completed(environment, seed) or (job_dir / "COMPLETED.json").exists():
+        elif completed(rid) or (job_dir / "COMPLETED.json").exists():
             status = "completed"
         elif (job_dir / "FAILED.json").exists() and not args.retry_failed:
             status = "failed"
@@ -361,14 +364,17 @@ def main() -> int:
             status = "pending"
         job = {
             "run_id": rid,
-            "environment": environment,
-            "seed": seed,
+            "environment": cell["environment"],
+            "seed": cell["seed"],
+            "alpha_lr": cell["alpha_lr"],
+            "tlr_tag": cell["tlr_tag"],
+            "backend": "jax",
             "status": status,
             "pid": None,
             "gpu": None,
             "log": str(job_dir / "stdout_stderr.log"),
             "job_dir": str(job_dir),
-            "output": str(run_dir(environment, seed)),
+            "output": str(run_dir(rid)),
         }
         if status == "running":
             job["pid"] = int(rec.get("pid", -1))
@@ -378,11 +384,21 @@ def main() -> int:
             pending.append(job)
     write_status(manifest)
     if args.status_only:
-        print(json.dumps({"pending": len(pending), "counts": json.loads((OUT / "status_summary.json").read_text())["counts"]}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "pending": len(pending),
+                    "counts": json.loads((OUT / "status_summary.json").read_text())[
+                        "counts"
+                    ],
+                },
+                indent=2,
+            )
+        )
         return 0
 
     print(
-        f"jax loco9 queue pending={len(pending)} max_parallel={max_parallel} out={OUT}",
+        f"jax antmaze tinit25 pending={len(pending)} max_parallel={max_parallel} out={OUT}",
         flush=True,
     )
     running: dict[int, tuple[subprocess.Popen | None, dict, object | None]] = {}
@@ -412,7 +428,12 @@ def main() -> int:
             log_handle = (job_dir / "stdout_stderr.log").open("a", encoding="utf-8")
             launched_at = utc_now()
             process = subprocess.Popen(
-                command(job["environment"], int(job["seed"])),
+                command(
+                    job["environment"],
+                    int(job["seed"]),
+                    job["tlr_tag"],
+                    job["run_id"],
+                ),
                 cwd=ROOT,
                 env=worker_env(gpu),
                 stdout=log_handle,
@@ -435,6 +456,7 @@ def main() -> int:
                     "gpu": gpu,
                     "launched_at": launched_at,
                     "git": metadata,
+                    "backend": "jax",
                 },
             )
             running[process.pid] = (process, job, log_handle)
@@ -462,14 +484,7 @@ def main() -> int:
             (job_dir / "RUNNING.json").unlink(missing_ok=True)
             if log_handle is not None:
                 log_handle.close()
-            if return_code == 0 and completed(job["environment"], int(job["seed"])):
-                job["status"] = "completed"
-                atomic_json(
-                    job_dir / "COMPLETED.json",
-                    {"completed_at": utc_now(), "return_code": return_code},
-                )
-            elif return_code == 0:
-                # train finished but completion heuristic missed — still mark done
+            if return_code == 0:
                 job["status"] = "completed"
                 atomic_json(
                     job_dir / "COMPLETED.json",
