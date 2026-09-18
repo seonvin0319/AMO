@@ -94,6 +94,10 @@ def main(argv=None):
         default=20000,
         help="Write checkpoints/step_{N}.npz (+ checkpoint.npz) this often",
     )
+    p.add_argument(
+        "--behavior-path",
+        help="Frozen μ_hat checkpoint for iql_amo_qweight (behavior or actor params)",
+    )
     p.add_argument("--print-config", action="store_true")
     args = p.parse_args(argv)
     if args.eval and args.no_eval:
@@ -124,6 +128,10 @@ def main(argv=None):
         seed=args.seed,
         device=args.device,
     )
+    if args.behavior_path:
+        if args.algorithm != "iql_amo_qweight":
+            p.error("--behavior-path is only valid for iql_amo_qweight")
+        agent.load_behavior(args.behavior_path)
     if args.replay_device == "training":
         resident = agent.ops.batch(data)
         for replay in (buffer, outer_buffer):
@@ -169,6 +177,7 @@ def main(argv=None):
                 "python": platform.python_version(),
                 "device": args.device,
                 "replay_device": args.replay_device,
+                "behavior_path": args.behavior_path,
             },
             indent=2,
         )
@@ -198,7 +207,7 @@ def main(argv=None):
             is_meta = agent.meta_due(agent.steps + 1)
             outer = (
                 outer_buffer.sample(c.get("outer_batch_size", c["batch_size"]))
-                if args.algorithm in ("td3_amo", "iql_amo") and is_meta
+                if args.algorithm in ("td3_amo", "iql_amo", "iql_amo_qweight") and is_meta
                 else None
             )
             agent.update(batch, outer, return_metrics=False)
@@ -225,7 +234,9 @@ def main(argv=None):
                         args.seed if c["eval_seed"] is None else c["eval_seed"],
                         c["eval_episodes"],
                         c["final_eval_repeats"] if final else 1,
-                        seed_stride=0 if args.algorithm == "iql_amo" else 1,
+                        seed_stride=0
+                        if args.algorithm in ("iql_amo", "iql_amo_qweight")
+                        else 1,
                     ),
                 }
                 with (output / "eval.jsonl").open("a") as f:

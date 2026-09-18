@@ -15,7 +15,10 @@ from common.tree import flatten, map_tree, unflatten
 class BaseAgent:
     def __init__(self, observation_dim, action_dim, config, seed=0, device="cpu"):
         self.c = dict(config)
-        self.ops = self.Backend(device, float64=config["algorithm"] == "iql_amo")
+        self.ops = self.Backend(
+            device,
+            float64=config["algorithm"] in ("iql_amo", "iql_amo_qweight"),
+        )
         self.observation_dim, self.action_dim = observation_dim, action_dim
         self.rng = np.random.default_rng(seed)
         self.steps = 0
@@ -82,12 +85,15 @@ class BaseAgent:
             p["scale_B"] = {
                 "rho": np.asarray(c["alpha_B"] + np.log(-np.expm1(-c["alpha_B"])), np.float32)
             }
-        if c["algorithm"] == "iql_amo":
+        if c["algorithm"] in ("iql_amo", "iql_amo_qweight"):
             p["bootstrap"] = copy.deepcopy(actor)
             for role in ("E", "B"):
                 p[f"scale_{role}"] = {
                     "rho": np.asarray(np.log(c["beta_initial"]), np.float64)
                 }
+        if c["algorithm"] == "iql_amo_qweight":
+            # Frozen behavior density μ_hat (BC); independent of π_B.
+            p["behavior"] = copy.deepcopy(actor)
         if c["algorithm"] == "aspc":
             a = c["alpha"]
             p["scale"] = {"rho": np.asarray(a + np.log(-np.expm1(-a)), np.float32)}
@@ -106,7 +112,7 @@ class BaseAgent:
             }
         target_actor = p.get("bootstrap", actor)
         optimizers = {k: init_adam(v) for k, v in p.items()}
-        if c["algorithm"] == "iql_amo":
+        if c["algorithm"] in ("iql_amo", "iql_amo_qweight"):
             for role in ("E", "B"):
                 optimizers[f"scale_{role}"]["count"] = np.asarray(0, np.float64)
         return {
@@ -246,7 +252,7 @@ class BaseAgent:
         actor_step = (step - offset) % self.c.get("policy_freq", 1) == 0
         meta_step = actor_step and self.meta_due(step)
         if (
-            self.c["algorithm"] in ("td3_amo", "iql_amo")
+            self.c["algorithm"] in ("td3_amo", "iql_amo", "iql_amo_qweight")
             and meta_step
             and outer is None
         ):

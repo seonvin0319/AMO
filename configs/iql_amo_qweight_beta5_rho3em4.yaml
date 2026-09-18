@@ -1,0 +1,38 @@
+# iql_amo_qweight grid cell: beta_E/B init=5, rho_B_lr=0.0003, adapt_B on.
+defaults:
+  beta_initial: 5.0
+  rho_lr: 0.0003
+  rho_E_lr: 0.0003
+  rho_B_lr: 0.0003
+  meta_warmup_steps: 100000
+  meta_interval: 20
+  qweight_enabled: true
+  adapt_beta_E: false
+  adapt_beta_B: true
+  qweight_w_min: 0.1
+  qweight_w_max: 10.0
+  final_eval_repeats: 5
+antmaze:
+  expectile: 0.9
+  reward_transform: antmaze_shift
+  eval_episodes: 100
+environments:
+  hopper-medium-v2:
+    reward_transform: return_range
+  hopper-medium-replay-v2:
+    reward_transform: return_range
+  hopper-medium-expert-v2:
+    expectile: 0.5
+    reward_transform: return_range
+  walker2d-medium-v2:
+    reward_transform: return_range
+  walker2d-medium-replay-v2:
+    reward_transform: return_range
+  walker2d-medium-expert-v2:
+    reward_transform: return_range
+  halfcheetah-medium-v2:
+    reward_transform: return_range
+  halfcheetah-medium-replay-v2:
+    reward_transform: return_range
+  halfcheetah-medium-expert-v2:
+    reward_transform: return_range

@@ -1,0 +1,16 @@
+# Diagnostic C: π_B-weighted Q, β_B adapts (warmup 2k, interval 20, rho_B_lr=2e-3).
+# Untuned diagnostic meta schedule.
+defaults:
+  beta_initial: 5.0
+  qweight_enabled: true
+  adapt_beta_E: false
+  adapt_beta_B: true
+  meta_warmup_steps: 2000
+  meta_interval: 20
+  rho_B_lr: 0.002
+  rho_lr: 0.002
+  final_eval_repeats: 5
+environments:
+  hopper-medium-expert-v2:
+    expectile: 0.5
+    reward_transform: return_range

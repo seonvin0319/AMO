@@ -1,0 +1,13 @@
+# Diagnostic A: IQL Q (w=1), β_E=β_B=5 fixed, no adapts.
+defaults:
+  beta_initial: 5.0
+  qweight_enabled: false
+  adapt_beta_E: false
+  adapt_beta_B: false
+  meta_warmup_steps: 10000000
+  rho_B_lr: 0.002
+  final_eval_repeats: 5
+environments:
+  hopper-medium-expert-v2:
+    expectile: 0.5
+    reward_transform: return_range

@@ -4,7 +4,17 @@ from pathlib import Path
 
 import yaml
 
-ALGORITHMS = ("aspc", "wpc", "td3_bc", "a2pr", "rebrac", "iql", "td3_amo", "iql_amo")
+ALGORITHMS = (
+    "aspc",
+    "wpc",
+    "td3_bc",
+    "a2pr",
+    "rebrac",
+    "iql",
+    "td3_amo",
+    "iql_amo",
+    "iql_amo_qweight",
+)
 
 SHARED = dict(
     batch_size=256,
@@ -109,6 +119,33 @@ DEFAULTS = {
         policy_freq=1,
         smoothness_eps=1e-6,
     ),
+    # IQL + π_B/μ_hat Q reweight; β_B outer = virtual-critic TD MSE (not L2_RMS).
+    "iql_amo_qweight": dict(
+        actor_depth=2,
+        critic_depth=2,
+        critic_layernorm=False,
+        gaussian=True,
+        value_depth=2,
+        value_lr=0.0003,
+        expectile=0.7,
+        beta_initial=5.0,
+        beta_min=0.05,
+        beta_max=100.0,
+        rho_lr=0.002,
+        rho_E_lr=0.002,
+        rho_B_lr=0.002,
+        weight_cap=100.0,
+        meta_warmup_steps=100000,
+        meta_interval=20,
+        outer_batch_size=256,
+        policy_freq=1,
+        smoothness_eps=1e-6,
+        qweight_enabled=True,
+        adapt_beta_E=False,
+        adapt_beta_B=False,
+        qweight_w_min=0.1,
+        qweight_w_max=10.0,
+    ),
 }
 
 
@@ -167,4 +204,14 @@ def load_config(algorithm, env, path=None, overrides=None):
             raise ValueError("Require 0 < beta_min <= beta_initial <= beta_max")
         if config["rho_lr"] <= 0 or config["meta_warmup_steps"] < 0:
             raise ValueError("rho_lr must be positive and warmup nonnegative")
+    if algorithm == "iql_amo_qweight":
+        if not 0 < config["beta_min"] <= config["beta_initial"] <= config["beta_max"]:
+            raise ValueError("Require 0 < beta_min <= beta_initial <= beta_max")
+        if config["rho_lr"] <= 0 or config["meta_warmup_steps"] < 0:
+            raise ValueError("rho_lr must be positive and warmup nonnegative")
+        if not (0 < config["qweight_w_min"] < config["qweight_w_max"]):
+            raise ValueError("Require 0 < qweight_w_min < qweight_w_max")
+        for key in ("rho_E_lr", "rho_B_lr"):
+            if config[key] <= 0:
+                raise ValueError(f"{key} must be positive")
     return config
