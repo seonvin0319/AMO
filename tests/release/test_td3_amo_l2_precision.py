@@ -71,6 +71,44 @@ class TestL2Precision(unittest.TestCase):
             with self.subTest(caller_precision=precision):
                 self.check_term(1, precision)
 
+    def test_terminal_batch_excludes_policy_loss_from_main_hypergradient(self):
+        # With every outer transition terminal, target movement is exactly zero.
+        # L1 can still have a nonzero gradient, so this detects leakage into L_B.
+        a = self.agent
+        outer = dict(self.outer)
+        outer["terminals"] = jax.numpy.ones_like(outer["terminals"])
+        p = a.state["p"]["scale_B"]
+        a.c["bootstrap_loss"] = "l2_rms"
+        value, grad = jax.value_and_grad(
+            lambda x: a.bootstrap_outer(x, a.state, self.inner, outer)
+        )(p)
+        self.assertEqual(float(value), 0.0)
+        self.assertEqual(float(grad["rho"]), 0.0)
+        try:
+            a.c["bootstrap_loss"] = "l1_l2_rms"
+            legacy, legacy_grad = jax.value_and_grad(
+                lambda x: a.bootstrap_outer(x, a.state, self.inner, outer)
+            )(p)
+            self.assertTrue(np.isfinite(float(legacy)))
+            self.assertGreater(abs(float(legacy_grad["rho"])), 1e-10)
+        finally:
+            a.c["bootstrap_loss"] = "l2_rms"
+
+    def test_production_objective_uses_rms_value_and_hypergradient(self):
+        a = self.agent
+        self.assertEqual(a.c["bootstrap_loss"], "l2_rms")
+        p = a.state["p"]["scale_B"]
+        with jax.default_matmul_precision("default"):
+            actual = jax.jit(jax.value_and_grad(
+                lambda x: a.bootstrap_outer(x, a.state, self.inner, self.outer)
+            ))(p)
+            with jax.default_matmul_precision("highest"):
+                expected = jax.jit(jax.value_and_grad(
+                    lambda x: a._bootstrap_terms(x, a.state, self.inner, self.outer)[1]
+                ))(p)
+        for x, y in zip(jax.tree_util.tree_leaves(actual), jax.tree_util.tree_leaves(expected)):
+            np.testing.assert_array_equal(np.asarray(x), np.asarray(y))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,6 @@
+# Historical combined bootstrap outer loss, retained only for ablation.
+defaults:
+  alpha_E: 5.0
+  alpha_B: 5.0
+  alpha_lr: 0.001
+  bootstrap_loss: l1_l2_rms

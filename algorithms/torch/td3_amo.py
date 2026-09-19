@@ -1,4 +1,4 @@
-"""Final TD3+AMO: execution -B_pi and bootstrap detached-TQ L1+L2_RMS.
+"""TD3+AMO: execution -B_pi and RMS-only bootstrap meta loss.
 
 Reference: seonvin0319/AMO a8c1e48, adaptive_multiscale=True.
 The endpoint gradient proxy is empirical; it is not a certified return bound.
@@ -82,6 +82,10 @@ class Agent(BaseAgent):
         l2 = factor * rms
         return l1, l2
 
+    def bootstrap_outer(self, scale, state, inner_batch, outer_batch):
+        l1, l2 = self.bootstrap_terms(scale, state, inner_batch, outer_batch)
+        return l2 if self.c["bootstrap_loss"] == "l2_rms" else l1 + l2
+
     def step(self, state, batch, outer, noise, *, actor_step, meta_step):
         state, logs, _, _ = self.td_critic(state, batch, noise)
         if not actor_step:
@@ -106,7 +110,7 @@ class Agent(BaseAgent):
             state, logs["L_alpha_B"] = self.update_network(
                 state,
                 "scale_B",
-                lambda p: sum(self.bootstrap_terms(p, frozen_state, batch, outer)),
+                lambda p: self.bootstrap_outer(p, frozen_state, batch, outer),
                 lr,
             )
             logs.update(L1_B=l1, L2_RMS_B=l2)

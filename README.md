@@ -17,6 +17,8 @@ All eight algorithms run on both backends. AMO implementations follow the upload
 
 Here RC means robust critic. It uses three hidden layers of width 256, ReLU followed by LayerNorm, and the ASPC initialization. A2PR, ReBRAC and IQL retain their reference architectures. The `--algorithm` key is the module filename without `.py`, for example `td3_bc` or `td3_amo`.
 
+TD3+AMO defaults to **RMS-only bootstrap adaptation** (`bootstrap_loss=l2_rms`, bootrms) with initial `alpha_E=alpha_B=5`. Both actor inner losses and the execution meta objective are unchanged. The previous combined outer loss is available through `configs/td3_amo_l1_l2_ablation.yaml`. IQL+AMO is unchanged. The retained `amo/algorithm.py` is a historical implementation; the supported entry point is `train.py`.
+
 ## Installation and training
 
 Run commands from this directory. Install one backend:
@@ -91,12 +93,12 @@ Resume with the same algorithm configuration, environment, seed, and dataset. Ch
 - Two actors share twin critics. The target bootstrap actor supplies Bellman actions; the execution actor supplies evaluation actions. Both use dataset actions as their BC anchor.
 - Actor loss is `-mean(Q1)/stop(mean(abs(Q1))) + MSE(pi,a_D)/alpha` with `alpha:=2T` (legacy T).
 - The execution scale minimizes normalized `-B_pi` through a virtual Adam update.
-- The bootstrap scale minimizes `L1_B + L2_RMS_B` through a virtual SGD update. The detached common factor is `alpha_B` (=2*T_B legacy) and Q normalization is detached. RMS is exact with a finite zero subgradient.
+- The bootstrap scale minimizes `L2_RMS_B` through a virtual SGD update. `L1_B + L2_RMS_B` is retained only with `bootstrap_loss=l1_l2_rms`. The detached common factor is `alpha_B` (=2*T_B legacy) and Q normalization is detached. RMS is exact with a finite zero subgradient.
 - JAX always uses `highest` matmul precision for the full L2 RMS path, including its virtual update and gradients. This is built in; no precision flag or alternate mode is needed. Other paths retain the caller's precision.
 - The outer batch is sampled independently. There is no fixed ratio or ordering constraint between the scales.
 - Original timing is retained: the execution actor uses its pre-meta-update scale; the bootstrap actor uses its updated scale.
 
-The default is the recorded completed multiseed profile `alpha_E=2`, `alpha_B=2`, `alpha_lr=0.001` (legacy `T_E=T_B=1`). This does not claim that the profile is best for every environment. Four-evaluation, scheduled-horizon, lambda and behavior-critic experiments are outside the release modules. B_pi remains an empirical local proxy, not a certified performance lower bound.
+The main default is `alpha_E=alpha_B=5`, `alpha_lr=0.001`, and `bootstrap_loss=l2_rms`. This does not claim that the profile is best for every environment. Four-evaluation, scheduled-horizon, lambda and behavior-critic experiments are outside the release modules. B_pi remains an empirical local proxy, not a certified performance lower bound.
 
 The uploaded TD3 branch also contains a locomotion launcher with `alpha_lr=0.0003` and environment-specific initial scales (legacy T inits ×2 → alpha). Its first-priority values are available through `--config configs/td3_amo_band95.yaml`; this is a separate recorded experiment profile. The default critic remains three hidden layers with LayerNorm. The branch's two-layer critic without LayerNorm is an ablation, selectable through `critic_depth` and `critic_layernorm` in a custom config.
 

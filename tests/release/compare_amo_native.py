@@ -211,7 +211,10 @@ def policy_output_probe(agent, ref, algorithm):
 
 
 def run(algorithm, backend, steps, resync):
-    config = load_config(algorithm, "halfcheetah-medium-v2")
+    # This check intentionally reproduces the historical combined-loss reference.
+    overrides = ({"bootstrap_loss": "l1_l2_rms", "alpha_E": 2.0, "alpha_B": 2.0}
+                 if algorithm == "td3_amo" else None)
+    config = load_config(algorithm, "halfcheetah-medium-v2", overrides=overrides)
     if algorithm == "iql_amo":
         config["meta_warmup_steps"] = 0
     agent = make_agent(algorithm, backend, 17, 6, config, seed=17)

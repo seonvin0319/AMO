@@ -45,8 +45,9 @@ DEFAULTS = {
     },
     "td3_amo": {
         **TD3,
-        "alpha_E": 2.0,
-        "alpha_B": 2.0,
+        "alpha_E": 5.0,
+        "alpha_B": 5.0,
+        "bootstrap_loss": "l2_rms",
         "alpha_lr": 0.001,
         "meta_interval": 20,
         "smoothness_eps": 1e-6,
@@ -162,6 +163,8 @@ def load_config(algorithm, env, path=None, overrides=None):
             raise ValueError(f"{key} must be positive")
     if "meta_interval" in config and config["meta_interval"] % config["policy_freq"]:
         raise ValueError("meta_interval must be divisible by policy_freq")
+    if algorithm == "td3_amo" and config["bootstrap_loss"] not in ("l2_rms", "l1_l2_rms"):
+        raise ValueError("bootstrap_loss must be l2_rms or l1_l2_rms")
     if algorithm == "iql_amo":
         if not 0 < config["beta_min"] <= config["beta_initial"] <= config["beta_max"]:
             raise ValueError("Require 0 < beta_min <= beta_initial <= beta_max")
