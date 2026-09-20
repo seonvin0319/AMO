@@ -1,0 +1,39 @@
+# IQL-AMO original π_E (+ auxiliary π_B). β_E meta = L_E (BPI) + L2_RMS on π_E.
+# beta_initial=1, rho_lr=0.001
+defaults:
+  beta_initial: 1.0
+  rho_lr: 0.001
+  execution_meta_loss: le_l2_rms
+  critic_depth: 3
+  critic_layernorm: true
+  critic_special_init: true
+  value_depth: 3
+  value_layernorm: true
+  value_special_init: true
+  meta_warmup_steps: 100000
+  meta_interval: 20
+  final_eval_repeats: 5
+antmaze:
+  expectile: 0.9
+  reward_transform: antmaze_shift
+  eval_episodes: 100
+environments:
+  hopper-medium-v2:
+    reward_transform: return_range
+  hopper-medium-replay-v2:
+    reward_transform: return_range
+  hopper-medium-expert-v2:
+    expectile: 0.5
+    reward_transform: return_range
+  walker2d-medium-v2:
+    reward_transform: return_range
+  walker2d-medium-replay-v2:
+    reward_transform: return_range
+  walker2d-medium-expert-v2:
+    reward_transform: return_range
+  halfcheetah-medium-v2:
+    reward_transform: return_range
+  halfcheetah-medium-replay-v2:
+    reward_transform: return_range
+  halfcheetah-medium-expert-v2:
+    reward_transform: return_range

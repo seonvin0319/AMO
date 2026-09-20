@@ -1,0 +1,32 @@
+# TD3-AMO π_E-only main: L_E (BPI) + L2_RMS on π_E. No π_B/α_B.
+# alpha_E=alpha_B=5, alpha_lr=0.002, reward_transform=none.
+defaults:
+  alpha_E: 5
+  alpha_B: 5
+  alpha_lr: 0.002
+  bootstrap_loss: l2_rms
+  execution_score: bpi
+  execution_only: true
+  reward_transform: none
+antmaze:
+  reward_transform: none
+  eval_episodes: 100
+environments:
+  hopper-medium-v2:
+    reward_transform: none
+  hopper-medium-replay-v2:
+    reward_transform: none
+  hopper-medium-expert-v2:
+    reward_transform: none
+  walker2d-medium-v2:
+    reward_transform: none
+  walker2d-medium-replay-v2:
+    reward_transform: none
+  walker2d-medium-expert-v2:
+    reward_transform: none
+  halfcheetah-medium-v2:
+    reward_transform: none
+  halfcheetah-medium-replay-v2:
+    reward_transform: none
+  halfcheetah-medium-expert-v2:
+    reward_transform: none

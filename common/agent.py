@@ -73,15 +73,24 @@ class BaseAgent:
             },
         }
         if c.get("value_depth"):
-            p["value"] = self.net(self.observation_dim, 1, c["value_depth"])
+            p["value"] = self.net(
+                self.observation_dim,
+                1,
+                c["value_depth"],
+                c.get("value_layernorm", False),
+                c.get("value_special_init", False),
+            )
         if c["algorithm"] == "td3_amo":
-            p["bootstrap"] = copy.deepcopy(actor)
             p["scale_E"] = {
                 "rho": np.asarray(c["alpha_E"] + np.log(-np.expm1(-c["alpha_E"])), np.float32)
             }
-            p["scale_B"] = {
-                "rho": np.asarray(c["alpha_B"] + np.log(-np.expm1(-c["alpha_B"])), np.float32)
-            }
+            if not c.get("execution_only", False):
+                p["bootstrap"] = copy.deepcopy(actor)
+                p["scale_B"] = {
+                    "rho": np.asarray(
+                        c["alpha_B"] + np.log(-np.expm1(-c["alpha_B"])), np.float32
+                    )
+                }
         if c["algorithm"] == "iql_amo":
             p["bootstrap"] = copy.deepcopy(actor)
             for role in ("E", "B"):

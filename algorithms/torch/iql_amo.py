@@ -67,10 +67,12 @@ class Agent(IQLAgent):
         proxy = (g0 * d).sum(axis=-1) - penalty
         return -proxy.mean() / self.q_scale(self.minq(target, obs, new))
 
-    def bootstrap_terms(self, scale, state, batch, outer, adv, lr):
+    def bootstrap_terms(
+        self, scale, state, batch, outer, adv, lr, actor_name="bootstrap"
+    ):
         o = self.ops
         beta = self.beta(scale)
-        plus = self.virtual(state, "bootstrap", batch, adv, beta, lr, sgd=True)
+        plus = self.virtual(state, actor_name, batch, adv, beta, lr, sgd=True)
         target = map_tree(o.stop, state["target"]["critic"])
         obs, next_obs = outer["observations"], outer["next_observations"]
         action = self.actor(plus, obs)
@@ -78,7 +80,7 @@ class Agent(IQLAgent):
         scale_q = o.stop(o.abs(q).mean()) + self.c["smoothness_eps"]
         next_new = self.minq(target, next_obs, self.actor(plus, next_obs))
         next_old = o.stop(
-            self.minq(target, next_obs, self.actor(state["p"]["bootstrap"], next_obs))
+            self.minq(target, next_obs, self.actor(state["p"][actor_name], next_obs))
         )
         delta = self.c["discount"] * (1 - outer["terminals"]) * (next_new - next_old)
         rms = o.safe_sqrt(((delta / scale_q) ** 2).mean())
@@ -156,11 +158,23 @@ class Agent(IQLAgent):
         }
         if meta_step:
             frozen = map_tree(o.stop, state)
-            state, logs["L_E"] = self.update_scale(
-                state,
-                "scale_E",
-                lambda p: self.execution_outer(p, frozen, batch, outer, adv, lr),
-            )
+            if c.get("execution_meta_loss", "le") == "le_l2_rms":
+                def execution_meta(p):
+                    l_e = self.execution_outer(p, frozen, batch, outer, adv, lr)
+                    l2_rms = self.bootstrap_terms(
+                        p, frozen, batch, outer, adv, lr, actor_name="actor"
+                    )[1]
+                    return l_e + l2_rms
+
+                state, logs["L_E"] = self.update_scale(
+                    state, "scale_E", execution_meta
+                )
+            else:
+                state, logs["L_E"] = self.update_scale(
+                    state,
+                    "scale_E",
+                    lambda p: self.execution_outer(p, frozen, batch, outer, adv, lr),
+                )
             # Source advances the beta0 cosine scheduler after its actual step;
             # its virtual SGD therefore uses the NEXT learning rate.
             lr_b = (

@@ -51,6 +51,14 @@ DEFAULTS = {
         "alpha_lr": 0.001,
         "meta_interval": 20,
         "smoothness_eps": 1e-6,
+        # Ablation knobs (default dual-actor is L2_RMS-only).
+        # bootstrap_loss: "l2_rms" | "l1_l2_rms" | "l1" | "l2"
+        #   l2_rms = factor * RMS(Δy/q); l2 = factor * mean-square (no sqrt)
+        # execution_score: "bpi" | "direct_q"  (q(s,a+)-q(s,a0))
+        # execution_only: True → single π_E for env + Bellman; no π_B/α_B.
+        #   α_E meta-loss is L_E (BPI) + L2_RMS(Δy of π_E).
+        "execution_score": "bpi",
+        "execution_only": False,
     },
     "a2pr": {
         **TD3,
@@ -82,8 +90,11 @@ DEFAULTS = {
         actor_depth=2,
         critic_depth=2,
         critic_layernorm=False,
+        critic_special_init=False,
         gaussian=True,
         value_depth=2,
+        value_layernorm=False,
+        value_special_init=False,
         value_lr=0.0003,
         expectile=0.7,
         beta=3.0,
@@ -91,12 +102,16 @@ DEFAULTS = {
         policy_freq=1,
     ),
     # AMO feat/iql-amo-bpi: log-beta, dual B_pi / L1+L2_RMS.
+    # Q/V match TD3-AMO critic RC: depth 3 · LN · special init.
     "iql_amo": dict(
         actor_depth=2,
-        critic_depth=2,
-        critic_layernorm=False,
+        critic_depth=3,
+        critic_layernorm=True,
+        critic_special_init=True,
         gaussian=True,
-        value_depth=2,
+        value_depth=3,
+        value_layernorm=True,
+        value_special_init=True,
         value_lr=0.0003,
         expectile=0.7,
         beta_initial=1.0,
@@ -109,6 +124,9 @@ DEFAULTS = {
         outer_batch_size=256,
         policy_freq=1,
         smoothness_eps=1e-6,
+        # le = original L_E (BPI) on π_E. le_l2_rms adds L2_RMS(Δy of π_E).
+        # IQL Bellman still uses V; the auxiliary π_B branch is unchanged.
+        execution_meta_loss="le",
     ),
 }
 
@@ -163,11 +181,22 @@ def load_config(algorithm, env, path=None, overrides=None):
             raise ValueError(f"{key} must be positive")
     if "meta_interval" in config and config["meta_interval"] % config["policy_freq"]:
         raise ValueError("meta_interval must be divisible by policy_freq")
-    if algorithm == "td3_amo" and config["bootstrap_loss"] not in ("l2_rms", "l1_l2_rms"):
-        raise ValueError("bootstrap_loss must be l2_rms or l1_l2_rms")
     if algorithm == "iql_amo":
         if not 0 < config["beta_min"] <= config["beta_initial"] <= config["beta_max"]:
             raise ValueError("Require 0 < beta_min <= beta_initial <= beta_max")
         if config["rho_lr"] <= 0 or config["meta_warmup_steps"] < 0:
             raise ValueError("rho_lr must be positive and warmup nonnegative")
+        if config.get("execution_meta_loss") not in ("le", "le_l2_rms"):
+            raise ValueError("execution_meta_loss must be 'le' or 'le_l2_rms'")
+    if algorithm == "td3_amo":
+        if config.get("bootstrap_loss") not in ("l1_l2_rms", "l1", "l2_rms", "l2"):
+            raise ValueError(
+                "bootstrap_loss must be 'l1_l2_rms', 'l1', 'l2_rms', or 'l2'"
+            )
+        if config.get("execution_score") not in ("bpi", "direct_q"):
+            raise ValueError("execution_score must be 'bpi' or 'direct_q'")
+        if not isinstance(config.get("execution_only"), bool):
+            raise ValueError("execution_only must be a bool")
+        if config["execution_only"] and config.get("execution_score") != "bpi":
+            raise ValueError("execution_only ablation keeps execution_score=bpi")
     return config
