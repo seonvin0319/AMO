@@ -4,7 +4,17 @@ from pathlib import Path
 
 import yaml
 
-ALGORITHMS = ("aspc", "wpc", "td3_bc", "a2pr", "rebrac", "iql", "td3_amo", "iql_amo")
+ALGORITHMS = (
+    "aspc",
+    "wpc",
+    "td3_bc",
+    "a2pr",
+    "rebrac",
+    "iql",
+    "td3_amo",
+    "iql_amo",
+    "iql_ddpgbc_amo",
+)
 
 SHARED = dict(
     batch_size=256,
@@ -57,8 +67,12 @@ DEFAULTS = {
         # execution_score: "bpi" | "direct_q"  (q(s,a+)-q(s,a0))
         # execution_only: True → single π_E for env + Bellman; no π_B/α_B.
         #   α_E meta-loss is L_E (BPI) + L2_RMS(Δy of π_E).
+        # execution_meta_loss (dual-actor): "le" | "le_l2_rms"
+        #   le = L_E (BPI) only on π_E (BootRMS main).
+        #   le_l2_rms = L_E + L2_RMS(Δy of π_E); π_B still uses bootstrap_loss.
         "execution_score": "bpi",
         "execution_only": False,
+        "execution_meta_loss": "le",
     },
     "a2pr": {
         **TD3,
@@ -127,6 +141,28 @@ DEFAULTS = {
         # le = original L_E (BPI) on π_E. le_l2_rms adds L2_RMS(Δy of π_E).
         # IQL Bellman still uses V; the auxiliary π_B branch is unchanged.
         execution_meta_loss="le",
+    ),
+    # IQL expectile V/Q + Park et al. 2024 DDPG+BC actor. Single π_E, no π_B.
+    # α_E is the inner BC horizon (weight 1/α_E). Meta-loss is L_E (BPI) only.
+    "iql_ddpgbc_amo": dict(
+        actor_depth=2,
+        critic_depth=2,
+        critic_layernorm=False,
+        critic_special_init=False,
+        gaussian=True,
+        const_std=True,
+        value_depth=2,
+        value_layernorm=False,
+        value_special_init=False,
+        value_lr=0.0003,
+        expectile=0.7,
+        alpha_E=1.0,
+        alpha_lr=0.001,
+        meta_warmup_steps=100000,
+        meta_interval=20,
+        outer_batch_size=256,
+        policy_freq=1,
+        smoothness_eps=1e-6,
     ),
 }
 
@@ -199,4 +235,13 @@ def load_config(algorithm, env, path=None, overrides=None):
             raise ValueError("execution_only must be a bool")
         if config["execution_only"] and config.get("execution_score") != "bpi":
             raise ValueError("execution_only ablation keeps execution_score=bpi")
+        if config.get("execution_meta_loss") not in ("le", "le_l2_rms"):
+            raise ValueError("execution_meta_loss must be 'le' or 'le_l2_rms'")
+    if algorithm == "iql_ddpgbc_amo":
+        if config["alpha_lr"] <= 0 or config["meta_warmup_steps"] < 0:
+            raise ValueError("alpha_lr must be positive and warmup nonnegative")
+        if not config.get("gaussian", False):
+            raise ValueError("iql_ddpgbc_amo requires gaussian=True for DDPG+BC log_prob")
+        if not isinstance(config.get("const_std"), bool):
+            raise ValueError("const_std must be a bool")
     return config

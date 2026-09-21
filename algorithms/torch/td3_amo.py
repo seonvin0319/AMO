@@ -133,11 +133,17 @@ class Agent(BaseAgent):
                     state, "scale_E", execution_meta, lr
                 )
             else:
+                def execution_meta(p):
+                    l_e = self.execution_outer(p, frozen_state, batch, outer)
+                    if c.get("execution_meta_loss", "le") == "le_l2_rms":
+                        l2_e = self.bootstrap_terms(
+                            p, frozen_state, batch, outer, actor_name="actor"
+                        )[1]
+                        return l_e + l2_e
+                    return l_e
+
                 state, logs["L_alpha_E"] = self.update_network(
-                    state,
-                    "scale_E",
-                    lambda p: self.execution_outer(p, frozen_state, batch, outer),
-                    lr,
+                    state, "scale_E", execution_meta, lr
                 )
                 frozen_state = state
                 l1, l2_rms, l2_sq = self.bootstrap_terms(

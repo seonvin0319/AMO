@@ -196,7 +196,7 @@ def eval_ckpt(
             eval_seed,
             episodes,
             final_repeats if is_final else 1,
-            seed_stride=0 if algorithm == "iql_amo" else 1,
+            seed_stride=0 if algorithm in ("iql_amo", "iql_ddpgbc_amo") else 1,
         )
         row = {
             "step": int(agent.steps),

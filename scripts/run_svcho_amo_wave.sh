@@ -1,15 +1,57 @@
 #!/usr/bin/env bash
-# TD3-AMO bootrms (L2_RMS-only α_B) candidate-main sweep
-# Nest: α_init 5→2→1 · seed 0→1→2→3 · env hop→walk→ant→hc · α_lr 3e-4→1e-3→2e-3
-# 3×4×15×3 = 540 cells. Reuses design-ablation bootrms matches when present.
+# Shared GPU cell queue for svcho AMO waves.
+# Required env: WAVE_NAME ALGORITHM OUT CFG_GLOB_FN via WAVE=dual_lel2|iql_ddpgbc
+# Error 1: never signals live trainers. Error 32: prune mid-ckpts, trim jsonl.
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="${OUT:-$ROOT/results/td3_amo_bootrms_maincand_seeds03}"
-ABLATION_OUT="${ABLATION_OUT:-$ROOT/results/td3_amo_design_ablation_rwdnone_seeds03}"
+WAVE="${WAVE:?set WAVE=dual_lel2 or iql_ddpgbc}"
 PY="${PY:-/home/svcho/anaconda3/envs/offrl/bin/python}"
 DEVICE="${DEVICE:-cuda:0}"
-PARALLEL="${PARALLEL:-3}"
-NO_EVAL_NEW="${NO_EVAL_NEW:-1}"
+PARALLEL="${PARALLEL:-2}"
+
+case "$WAVE" in
+  dual_lel2)
+    ALGORITHM=td3_amo
+    OUT="${OUT:-$ROOT/results/td3_amo_dual_lel2_seeds03}"
+    CFG_PREFIX=td3_amo_dual_lel2
+    # Comparison arm: α_E init=5 only; remaining 11 envs after the original 4.
+    ALPHAS=(5)
+    ENVS=(
+      hopper-medium-v2
+      hopper-medium-replay-v2
+      antmaze-medium-play-v2
+      antmaze-large-diverse-v2
+      hopper-medium-expert-v2
+      walker2d-medium-v2
+      walker2d-medium-replay-v2
+      walker2d-medium-expert-v2
+      antmaze-umaze-v2
+      antmaze-umaze-diverse-v2
+      antmaze-medium-diverse-v2
+      antmaze-large-play-v2
+      halfcheetah-medium-v2
+      halfcheetah-medium-replay-v2
+      halfcheetah-medium-expert-v2
+    )
+    ;;
+  iql_ddpgbc)
+    ALGORITHM=iql_ddpgbc_amo
+    OUT="${OUT:-$ROOT/results/iql_ddpgbc_amo_seeds03}"
+    CFG_PREFIX=iql_ddpgbc_amo
+    ALPHAS=(5 2 1)
+    ENVS=(
+      hopper-medium-v2
+      hopper-medium-replay-v2
+      antmaze-medium-play-v2
+      antmaze-large-diverse-v2
+    )
+    ;;
+  *)
+    echo "unknown WAVE=$WAVE" >&2
+    exit 2
+    ;;
+esac
+
 LOGDIR="$OUT/queue_logs"
 mkdir -p "$OUT/jobs" "$LOGDIR"
 
@@ -25,26 +67,8 @@ export MUJOCO_PY_MUJOCO_PATH="${MUJOCO_PY_MUJOCO_PATH:-/home/svcho/.mujoco/mujoc
 export MUJOCO_GL="${MUJOCO_GL:-egl}"
 export PYOPENGL_PLATFORM="${PYOPENGL_PLATFORM:-egl}"
 
-ALPHAS=(5 2 1)
 SEEDS=(0 1 2 3)
 ALRS=(3e-4 1e-3 2e-3)
-ENVS=(
-  hopper-medium-v2
-  hopper-medium-replay-v2
-  hopper-medium-expert-v2
-  walker2d-medium-v2
-  walker2d-medium-replay-v2
-  walker2d-medium-expert-v2
-  antmaze-umaze-v2
-  antmaze-umaze-diverse-v2
-  antmaze-medium-play-v2
-  antmaze-medium-diverse-v2
-  antmaze-large-play-v2
-  antmaze-large-diverse-v2
-  halfcheetah-medium-v2
-  halfcheetah-medium-replay-v2
-  halfcheetah-medium-expert-v2
-)
 
 short_env() {
   case "$1" in
@@ -77,47 +101,11 @@ alr_tag() {
 }
 
 cfg_for() {
-  local a="$1" alr="$2"
-  echo "$ROOT/configs/td3_amo_bootrms_a${a}_$(alr_tag "$alr").yaml"
+  echo "$ROOT/configs/${CFG_PREFIX}_a${1}_$(alr_tag "$2").yaml"
 }
 
 make_tag() {
-  local a="$1" env="$2" alr="$3" seed="$4"
-  echo "a${a}_$(short_env "$env")_$(alr_tag "$alr")_s${seed}"
-}
-
-# Map (alpha_init, env, alr, seed) → ablation job tag if reusable.
-ablation_src_tag() {
-  local a="$1" env="$2" alr="$3" seed="$4"
-  [[ "$a" == "5" ]] || return 1
-  case "$env|$alr" in
-    hopper-medium-replay-v2|2e-3) echo "h-mr_bootrms_rwdnone_s${seed}" ;;
-    walker2d-medium-replay-v2|2e-3) echo "w-mr_bootrms_rwdnone_s${seed}" ;;
-    antmaze-medium-diverse-v2|3e-4) echo "ammd_bootrms_rwdnone_s${seed}" ;;
-    *) return 1 ;;
-  esac
-}
-
-try_import_ablation() {
-  local a="$1" env="$2" alr="$3" seed="$4"
-  local src_tag dst_tag src dst
-  src_tag="$(ablation_src_tag "$a" "$env" "$alr" "$seed")" || return 1
-  dst_tag="$(make_tag "$a" "$env" "$alr" "$seed")"
-  src="$ABLATION_OUT/jobs/$src_tag"
-  dst="$OUT/jobs/$dst_tag"
-  [[ -f "$src/DONE" ]] || return 1
-  [[ -f "$src/run/checkpoint.npz" || -f "$src/run/checkpoints/step_1000000.npz" ]] || return 1
-  if [[ -f "$dst/DONE" ]] && [[ -f "$dst/run/checkpoint.npz" || -f "$dst/run/checkpoints/step_1000000.npz" ]]; then
-    return 0
-  fi
-  mkdir -p "$OUT/jobs"
-  rm -rf "$dst"
-  cp -a "$src" "$dst"
-  # Keep eval.jsonl if present so poller skips.
-  echo "imported_from_ablation:$src_tag" >"$dst/IMPORTED_ABLATION"
-  date -Is >"$dst/DONE"
-  echo "[IMPORT] $dst_tag <- $src_tag"
-  return 0
+  echo "a${1}_$(short_env "$2")_$(alr_tag "$3")_s${4}"
 }
 
 live_pid_for_tag() {
@@ -126,7 +114,7 @@ live_pid_for_tag() {
   local line pid
   while read -r line; do
     case "$line" in
-      *train.py*td3_amo*"$needle"*)
+      *train.py*"$ALGORITHM"*"$needle"*)
         pid="${line%% *}"
         if kill -0 "$pid" 2>/dev/null; then
           echo "$pid"
@@ -138,12 +126,10 @@ live_pid_for_tag() {
   echo 0
 }
 
-QUEUE_LOG="$LOGDIR/queue_bootrms_p${PARALLEL}_$(date +%Y%m%d_%H%M%S).log"
+QUEUE_LOG="$LOGDIR/queue_${WAVE}_p${PARALLEL}_$(date +%Y%m%d_%H%M%S).log"
 exec > >(tee -a "$QUEUE_LOG") 2>&1
-echo "=== TD3-AMO bootrms maincand nest α→seed→env→α_lr PARALLEL=$PARALLEL start $(date -Is) ==="
-echo "OUT=$OUT ABLATION_OUT=$ABLATION_OUT"
-echo "alphas=${ALPHAS[*]} seeds=${SEEDS[*]} alrs=${ALRS[*]} envs=${#ENVS[@]}"
-echo "cells=$(( ${#ALPHAS[@]} * ${#SEEDS[@]} * ${#ENVS[@]} * ${#ALRS[@]} ))"
+echo "=== $WAVE $ALGORITHM nest α→seed→env→α_lr PARALLEL=$PARALLEL start $(date -Is) ==="
+echo "OUT=$OUT cells=$(( ${#ALPHAS[@]} * ${#SEEDS[@]} * ${#ENVS[@]} * ${#ALRS[@]} ))"
 rm -f "$OUT/QUEUE_COMPLETE"
 
 declare -A PID_OF=()
@@ -154,7 +140,6 @@ is_done() {
   [[ -f "$cell/DONE" ]] && [[ -f "$cell/run/checkpoint.npz" || -f "$cell/run/checkpoints/step_1000000.npz" ]]
 }
 
-# Keep final ckpt only. Intermediate step_*.npz filled the disk (Error 32).
 prune_mid_ckpts() {
   local run_dir="$1"
   local d="$run_dir/checkpoints" f
@@ -166,6 +151,13 @@ prune_mid_ckpts() {
   done
 }
 
+disk_ok() {
+  local avail
+  avail="$(df -Pk /home/svcho | awk 'NR==2 {print $4}')"
+  # Error 32: need ~20GiB. df -Pk is 1K blocks.
+  [[ "${avail:-0}" -ge 20000000 ]]
+}
+
 start_job() {
   local a="$1" env="$2" alr="$3" seed="$4"
   local tag cfg cell run_dir
@@ -175,19 +167,27 @@ start_job() {
   run_dir="$cell/run"
   mkdir -p "$cell"
 
-  if try_import_ablation "$a" "$env" "$alr" "$seed"; then
-    return 1
-  fi
-
   if [[ ! -f "$cfg" ]]; then
     echo "[FAIL] missing config $cfg"
     echo "{\"rc\":1,\"err\":\"missing_cfg\"}" >"$cell/FAILED"
     return 1
   fi
-
   if is_done "$tag"; then
     echo "[SKIP] $tag"
     return 1
+  fi
+  if ! disk_ok; then
+    echo "[WAIT_DISK] $tag $(df -h /home/svcho | tail -1)"
+    return 1
+  fi
+
+  if [[ ! -f "$run_dir/checkpoint.npz" ]]; then
+    local latest
+    latest="$(ls -1 "$run_dir/checkpoints"/step_*.npz 2>/dev/null | sort -t_ -k2 -n | tail -1 || true)"
+    if [[ -n "${latest:-}" ]]; then
+      cp -f "$latest" "$run_dir/checkpoint.npz"
+      echo "[RECOVER] $tag from $(basename "$latest")"
+    fi
   fi
 
   if [[ -f "$run_dir/metrics.jsonl" ]] && [[ -f "$run_dir/checkpoint.npz" ]] && [[ ! -f "$cell/DONE" ]]; then
@@ -214,7 +214,6 @@ PY
 
   local resume_args=()
   if [[ -f "$run_dir/checkpoint.npz" ]] && [[ ! -f "$cell/DONE" ]]; then
-    # Error 32: jsonl can be ahead of ckpt after a crash; trim before resume.
     "$PY" - "$run_dir" <<'PY'
 import json, sys
 from pathlib import Path
@@ -242,7 +241,7 @@ PY
   echo "[RUN] $tag a=$a env=$env alr=$alr seed=$seed cfg=$(basename "$cfg") $(date -Is)"
   set +e
   setsid "$PY" "$ROOT/train.py" \
-    --algorithm td3_amo --backend jax \
+    --algorithm "$ALGORITHM" --backend jax \
     --env "$env" --config "$cfg" --seed "$seed" \
     --device "$DEVICE" --output "$run_dir" \
     --log-every 5000 --save-every 20000 --no-eval \
@@ -309,9 +308,6 @@ queue_left() {
         for alr in "${ALRS[@]}"; do
           tag="$(make_tag "$a" "$env" "$alr" "$seed")"
           is_done "$tag" && continue
-          if try_import_ablation "$a" "$env" "$alr" "$seed"; then
-            continue
-          fi
           left=$((left + 1))
         done
       done
@@ -320,7 +316,6 @@ queue_left() {
   echo "$left"
 }
 
-# Next nest-order cell that is not DONE / live. Crosses env/seed/alpha so P stays 2.
 start_next_cell() {
   local a seed env alr tag live
   for a in "${ALPHAS[@]}"; do
@@ -349,13 +344,6 @@ start_next_cell() {
   return 1
 }
 
-# Prefetch imports for known ablation overlaps
-for seed in "${SEEDS[@]}"; do
-  try_import_ablation 5 hopper-medium-replay-v2 2e-3 "$seed" || true
-  try_import_ablation 5 walker2d-medium-replay-v2 2e-3 "$seed" || true
-  try_import_ablation 5 antmaze-medium-diverse-v2 3e-4 "$seed" || true
-done
-
 for a in "${ALPHAS[@]}"; do
   for seed in "${SEEDS[@]}"; do
     for env in "${ENVS[@]}"; do
@@ -371,7 +359,7 @@ for a in "${ALPHAS[@]}"; do
   done
 done
 
-echo "PARALLEL=$PARALLEL (fill across env/seed/alpha; nest order preserved)"
+echo "PARALLEL=$PARALLEL"
 while [[ "$(queue_left)" -gt 0 ]]; do
   reap_finished
   for f in "$OUT"/jobs/*/FAILED; do
@@ -390,7 +378,7 @@ while [[ "$(queue_left)" -gt 0 ]]; do
     fi
     break
   done
-  echo "[STATUS] active=$(active_count) left=$(queue_left) $(date -Is)"
+  echo "[STATUS] wave=$WAVE active=$(active_count) left=$(queue_left) $(date -Is)"
   [[ "$(queue_left)" -eq 0 ]] && break
   sleep 30
 done
@@ -411,6 +399,6 @@ for a in "${ALPHAS[@]}"; do
     done
   done
 done
-echo "=== BOOTRMS MAINCAND QUEUE COMPLETE $(date -Is) total=$total fail=$fail ==="
+echo "=== $WAVE QUEUE COMPLETE $(date -Is) total=$total fail=$fail ==="
 echo QUEUE_COMPLETE >"$OUT/QUEUE_COMPLETE"
 [[ "$fail" -eq 0 ]]

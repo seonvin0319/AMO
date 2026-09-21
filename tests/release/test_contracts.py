@@ -8,7 +8,17 @@ from common.config import load_config
 from common.data import load_dataset, qlearning_dataset
 from common.tree import flatten, map_tree
 
-RUNNABLE = ("td3_bc", "wpc", "aspc", "a2pr", "rebrac", "iql", "td3_amo", "iql_amo")
+RUNNABLE = (
+    "td3_bc",
+    "wpc",
+    "aspc",
+    "a2pr",
+    "rebrac",
+    "iql",
+    "td3_amo",
+    "iql_amo",
+    "iql_ddpgbc_amo",
+)
 
 
 def batch(seed=9, n=6):
@@ -37,7 +47,7 @@ def config(algorithm):
         c["meta_interval"] = 2
     if algorithm == "a2pr":
         c["vae_hidden_dim"] = 8
-    if algorithm == "iql_amo":
+    if algorithm in ("iql_amo", "iql_ddpgbc_amo"):
         c.update(meta_warmup_steps=0, meta_interval=2, outer_batch_size=6)
     return c
 

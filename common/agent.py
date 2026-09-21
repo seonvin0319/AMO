@@ -97,6 +97,12 @@ class BaseAgent:
                 p[f"scale_{role}"] = {
                     "rho": np.asarray(np.log(c["beta_initial"]), np.float64)
                 }
+        if c["algorithm"] == "iql_ddpgbc_amo":
+            p["scale_E"] = {
+                "rho": np.asarray(
+                    c["alpha_E"] + np.log(-np.expm1(-c["alpha_E"])), np.float32
+                )
+            }
         if c["algorithm"] == "aspc":
             a = c["alpha"]
             p["scale"] = {"rho": np.asarray(a + np.log(-np.expm1(-a)), np.float32)}
@@ -255,7 +261,7 @@ class BaseAgent:
         actor_step = (step - offset) % self.c.get("policy_freq", 1) == 0
         meta_step = actor_step and self.meta_due(step)
         if (
-            self.c["algorithm"] in ("td3_amo", "iql_amo")
+            self.c["algorithm"] in ("td3_amo", "iql_amo", "iql_ddpgbc_amo")
             and meta_step
             and outer is None
         ):

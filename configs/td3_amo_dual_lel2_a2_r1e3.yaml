@@ -1,0 +1,33 @@
+# Dual-actor TD3-AMO comparison: π_E meta = L_E (BPI) + L2_RMS; π_B = L2_RMS.
+# alpha_E=alpha_B=2, alpha_lr=0.001, reward_transform=none (match BootRMS main).
+defaults:
+  alpha_E: 2
+  alpha_B: 2
+  alpha_lr: 0.001
+  bootstrap_loss: l2_rms
+  execution_score: bpi
+  execution_only: false
+  execution_meta_loss: le_l2_rms
+  reward_transform: none
+antmaze:
+  reward_transform: none
+  eval_episodes: 100
+environments:
+  hopper-medium-v2:
+    reward_transform: none
+  hopper-medium-replay-v2:
+    reward_transform: none
+  hopper-medium-expert-v2:
+    reward_transform: none
+  walker2d-medium-v2:
+    reward_transform: none
+  walker2d-medium-replay-v2:
+    reward_transform: none
+  walker2d-medium-expert-v2:
+    reward_transform: none
+  halfcheetah-medium-v2:
+    reward_transform: none
+  halfcheetah-medium-replay-v2:
+    reward_transform: none
+  halfcheetah-medium-expert-v2:
+    reward_transform: none

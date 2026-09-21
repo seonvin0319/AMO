@@ -198,7 +198,8 @@ def main(argv=None):
             is_meta = agent.meta_due(agent.steps + 1)
             outer = (
                 outer_buffer.sample(c.get("outer_batch_size", c["batch_size"]))
-                if args.algorithm in ("td3_amo", "iql_amo") and is_meta
+                if args.algorithm in ("td3_amo", "iql_amo", "iql_ddpgbc_amo")
+                and is_meta
                 else None
             )
             agent.update(batch, outer, return_metrics=False)
@@ -225,7 +226,9 @@ def main(argv=None):
                         args.seed if c["eval_seed"] is None else c["eval_seed"],
                         c["eval_episodes"],
                         c["final_eval_repeats"] if final else 1,
-                        seed_stride=0 if args.algorithm == "iql_amo" else 1,
+                        seed_stride=0
+                        if args.algorithm in ("iql_amo", "iql_ddpgbc_amo")
+                        else 1,
                     ),
                 }
                 with (output / "eval.jsonl").open("a") as f:
