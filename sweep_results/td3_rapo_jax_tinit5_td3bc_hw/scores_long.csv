@@ -49,11 +49,11 @@ walker2d-medium-expert-v2,w-me,1e-3,1em3,2,1000000,1,97.841840,50,td3rapo_jax_t5
 walker2d-medium-expert-v2,w-me,1e-3,1em3,3,1000000,1,11.003657,50,td3rapo_jax_t5_tlr1em3_w-me_s3
 hopper-medium-v2,h-m,3e-4,3em4,0,1000000,1,65.480960,50,td3rapo_jax_t5_tlr3em4_h-m_s0
 hopper-medium-v2,h-m,3e-4,3em4,1,1000000,1,86.563675,50,td3rapo_jax_t5_tlr3em4_h-m_s1
-hopper-medium-v2,h-m,3e-4,3em4,2,328200,0,,,td3rapo_jax_t5_tlr3em4_h-m_s2
+hopper-medium-v2,h-m,3e-4,3em4,2,781800,0,,,td3rapo_jax_t5_tlr3em4_h-m_s2
 hopper-medium-v2,h-m,3e-4,3em4,3,0,0,,,td3rapo_jax_t5_tlr3em4_h-m_s3
 hopper-medium-replay-v2,h-mr,3e-4,3em4,0,1000000,1,48.147062,50,td3rapo_jax_t5_tlr3em4_h-mr_s0
 hopper-medium-replay-v2,h-mr,3e-4,3em4,1,1000000,1,47.947912,50,td3rapo_jax_t5_tlr3em4_h-mr_s1
-hopper-medium-replay-v2,h-mr,3e-4,3em4,2,0,0,,,td3rapo_jax_t5_tlr3em4_h-mr_s2
+hopper-medium-replay-v2,h-mr,3e-4,3em4,2,436600,0,,,td3rapo_jax_t5_tlr3em4_h-mr_s2
 hopper-medium-replay-v2,h-mr,3e-4,3em4,3,0,0,,,td3rapo_jax_t5_tlr3em4_h-mr_s3
 hopper-medium-expert-v2,h-me,3e-4,3em4,0,1000000,1,49.753798,50,td3rapo_jax_t5_tlr3em4_h-me_s0
 hopper-medium-expert-v2,h-me,3e-4,3em4,1,1000000,1,0.692250,50,td3rapo_jax_t5_tlr3em4_h-me_s1
@@ -68,6 +68,6 @@ walker2d-medium-replay-v2,w-mr,3e-4,3em4,1,1000000,1,92.546624,50,td3rapo_jax_t5
 walker2d-medium-replay-v2,w-mr,3e-4,3em4,2,0,0,,,td3rapo_jax_t5_tlr3em4_w-mr_s2
 walker2d-medium-replay-v2,w-mr,3e-4,3em4,3,0,0,,,td3rapo_jax_t5_tlr3em4_w-mr_s3
 walker2d-medium-expert-v2,w-me,3e-4,3em4,0,1000000,1,-0.092982,50,td3rapo_jax_t5_tlr3em4_w-me_s0
-walker2d-medium-expert-v2,w-me,3e-4,3em4,1,1000000,1,,,td3rapo_jax_t5_tlr3em4_w-me_s1
+walker2d-medium-expert-v2,w-me,3e-4,3em4,1,1000000,1,44.130065,50,td3rapo_jax_t5_tlr3em4_w-me_s1
 walker2d-medium-expert-v2,w-me,3e-4,3em4,2,0,0,,,td3rapo_jax_t5_tlr3em4_w-me_s2
 walker2d-medium-expert-v2,w-me,3e-4,3em4,3,0,0,,,td3rapo_jax_t5_tlr3em4_w-me_s3

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-24 17:29:30 UTC+09:00",
+  "updated_at": "2026-09-24 17:34:34 UTC+09:00",
   "algorithm": "td3_amo",
   "variant": "rapo",
   "backend": "jax",
@@ -31,7 +31,7 @@
   ],
   "total": 72,
   "trained_1m": 60,
-  "scored_1m": 59,
+  "scored_1m": 60,
   "counts": {
     "completed": 60,
     "pending": 10,
