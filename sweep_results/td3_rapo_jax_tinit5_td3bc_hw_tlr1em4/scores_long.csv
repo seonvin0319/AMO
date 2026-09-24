@@ -1,9 +1,9 @@
 env,short,alpha_lr,rho_tag,seed,step,trained_1m,normalized_score,episodes,run
-hopper-medium-v2,h-m,1e-4,1em4,0,417000,0,,,td3rapo_jax_t5_tlr1em4_h-m_s0
+hopper-medium-v2,h-m,1e-4,1em4,0,864000,0,,,td3rapo_jax_t5_tlr1em4_h-m_s0
 hopper-medium-v2,h-m,1e-4,1em4,1,0,0,,,td3rapo_jax_t5_tlr1em4_h-m_s1
 hopper-medium-v2,h-m,1e-4,1em4,2,0,0,,,td3rapo_jax_t5_tlr1em4_h-m_s2
 hopper-medium-v2,h-m,1e-4,1em4,3,0,0,,,td3rapo_jax_t5_tlr1em4_h-m_s3
-hopper-medium-replay-v2,h-mr,1e-4,1em4,0,413400,0,,,td3rapo_jax_t5_tlr1em4_h-mr_s0
+hopper-medium-replay-v2,h-mr,1e-4,1em4,0,856600,0,,,td3rapo_jax_t5_tlr1em4_h-mr_s0
 hopper-medium-replay-v2,h-mr,1e-4,1em4,1,0,0,,,td3rapo_jax_t5_tlr1em4_h-mr_s1
 hopper-medium-replay-v2,h-mr,1e-4,1em4,2,0,0,,,td3rapo_jax_t5_tlr1em4_h-mr_s2
 hopper-medium-replay-v2,h-mr,1e-4,1em4,3,0,0,,,td3rapo_jax_t5_tlr1em4_h-mr_s3
