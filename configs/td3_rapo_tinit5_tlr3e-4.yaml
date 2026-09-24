@@ -1,0 +1,13 @@
+# RAPO: π_E −B_π, π_B L2RMS, critic = TD3+BC (2-layer, no LayerNorm, target π_E)
+# α_E=α_B=5 · alpha_lr=3e-4
+defaults:
+  alpha_E: 5
+  alpha_B: 5
+  alpha_lr: 0.0003
+  critic_target: actor
+  bootstrap_loss: l2_rms
+  execution_score: bpi
+  execution_only: false
+  execution_meta_loss: le
+  critic_depth: 2
+  critic_layernorm: false

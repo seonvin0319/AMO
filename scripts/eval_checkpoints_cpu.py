@@ -373,11 +373,21 @@ def configure_cpu_env() -> None:
     os.environ.setdefault("JAX_PLATFORMS", "cpu")
     os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
     os.environ.setdefault("D4RL_SUPPRESS_IMPORT_ERROR", "1")
-    os.environ.setdefault("D4RL_DATASET_DIR", "/raid/ext_csv/datasets/d4rl")
+    os.environ.setdefault("D4RL_DATASET_DIR", str(Path.home() / ".d4rl" / "datasets"))
     os.environ.setdefault("MUJOCO_GL", "egl")
-    os.environ.setdefault("MUJOCO_PY_MUJOCO_PATH", "/home/ext_csv/.mujoco/mujoco210")
+    os.environ.setdefault("MUJOCO_PY_MUJOCO_PATH", str(Path.home() / ".mujoco" / "mujoco210"))
     os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
     os.environ.setdefault("OMP_NUM_THREADS", "1")
+    mujoco = Path.home() / ".mujoco" / "mujoco210" / "bin"
+    conda_lib = Path(os.environ.get("CONDA_PREFIX", str(Path.home() / "miniconda3" / "envs" / "offrl"))) / "lib"
+    ld = [
+        str(mujoco),
+        str(conda_lib),
+        "/usr/lib/x86_64-linux-gnu",
+        "/usr/lib/nvidia",
+        os.environ.get("LD_LIBRARY_PATH", ""),
+    ]
+    os.environ["LD_LIBRARY_PATH"] = ":".join(p for p in ld if p)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -483,7 +493,8 @@ def main(argv: list[str] | None = None) -> int:
         summary = tick()
         print(json.dumps(summary), flush=True)
         if (
-            summary["runs_seen"] > 0
+            not args.final_only
+            and summary["runs_seen"] > 0
             and summary["runs_final_done"] >= summary["runs_seen"]
             and summary["ckpts_pending_known"] == 0
         ):

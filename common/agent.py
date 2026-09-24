@@ -119,7 +119,7 @@ class BaseAgent:
                     self.observation_dim + latent, self.action_dim, 2, width=width
                 ),
             }
-        target_actor = p.get("bootstrap", actor)
+        target_actor = self.critic_target_actor_params(p)
         optimizers = {k: init_adam(v) for k, v in p.items()}
         if c["algorithm"] == "iql_amo":
             for role in ("E", "B"):
@@ -155,6 +155,16 @@ class BaseAgent:
 
     def q_scale(self, q):
         return self.ops.stop(self.ops.clip(self.ops.abs(q).mean(), low=1e-6))
+
+    def critic_target_actor_params(self, params):
+        """Actor used to form the critic's Polyak target next-action.
+
+        ``bootstrap`` (default AMO): target π tracks the bootstrap actor π_B.
+        ``actor`` (TD3+BC): target π tracks the execution actor π_E.
+        """
+        if self.c.get("critic_target", "bootstrap") == "actor":
+            return params["actor"]
+        return params.get("bootstrap", params["actor"])
 
     def update_network(self, state, name, loss_fn, lr=None, **optimizer_kwargs):
         loss, grads = self.ops.grad(loss_fn, state["p"][name])
@@ -206,7 +216,7 @@ class BaseAgent:
 
     def update_targets(self, state, actor_params=None):
         source = (
-            state["p"].get("bootstrap", state["p"]["actor"])
+            self.critic_target_actor_params(state["p"])
             if actor_params is None
             else actor_params
         )

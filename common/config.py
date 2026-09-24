@@ -70,9 +70,11 @@ DEFAULTS = {
         # execution_meta_loss (dual-actor): "le" | "le_l2_rms"
         #   le = L_E (BPI) only on π_E (BootRMS main).
         #   le_l2_rms = L_E + L2_RMS(Δy of π_E); π_B still uses bootstrap_loss.
+        # critic_target: bootstrap → Polyak from π_B. actor → TD3+BC, from π_E.
         "execution_score": "bpi",
         "execution_only": False,
         "execution_meta_loss": "le",
+        "critic_target": "bootstrap",
     },
     "a2pr": {
         **TD3,
@@ -237,6 +239,8 @@ def load_config(algorithm, env, path=None, overrides=None):
             raise ValueError("execution_only ablation keeps execution_score=bpi")
         if config.get("execution_meta_loss") not in ("le", "le_l2_rms"):
             raise ValueError("execution_meta_loss must be 'le' or 'le_l2_rms'")
+        if config.get("critic_target") not in ("bootstrap", "actor"):
+            raise ValueError("critic_target must be 'bootstrap' or 'actor'")
     if algorithm == "iql_ddpgbc_amo":
         if config["alpha_lr"] <= 0 or config["meta_warmup_steps"] < 0:
             raise ValueError("alpha_lr must be positive and warmup nonnegative")
