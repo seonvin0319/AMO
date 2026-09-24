@@ -175,14 +175,26 @@ def load_am_hc(path: Path) -> list[dict]:
         return list(csv.DictReader(handle))
 
 
+def _am_hc_table(rows: list[dict], column: str, digits: int) -> list[str]:
+    by = {(row["env"], int(row["seed"])): row.get(column) or "" for row in rows}
+    lines = [
+        "| env | s0 | s1 | s2 | s3 |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for env in AM_HC_ENVS:
+        cells = [env]
+        for seed in SEEDS:
+            raw = by.get((env, seed), "")
+            cells.append("—" if raw == "" else f"{float(raw):.{digits}f}")
+        lines.append("| " + " | ".join(cells) + " |")
+    return lines
+
+
 def am_hc_section(rows: list[dict]) -> list[str]:
     if not rows:
         return []
-    by: dict[tuple[str, int], str] = {}
     trained = scored = 0
     for row in rows:
-        seed = int(row["seed"])
-        by[(row["env"], seed)] = row.get("normalized_score") or ""
         trained += int(row.get("trained_1m") or 0)
         if row.get("normalized_score"):
             scored += 1
@@ -192,19 +204,23 @@ def am_hc_section(rows: list[dict]) -> list[str]:
         "",
         "Same critic (2-layer, no LayerNorm, target π_E), α_E=α_B=5, α_lr 3e-4 only. "
         "1e-3 and 2e-3 were not trained. CPU eval 10×5 at 1M. "
-        "A blank cell did not reach 1M, so it has no final eval. 0.0 is a recorded score. "
+        "Final α is the last metrics.jsonl α_E / α_B at 1M. "
+        "A blank cell did not reach 1M. 0.0 is a recorded score. "
         f"Trained {trained}/{len(rows)}, scored {scored}/{len(rows)}.",
         "",
-        "| env | s0 | s1 | s2 | s3 |",
-        "|---|---:|---:|---:|---:|",
+        "### 1M normalized score",
+        "",
+        *_am_hc_table(rows, "normalized_score", 1),
+        "",
+        "### Final α_E at 1M",
+        "",
+        *_am_hc_table(rows, "final_alpha_E", 2),
+        "",
+        "### Final α_B at 1M",
+        "",
+        *_am_hc_table(rows, "final_alpha_B", 2),
+        "",
     ]
-    for env in AM_HC_ENVS:
-        cells = [env]
-        for seed in SEEDS:
-            raw = by.get((env, seed), "")
-            cells.append("—" if raw == "" else f"{float(raw):.1f}")
-        lines.append("| " + " | ".join(cells) + " |")
-    lines.append("")
     return lines
 
 

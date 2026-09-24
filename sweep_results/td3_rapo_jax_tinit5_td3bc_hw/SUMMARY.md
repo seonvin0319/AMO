@@ -41,7 +41,9 @@ Trained 74/96, scored 73/96.
 
 ## antmaze / halfcheetah
 
-Same critic (2-layer, no LayerNorm, target π_E), α_E=α_B=5, α_lr 3e-4 only. 1e-3 and 2e-3 were not trained. CPU eval 10×5 at 1M. A blank cell has no final eval because training did not reach 1M. 0.0 is a recorded score. Trained 34/36, scored 34/36.
+Same critic (2-layer, no LayerNorm, target π_E), α_E=α_B=5, α_lr 3e-4 only. 1e-3 and 2e-3 were not trained. CPU eval 10×5 at 1M. Final α is the last metrics.jsonl α_E / α_B at 1M. A blank cell did not reach 1M. 0.0 is a recorded score. Trained 34/36, scored 34/36.
+
+### 1M normalized score
 
 | env | s0 | s1 | s2 | s3 |
 |---|---:|---:|---:|---:|
@@ -54,3 +56,31 @@ Same critic (2-layer, no LayerNorm, target π_E), α_E=α_B=5, α_lr 3e-4 only. 
 | halfcheetah-medium-v2 | 49.4 | 49.4 | 51.2 | 49.9 |
 | halfcheetah-medium-replay-v2 | 46.5 | 46.9 | 46.6 | — |
 | halfcheetah-medium-expert-v2 | 63.7 | 51.6 | 59.2 | — |
+
+### Final α_E at 1M
+
+| env | s0 | s1 | s2 | s3 |
+|---|---:|---:|---:|---:|
+| antmaze-umaze-v2 | 7.63 | 7.71 | 7.58 | 7.60 |
+| antmaze-umaze-diverse-v2 | 7.41 | 7.57 | 7.40 | 7.34 |
+| antmaze-medium-play-v2 | 7.79 | 7.73 | 7.59 | 7.60 |
+| antmaze-medium-diverse-v2 | 7.74 | 7.82 | 7.80 | 7.76 |
+| antmaze-large-play-v2 | 7.55 | 7.39 | 7.56 | 7.52 |
+| antmaze-large-diverse-v2 | 7.42 | 7.63 | 7.46 | 7.62 |
+| halfcheetah-medium-v2 | 7.21 | 7.06 | 7.11 | 7.01 |
+| halfcheetah-medium-replay-v2 | 6.81 | 6.67 | 6.59 | — |
+| halfcheetah-medium-expert-v2 | 7.69 | 7.73 | 7.74 | — |
+
+### Final α_B at 1M
+
+| env | s0 | s1 | s2 | s3 |
+|---|---:|---:|---:|---:|
+| antmaze-umaze-v2 | 6.62 | 6.70 | 6.70 | 6.61 |
+| antmaze-umaze-diverse-v2 | 6.22 | 6.35 | 5.87 | 5.98 |
+| antmaze-medium-play-v2 | 6.58 | 6.08 | 6.54 | 6.38 |
+| antmaze-medium-diverse-v2 | 6.28 | 6.26 | 6.50 | 6.04 |
+| antmaze-large-play-v2 | 6.46 | 6.50 | 6.51 | 6.56 |
+| antmaze-large-diverse-v2 | 6.49 | 6.48 | 6.48 | 6.53 |
+| halfcheetah-medium-v2 | 6.63 | 6.62 | 6.65 | 6.65 |
+| halfcheetah-medium-replay-v2 | 7.19 | 7.18 | 7.17 | — |
+| halfcheetah-medium-expert-v2 | 6.78 | 6.80 | 6.74 | — |
