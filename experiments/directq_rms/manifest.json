@@ -1,0 +1,86 @@
+[
+  {
+    "id": "h-mr_directq_rms_a5_s0",
+    "env": "hopper-medium-replay-v2",
+    "seed": 0,
+    "config": "experiments/directq_rms/h-mr.yaml",
+    "alpha_lr": 0.002
+  },
+  {
+    "id": "h-mr_directq_rms_a5_s1",
+    "env": "hopper-medium-replay-v2",
+    "seed": 1,
+    "config": "experiments/directq_rms/h-mr.yaml",
+    "alpha_lr": 0.002
+  },
+  {
+    "id": "h-mr_directq_rms_a5_s2",
+    "env": "hopper-medium-replay-v2",
+    "seed": 2,
+    "config": "experiments/directq_rms/h-mr.yaml",
+    "alpha_lr": 0.002
+  },
+  {
+    "id": "h-mr_directq_rms_a5_s3",
+    "env": "hopper-medium-replay-v2",
+    "seed": 3,
+    "config": "experiments/directq_rms/h-mr.yaml",
+    "alpha_lr": 0.002
+  },
+  {
+    "id": "w-mr_directq_rms_a5_s0",
+    "env": "walker2d-medium-replay-v2",
+    "seed": 0,
+    "config": "experiments/directq_rms/w-mr.yaml",
+    "alpha_lr": 0.002
+  },
+  {
+    "id": "w-mr_directq_rms_a5_s1",
+    "env": "walker2d-medium-replay-v2",
+    "seed": 1,
+    "config": "experiments/directq_rms/w-mr.yaml",
+    "alpha_lr": 0.002
+  },
+  {
+    "id": "w-mr_directq_rms_a5_s2",
+    "env": "walker2d-medium-replay-v2",
+    "seed": 2,
+    "config": "experiments/directq_rms/w-mr.yaml",
+    "alpha_lr": 0.002
+  },
+  {
+    "id": "w-mr_directq_rms_a5_s3",
+    "env": "walker2d-medium-replay-v2",
+    "seed": 3,
+    "config": "experiments/directq_rms/w-mr.yaml",
+    "alpha_lr": 0.002
+  },
+  {
+    "id": "am-md_directq_rms_a5_s0",
+    "env": "antmaze-medium-diverse-v2",
+    "seed": 0,
+    "config": "experiments/directq_rms/am-md.yaml",
+    "alpha_lr": 0.0003
+  },
+  {
+    "id": "am-md_directq_rms_a5_s1",
+    "env": "antmaze-medium-diverse-v2",
+    "seed": 1,
+    "config": "experiments/directq_rms/am-md.yaml",
+    "alpha_lr": 0.0003
+  },
+  {
+    "id": "am-md_directq_rms_a5_s2",
+    "env": "antmaze-medium-diverse-v2",
+    "seed": 2,
+    "config": "experiments/directq_rms/am-md.yaml",
+    "alpha_lr": 0.0003
+  },
+  {
+    "id": "am-md_directq_rms_a5_s3",
+    "env": "antmaze-medium-diverse-v2",
+    "seed": 3,
+    "config": "experiments/directq_rms/am-md.yaml",
+    "alpha_lr": 0.0003
+  }
+]

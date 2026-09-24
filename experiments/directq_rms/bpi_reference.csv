@@ -1,0 +1,13 @@
+env,seed,meta_lr,primary_score,run_id,log_ref,rel_path
+antmaze-medium-diverse-v2,0,0.0003,46.0,ammd_s0_alr0p0003__9cacbac2,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/antmaze-medium-diverse-v2/3e-4/seed_0/ammd_s0_alr0p0003__9cacbac2
+antmaze-medium-diverse-v2,1,0.0003,66.0,ammd_s1_alr0p0003__0b2e9890,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/antmaze-medium-diverse-v2/3e-4/seed_1/ammd_s1_alr0p0003__0b2e9890
+antmaze-medium-diverse-v2,2,0.0003,44.0,ammd_s2_alr0p0003__ebf52050,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/antmaze-medium-diverse-v2/3e-4/seed_2/ammd_s2_alr0p0003__ebf52050
+antmaze-medium-diverse-v2,3,0.0003,80.0,ammd_s3_alr0p0003__2f4c9825,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/antmaze-medium-diverse-v2/3e-4/seed_3/ammd_s3_alr0p0003__2f4c9825
+hopper-medium-replay-v2,0,0.002,101.19946624195475,hopmr_s0_alr0p002__997ccb3e,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/hopper-medium-replay-v2/2e-3/seed_0/hopmr_s0_alr0p002__997ccb3e
+hopper-medium-replay-v2,1,0.002,100.85252972878318,hopmr_s1_alr0p002__b4f2e4b5,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/hopper-medium-replay-v2/2e-3/seed_1/hopmr_s1_alr0p002__b4f2e4b5
+hopper-medium-replay-v2,2,0.002,102.08340161980594,hopmr_s2_alr0p002__956635a7,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/hopper-medium-replay-v2/2e-3/seed_2/hopmr_s2_alr0p002__956635a7
+hopper-medium-replay-v2,3,0.002,101.9482668602954,hopmr_s3_alr0p002__eed8338e,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/hopper-medium-replay-v2/2e-3/seed_3/hopmr_s3_alr0p002__eed8338e
+walker2d-medium-replay-v2,0,0.002,96.06154592096794,wmr_s0_alr0p002__051d70e1,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/walker2d-medium-replay-v2/2e-3/seed_0/wmr_s0_alr0p002__051d70e1
+walker2d-medium-replay-v2,1,0.002,99.04722819319953,wmr_s1_alr0p002__d91218bc,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/walker2d-medium-replay-v2/2e-3/seed_1/wmr_s1_alr0p002__d91218bc
+walker2d-medium-replay-v2,2,0.002,98.10510160035057,wmr_s2_alr0p002__74fcc4e8,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/walker2d-medium-replay-v2/2e-3/seed_2/wmr_s2_alr0p002__74fcc4e8
+walker2d-medium-replay-v2,3,0.002,98.9062941556532,wmr_s3_alr0p002__c63f846d,7dc053ccb93c5a1f61176e9a98735b3c62a8186f,main/td3_amo/walker2d-medium-replay-v2/2e-3/seed_3/wmr_s3_alr0p002__c63f846d

@@ -1,0 +1,18 @@
+{
+  "source_commit": "c5bffd388f4cc5c504dc533b72df312d9a18c6b7",
+  "git_blob_sha1": {
+    "algorithms/jax/td3_amo.py": "3630d4c761b57802d1971a1c2d03f4aa9f69fdb0",
+    "common/__init__.py": "91597dc65ef3bda5db1f228f79d87601ca7ac4fe",
+    "common/agent.py": "0b382b3d07cf34f5af2036b6dbb791ccdbd73194",
+    "common/config.py": "dcd85354c87d17ece3dbbd14e731b34a3f629ab7",
+    "common/data.py": "44cc4ed87b145b1328ca70963b6a55777027f82c",
+    "common/jax_backend.py": "31a29eb85760c508eb7fd2e93fede31ba70a133e",
+    "common/networks.py": "b12d2cecab24c86c6c1e110c53188f86abd2dbc7",
+    "common/optim.py": "ee9b7435f50d3298916da832ad57e2700269ab1e",
+    "common/tape_io.py": "270ad9c4d0b0b772dc2d58e7d9f150b7494dcea1",
+    "common/torch_backend.py": "e879064b4dc35759b5aa46aea4a0b43c5f2f684f",
+    "common/tree.py": "e2b48db7c1a76ec15eaf027dcf9bd21fb41b0a2a",
+    "scripts/eval_checkpoints_cpu.py": "df6b16148220fda53469e7937d50b4318f93c485",
+    "train.py": "7ff50ec873937f48ab5c8cdf204b200c201607e7"
+  }
+}
