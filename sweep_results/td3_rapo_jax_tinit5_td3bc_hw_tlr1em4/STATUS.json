@@ -1,0 +1,39 @@
+{
+  "updated_at": "2026-09-24 20:32:28 UTC+09:00",
+  "algorithm": "td3_amo",
+  "variant": "rapo",
+  "backend": "jax",
+  "alpha_E": 5.0,
+  "alpha_B": 5.0,
+  "critic_depth": 2,
+  "critic_layernorm": false,
+  "critic_target": "actor",
+  "bootstrap_loss": "l2_rms",
+  "alpha_lrs": [
+    "1e-4"
+  ],
+  "queue_order": "alpha_lr=1e-4, seed 0-3, hopper then walker",
+  "envs": [
+    "hopper-medium-v2",
+    "hopper-medium-replay-v2",
+    "hopper-medium-expert-v2",
+    "walker2d-medium-v2",
+    "walker2d-medium-replay-v2",
+    "walker2d-medium-expert-v2"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "total": 24,
+  "trained_1m": 0,
+  "scored_1m": 0,
+  "counts": {
+    "pending": 22,
+    "running": 2
+  },
+  "source": "/home/shchoi/AMO_td3-amo-bootrms/results/td3_rapo_jax_tinit5_td3bc_hw_tlr1em4_s03/runs",
+  "eval": "CPU posthoc 10x5 at 1M"
+}
