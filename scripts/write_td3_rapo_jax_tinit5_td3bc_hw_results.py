@@ -192,7 +192,7 @@ def am_hc_section(rows: list[dict]) -> list[str]:
         "",
         "Same critic (2-layer, no LayerNorm, target π_E), α_E=α_B=5, α_lr 3e-4 only. "
         "1e-3 and 2e-3 were not trained. CPU eval 10×5 at 1M. "
-        "A blank cell has no final eval. 0.0 is a recorded score. "
+        "A blank cell did not reach 1M, so it has no final eval. 0.0 is a recorded score. "
         f"Trained {trained}/{len(rows)}, scored {scored}/{len(rows)}.",
         "",
         "| env | s0 | s1 | s2 | s3 |",
@@ -251,6 +251,13 @@ def write_summary_md(rows: list[dict], status: dict) -> str:
 
 
 def write() -> dict:
+    summary_path = OUT / "SUMMARY.md"
+    existing = summary_path.read_text(encoding="utf-8") if summary_path.is_file() else ""
+    if "## Final α_E" in existing:
+        head = existing.split("## antmaze / halfcheetah")[0].rstrip()
+        section = "\n".join(am_hc_section(load_am_hc(OUT / "am_hc_3e4.csv"))).lstrip("\n")
+        summary_path.write_text(head + "\n\n" + section, encoding="utf-8")
+        return {"preserved_hopper_tables": True, "wrote": str(summary_path)}
     rows, status = collect()
     OUT.mkdir(parents=True, exist_ok=True)
     csv_path = OUT / "scores_long.csv"
@@ -281,7 +288,10 @@ def write() -> dict:
 
 if __name__ == "__main__":
     payload = write()
-    print(
-        f"[td3_rapo hw] trained={payload['trained_1m']}/{payload['total']} "
-        f"scored={payload['scored_1m']} wrote {OUT}"
-    )
+    if "trained_1m" in payload:
+        print(
+            f"[td3_rapo hw] trained={payload['trained_1m']}/{payload['total']} "
+            f"scored={payload['scored_1m']} wrote {OUT}"
+        )
+    else:
+        print(f"[td3_rapo hw] refreshed antmaze/halfcheetah section wrote {OUT}")
