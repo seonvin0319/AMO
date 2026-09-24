@@ -5,11 +5,12 @@ set -euo pipefail
 
 ROOT=/home/shchoi/AMO_td3-amo-bootrms
 PY=/home/shchoi/miniconda3/envs/offrl/bin/python
-LOCK=$ROOT/.git/rapo_results_push.lock
 RESULTS=sweep_results/td3_rapo_jax_tinit5_td3bc_hw
 export PATH="/home/shchoi/miniconda3/bin:$PATH"
 export GIT_EXEC_PATH=/home/shchoi/miniconda3/libexec/git-core
 export GIT_TEMPLATE_DIR=/home/shchoi/miniconda3/share/git-core/templates
+GIT_DIR=$(git -C "$ROOT" rev-parse --git-dir)
+LOCK=$GIT_DIR/rapo_results_push.lock
 
 exec 9>"$LOCK"
 if ! flock -w 180 9; then
