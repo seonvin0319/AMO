@@ -155,6 +155,59 @@ def collect() -> tuple[list[dict], dict]:
     return rows, status
 
 
+AM_HC_ENVS = (
+    "antmaze-umaze-v2",
+    "antmaze-umaze-diverse-v2",
+    "antmaze-medium-play-v2",
+    "antmaze-medium-diverse-v2",
+    "antmaze-large-play-v2",
+    "antmaze-large-diverse-v2",
+    "halfcheetah-medium-v2",
+    "halfcheetah-medium-replay-v2",
+    "halfcheetah-medium-expert-v2",
+)
+
+
+def load_am_hc(path: Path) -> list[dict]:
+    if not path.is_file():
+        return []
+    with path.open(encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def am_hc_section(rows: list[dict]) -> list[str]:
+    if not rows:
+        return []
+    by: dict[tuple[str, int], str] = {}
+    trained = scored = 0
+    for row in rows:
+        seed = int(row["seed"])
+        by[(row["env"], seed)] = row.get("normalized_score") or ""
+        trained += int(row.get("trained_1m") or 0)
+        if row.get("normalized_score"):
+            scored += 1
+    lines = [
+        "",
+        "## antmaze / halfcheetah",
+        "",
+        "Same critic (2-layer, no LayerNorm, target π_E), α_E=α_B=5, α_lr 3e-4 only. "
+        "1e-3 and 2e-3 were not trained. CPU eval 10×5 at 1M. "
+        "A blank cell has no final eval. 0.0 is a recorded score. "
+        f"Trained {trained}/{len(rows)}, scored {scored}/{len(rows)}.",
+        "",
+        "| env | s0 | s1 | s2 | s3 |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for env in AM_HC_ENVS:
+        cells = [env]
+        for seed in SEEDS:
+            raw = by.get((env, seed), "")
+            cells.append("—" if raw == "" else f"{float(raw):.1f}")
+        lines.append("| " + " | ".join(cells) + " |")
+    lines.append("")
+    return lines
+
+
 def write_summary_md(rows: list[dict], status: dict) -> str:
     by: dict[tuple[str, str, int], float] = {}
     for row in rows:
@@ -193,7 +246,7 @@ def write_summary_md(rows: list[dict], status: dict) -> str:
             parts = "/".join(f"{v:.1f}" for _, v in vals)
             cells.append(f"{mu:.1f} ({parts})")
         lines.append("| " + " | ".join(cells) + " |")
-    lines.append("")
+    lines.extend(am_hc_section(load_am_hc(OUT / "am_hc_3e4.csv")))
     return "\n".join(lines)
 
 
@@ -217,6 +270,8 @@ def write() -> dict:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         writer.writerows(rows)
+        for extra in load_am_hc(OUT / "am_hc_3e4.csv"):
+            writer.writerow({key: extra.get(key, "") for key in fields})
     (OUT / "STATUS.json").write_text(
         json.dumps(status, indent=2) + "\n", encoding="utf-8"
     )

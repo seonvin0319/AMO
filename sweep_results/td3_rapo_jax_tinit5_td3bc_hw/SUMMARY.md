@@ -14,3 +14,19 @@ Trained 72/72, scored 72/72.
 | walker2d-medium-v2 | 1.8 (1.7/1.7/1.9/2.0) | 12.1 (1.8/1.8/42.8/2.0) | 13.5 (1.9/2.2/50.1/-0.2) |
 | walker2d-medium-replay-v2 | 59.2 (64.9/10.7/78.9/82.2) | 36.7 (22.4/73.3/31.7/19.6) | 66.4 (84.4/92.5/77.9/10.9) |
 | walker2d-medium-expert-v2 | 7.9 (2.2/-0.1/0.0/29.4) | 35.0 (1.2/30.0/97.8/11.0) | 29.7 (-0.1/44.1/71.1/3.5) |
+
+## antmaze / halfcheetah
+
+Same critic (2-layer, no LayerNorm, target π_E), α_E=α_B=5, α_lr 3e-4 only. 1e-3 and 2e-3 were not trained. CPU eval 10×5 at 1M. A blank cell has no final eval. 0.0 is a recorded score. Trained 34/36, scored 12/36.
+
+| env | s0 | s1 | s2 | s3 |
+|---|---:|---:|---:|---:|
+| antmaze-umaze-v2 | 30.0 | 0.0 | — | — |
+| antmaze-umaze-diverse-v2 | 16.0 | 0.0 | — | — |
+| antmaze-medium-play-v2 | 0.0 | 0.0 | — | — |
+| antmaze-medium-diverse-v2 | 0.0 | — | — | — |
+| antmaze-large-play-v2 | 0.0 | — | — | — |
+| antmaze-large-diverse-v2 | 18.0 | — | — | — |
+| halfcheetah-medium-v2 | 49.4 | — | — | — |
+| halfcheetah-medium-replay-v2 | 46.5 | — | — | — |
+| halfcheetah-medium-expert-v2 | 63.7 | — | — | — |
