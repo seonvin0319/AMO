@@ -64,10 +64,10 @@ walker2d-medium-v2,w-m,3e-4,3em4,1,1000000,1,2.217715,50,td3rapo_jax_t5_tlr3em4_
 walker2d-medium-v2,w-m,3e-4,3em4,2,0,0,,,td3rapo_jax_t5_tlr3em4_w-m_s2
 walker2d-medium-v2,w-m,3e-4,3em4,3,0,0,,,td3rapo_jax_t5_tlr3em4_w-m_s3
 walker2d-medium-replay-v2,w-mr,3e-4,3em4,0,1000000,1,84.376179,50,td3rapo_jax_t5_tlr3em4_w-mr_s0
-walker2d-medium-replay-v2,w-mr,3e-4,3em4,1,466400,0,,,td3rapo_jax_t5_tlr3em4_w-mr_s1
+walker2d-medium-replay-v2,w-mr,3e-4,3em4,1,919600,0,,,td3rapo_jax_t5_tlr3em4_w-mr_s1
 walker2d-medium-replay-v2,w-mr,3e-4,3em4,2,0,0,,,td3rapo_jax_t5_tlr3em4_w-mr_s2
 walker2d-medium-replay-v2,w-mr,3e-4,3em4,3,0,0,,,td3rapo_jax_t5_tlr3em4_w-mr_s3
 walker2d-medium-expert-v2,w-me,3e-4,3em4,0,1000000,1,-0.092982,50,td3rapo_jax_t5_tlr3em4_w-me_s0
-walker2d-medium-expert-v2,w-me,3e-4,3em4,1,118400,0,,,td3rapo_jax_t5_tlr3em4_w-me_s1
+walker2d-medium-expert-v2,w-me,3e-4,3em4,1,562200,0,,,td3rapo_jax_t5_tlr3em4_w-me_s1
 walker2d-medium-expert-v2,w-me,3e-4,3em4,2,0,0,,,td3rapo_jax_t5_tlr3em4_w-me_s2
 walker2d-medium-expert-v2,w-me,3e-4,3em4,3,0,0,,,td3rapo_jax_t5_tlr3em4_w-me_s3
