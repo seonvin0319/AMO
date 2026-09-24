@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-09-24 20:41:52 UTC+09:00",
+  "updated_at": "2026-09-24 20:44:37 UTC+09:00",
   "algorithm": "td3_amo",
   "variant": "rapo",
   "backend": "jax",
-  "alpha_E": 5.0,
-  "alpha_B": 5.0,
+  "alpha_E_init": 5.0,
+  "alpha_B_init": 5.0,
   "critic_depth": 2,
   "critic_layernorm": false,
   "critic_target": "actor",
@@ -12,9 +12,10 @@
   "alpha_lrs": [
     "2e-3",
     "1e-3",
-    "3e-4"
+    "3e-4",
+    "1e-4"
   ],
-  "queue_order": "alpha_lr 2e-3 then 1e-3 then 3e-4, seed 0-3, hopper then walker",
+  "queue_order": "72-job 2e-3>1e-3>3e-4 done; live \u03b1_lr=1e-4 seed 0-3 hopper then walker",
   "envs": [
     "hopper-medium-v2",
     "hopper-medium-replay-v2",
@@ -29,12 +30,18 @@
     2,
     3
   ],
-  "total": 72,
-  "trained_1m": 72,
-  "scored_1m": 72,
+  "total": 96,
+  "trained_1m": 74,
+  "scored_1m": 73,
   "counts": {
-    "completed": 72
+    "completed": 74,
+    "pending": 20,
+    "running": 2
   },
-  "source": "/home/shchoi/AMO_td3-amo-bootrms/results/td3_rapo_jax_tinit5_td3bc_hw_s03/runs",
-  "eval": "CPU posthoc 10x5 at 1M"
+  "source": [
+    "/home/shchoi/AMO_td3-amo-bootrms/results/td3_rapo_jax_tinit5_td3bc_hw_s03/runs",
+    "/home/shchoi/AMO_td3-amo-bootrms/results/td3_rapo_jax_tinit5_td3bc_hw_tlr1em4_s03/runs"
+  ],
+  "eval": "CPU posthoc 10x5 at 1M",
+  "final_alpha": "last metrics.jsonl alpha_E/alpha_B at 1M"
 }
