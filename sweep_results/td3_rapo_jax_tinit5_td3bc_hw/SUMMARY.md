@@ -1,6 +1,6 @@
 # TD3 RAPO hopper-walker
 
-Updated 2026-09-25 13:36:51 UTC+09:00.
+Updated 2026-09-25 13:46:53 UTC+09:00.
 
 π_E −B_π, π_B L2 RMS, critic 2-layer no LayerNorm, target π_E, α_E=α_B init 5, seeds 0–3, CPU eval 10×5 at 1M. Final α is the last `metrics.jsonl` α_E / α_B at 1M.
 
