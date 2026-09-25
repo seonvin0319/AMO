@@ -1,0 +1,54 @@
+{
+  "updated_at": "2026-09-25 10:09:37 UTC+09:00",
+  "algorithm": "td3_amo",
+  "variant": "first_order",
+  "backend": "jax",
+  "execution_score": "first_order",
+  "alpha_E_init": 5.0,
+  "alpha_B_init": 5.0,
+  "critic_depth": 3,
+  "critic_layernorm": true,
+  "critic_target": "bootstrap",
+  "bootstrap_loss": "l2_rms",
+  "execution_meta_loss": "le",
+  "execution_only": false,
+  "reward_transform": "none",
+  "alpha_lrs": {
+    "locomotion": "2e-3",
+    "antmaze": "3e-4"
+  },
+  "skipped": [
+    "hopper-medium-replay-v2",
+    "walker2d-medium-replay-v2",
+    "antmaze-medium-diverse-v2"
+  ],
+  "envs": [
+    "halfcheetah-medium-v2",
+    "halfcheetah-medium-replay-v2",
+    "halfcheetah-medium-expert-v2",
+    "hopper-medium-v2",
+    "hopper-medium-expert-v2",
+    "walker2d-medium-v2",
+    "walker2d-medium-expert-v2",
+    "antmaze-umaze-v2",
+    "antmaze-umaze-diverse-v2",
+    "antmaze-medium-play-v2",
+    "antmaze-large-play-v2",
+    "antmaze-large-diverse-v2"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "total": 48,
+  "trained_1m": 48,
+  "scored_1m": 48,
+  "counts": {
+    "completed": 48
+  },
+  "source": "/home/shchoi/AMO_td3-amo-bootrms/results/td3_amo_firstorder_a5_s03/runs",
+  "eval": "CPU posthoc 10x5 at 1M",
+  "final_alpha": "last metrics.jsonl alpha_E/alpha_B at 1M"
+}

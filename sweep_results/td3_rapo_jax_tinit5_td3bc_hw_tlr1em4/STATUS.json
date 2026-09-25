@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-24 20:42:34 UTC+09:00",
+  "updated_at": "2026-09-25 10:09:37 UTC+09:00",
   "algorithm": "td3_amo",
   "variant": "rapo",
   "backend": "jax",
@@ -28,11 +28,10 @@
     3
   ],
   "total": 24,
-  "trained_1m": 0,
-  "scored_1m": 0,
+  "trained_1m": 24,
+  "scored_1m": 24,
   "counts": {
-    "pending": 22,
-    "running": 2
+    "completed": 24
   },
   "source": "/home/shchoi/AMO_td3-amo-bootrms/results/td3_rapo_jax_tinit5_td3bc_hw_tlr1em4_s03/runs",
   "eval": "CPU posthoc 10x5 at 1M"
