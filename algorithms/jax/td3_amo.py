@@ -157,19 +157,21 @@ class Agent(BaseAgent):
                         return l_e + l2_e
                     return l_e
 
-                state, logs["L_alpha_E"] = self.update_network(
-                    state, "scale_E", execution_meta, lr
-                )
-                frozen_state = state
+                if not c.get("freeze_scale_E", False):
+                    state, logs["L_alpha_E"] = self.update_network(
+                        state, "scale_E", execution_meta, lr
+                    )
+                    frozen_state = state
                 l1, l2_rms, l2_sq = self.bootstrap_terms(
                     state["p"]["scale_B"], state, batch, outer
                 )
-                state, logs["L_alpha_B"] = self.update_network(
-                    state,
-                    "scale_B",
-                    lambda p: self.bootstrap_outer(p, frozen_state, batch, outer),
-                    lr,
-                )
+                if not c.get("freeze_scale_B", False):
+                    state, logs["L_alpha_B"] = self.update_network(
+                        state,
+                        "scale_B",
+                        lambda p: self.bootstrap_outer(p, frozen_state, batch, outer),
+                        lr,
+                    )
                 logs.update(L1_B=l1, L2_RMS_B=l2_rms, L2_B=l2_sq)
         if execution_only:
             critic = map_tree(o.stop, state["p"]["critic"])

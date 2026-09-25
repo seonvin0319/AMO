@@ -1,0 +1,33 @@
+# TD3+RAPO Fixed-1. alpha_B stays at 1. alpha_E adapts. alpha_lr is per cell.
+defaults:
+  alpha_E: 5
+  alpha_B: 1
+  alpha_lr: 0.0003
+  freeze_scale_E: false
+  freeze_scale_B: true
+  execution_only: false
+  execution_meta_loss: le
+  execution_score: bpi
+  bootstrap_loss: l2_rms
+  critic_target: bootstrap
+  actor_depth: 2
+  critic_depth: 3
+  critic_layernorm: true
+  critic_special_init: true
+  hidden_dim: 256
+  actor_lr: 0.0003
+  critic_lr: 0.0003
+  batch_size: 256
+  discount: 0.99
+  tau: 0.005
+  policy_freq: 2
+  policy_noise: 0.2
+  noise_clip: 0.5
+  normalize: true
+  reward_transform: none
+  meta_interval: 20
+  smoothness_eps: 1.0e-6
+  max_steps: 1000000
+antmaze:
+  reward_transform: none
+  eval_episodes: 100

@@ -73,6 +73,11 @@ DEFAULTS = {
         "execution_score": "bpi",
         "execution_only": False,
         "execution_meta_loss": "le",
+        # freeze_scale_* skips that coefficient's Adam step. The bootstrap
+        # actor still trains. critic_target selects the Bellman actor.
+        "freeze_scale_E": False,
+        "freeze_scale_B": False,
+        "critic_target": "bootstrap",
     },
     "a2pr": {
         **TD3,
@@ -237,6 +242,12 @@ def load_config(algorithm, env, path=None, overrides=None):
             raise ValueError("execution_only ablation keeps execution_score=bpi")
         if config.get("execution_meta_loss") not in ("le", "le_l2_rms"):
             raise ValueError("execution_meta_loss must be 'le' or 'le_l2_rms'")
+        if not isinstance(config.get("freeze_scale_E"), bool) or not isinstance(
+            config.get("freeze_scale_B"), bool
+        ):
+            raise ValueError("freeze_scale_E and freeze_scale_B must be bools")
+        if config.get("critic_target") not in ("bootstrap", "execution"):
+            raise ValueError("critic_target must be 'bootstrap' or 'execution'")
     if algorithm == "iql_ddpgbc_amo":
         if config["alpha_lr"] <= 0 or config["meta_warmup_steps"] < 0:
             raise ValueError("alpha_lr must be positive and warmup nonnegative")

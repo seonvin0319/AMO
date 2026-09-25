@@ -205,11 +205,16 @@ class BaseAgent:
         return state, {"critic_loss": loss}, target, next_action
 
     def update_targets(self, state, actor_params=None):
-        source = (
-            state["p"].get("bootstrap", state["p"]["actor"])
-            if actor_params is None
-            else actor_params
-        )
+        if actor_params is not None:
+            source = actor_params
+        elif self.c.get("critic_target", "bootstrap") == "execution":
+            source = state["p"]["actor"]
+        elif self.c.get("critic_target", "bootstrap") == "bootstrap":
+            source = state["p"].get("bootstrap", state["p"]["actor"])
+        else:
+            raise ValueError(
+                f"critic_target must be bootstrap or execution, got {self.c.get('critic_target')}"
+            )
         return {
             **state,
             "target": {
