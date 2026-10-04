@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-04 09:03:28 UTC+09:00",
+  "updated_at": "2026-10-04 09:13:30 UTC+09:00",
   "algorithm": "td3_amo",
   "variant": "rapo",
   "backend": "jax",
